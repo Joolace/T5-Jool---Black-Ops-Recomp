@@ -63,8 +63,9 @@ Use the **Logs** button in the launcher to save the logs, then share them on [Di
 - [x] LAN co-op with discovery and join in progress
 - [ ] Rumble, gyro aiming, mouse and keyboard on Android
 - [ ] Mali GPU support
+- [ ] Multiplayer: dedicated servers and online play
+- [ ] Mods: custom maps, scripts and engine mods
 - [ ] Source code release
-- [ ] Multiplayer Online
 
 ## Source code
 
