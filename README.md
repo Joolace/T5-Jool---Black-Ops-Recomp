@@ -14,6 +14,9 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 
 ---
 
+> [!CAUTION]
+> **Alpha software, still in development.** Expect bugs, crashes and missing features. Save often, keep your expectations low, and please report what you find.
+
 > [!IMPORTANT]
 > T5Jool does **not** include any game files. You need your own legal copy of *Call of Duty: Black Ops* for PC.
 
@@ -32,17 +35,32 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 | | Android | Linux |
 |---|---|---|
 | Architecture | arm64 | x86_64 |
-| GPU | Adreno (Turnip recommended) | Any Vulkan GPU |
-| Tested on | AYN Odin 3 Pro | Linux laptop |
+| GPU | Adreno with a Turnip driver (required) | Any Vulkan GPU |
+| Tested on | AYN Odin 3 Pro | Acer Nitro V16 (Ubuntu, NVIDIA GPU) |
 
 Mali support is planned.
+
+### Tested setup
+
+| | |
+|---|---|
+| Device | **AYN Odin 3 Pro**: Snapdragon 8 Elite, Adreno 830, Android 15 |
+| GPU drivers | Turnip by [Mr Purple (purple-turnip)](https://github.com/MrPurple666/purple-turnip/releases) and the Turnip builds by [StevenMXZ](https://github.com/StevenMXZ/Adreno-Tools-Drivers/releases) (e.g. Turnip Gen8 V39) |
+| Game language | **English**. Other languages should work but have been tested much less |
+| Linux | Acer Nitro V16, Ubuntu, NVIDIA GPU |
+
+Other devices may work but have not been tested yet: reports are welcome.
 
 ## Install (Android)
 
 1. Copy your PC installation of Black Ops (the folder with `zone` and `main`) to the device.
 2. Download the latest APK from [Releases](https://github.com/Joolace/T5Jool/releases) and install it.
-3. Open the launcher, go to Settings and choose the game folder.
-4. Tap **Zombies** or **Dead Ops Arcade**.
+3. **Install a Turnip driver** (required on Adreno): the first time you press Play the launcher offers to download one. Pick a driver from Mr Purple or StevenMXZ and it is installed automatically. You can change it later in Settings > Download a driver, or import your own `.zip`.
+4. In Settings choose the game folder.
+5. Tap **Zombies** or **Dead Ops Arcade**.
+
+> [!WARNING]
+> The stock Qualcomm Vulkan driver does not work yet: the game closes at startup. Use Turnip.
 
 The first launch compiles shaders, so the first minutes can stutter a little.
 
@@ -76,6 +94,7 @@ The source code is not published yet. It will be released later.
 - **Joolace**: development
 - **MisaDev4**: [bo1-zombies-decompiled](https://github.com/MisaDev4/bo1-zombies-decompiled), the base of this port
 - **iloupv**: contributions
+- **[Mr Purple](https://github.com/MrPurple666/purple-turnip)** and **[StevenMXZ](https://github.com/StevenMXZ/Adreno-Tools-Drivers)**: the Turnip drivers T5Jool is tested with
 - [SDL2](https://www.libsdl.org/), [DXVK](https://github.com/doitsujin/dxvk), [Mesa Turnip](https://docs.mesa3d.org/drivers/freedreno.html)
 
 ## Disclaimer

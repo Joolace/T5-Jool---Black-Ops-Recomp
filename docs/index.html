@@ -65,6 +65,8 @@ nav .links a:hover{color:var(--text)}
 .btn.primary{background:var(--red);border-color:var(--red);box-shadow:0 10px 40px -10px var(--redglow)}
 .btn.primary:hover{background:var(--red2);box-shadow:0 14px 50px -8px rgba(255,74,61,.5)}
 .btn svg{width:18px;height:18px}
+.alpha-note{margin-top:22px;font:500 13px "JetBrains Mono";color:#ffb3a8;opacity:0;animation:fade .8s 2.1s forwards}
+.alpha-note b{background:var(--red);color:#fff;padding:2px 8px;border-radius:5px;margin-right:4px;letter-spacing:.08em}
 .badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:28px;opacity:0;animation:fade .8s 2.2s forwards}
 .badge{font:500 12px "JetBrains Mono";color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
 .badge b{color:var(--red2);font-weight:500}
@@ -202,6 +204,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
         Join the Discord
       </a>
     </div>
+    <p class="alpha-note"><b>Alpha</b> · in active development · expect bugs and crashes</p>
     <div class="badges">
       <span class="badge"><b>●</b> v0.1-alpha</span>
       <span class="badge">Linux x86_64</span>
@@ -243,14 +246,14 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
     <div class="reveal">
       <div class="kicker">// Where it runs</div>
       <h2>Desktop and handheld</h2>
-      <p class="lead">Tested daily on a Linux laptop and on the AYN Odin 3 Pro.</p>
+      <p class="lead">Tested daily on the AYN Odin 3 Pro and on a Linux laptop, mainly with the English version of the game.</p>
     </div>
     <div class="split">
       <div class="plat reveal">
         <h3>Android <span class="tag">ARM64</span></h3>
         <ul>
           <li>Android 10 or newer, arm64</li>
-          <li>Adreno GPUs, Turnip driver recommended (custom drivers loadable from the launcher)</li>
+          <li>Adreno GPUs with a Turnip driver (required, downloaded by the launcher)</li>
           <li>Launcher with resolution, upscaler, FPS limit, V-Sync, controls and logs</li>
           <li>Crash reports collected for you, ready to share</li>
           <li>Mali support is on the roadmap</li>
@@ -270,17 +273,34 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
   </div>
 </section>
 
+<section id="tested">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// Tested setup</div>
+      <h2>What it was tested on</h2>
+      <p class="lead">Other devices may work but have not been tested yet. Reports are welcome.</p>
+    </div>
+    <div class="grid">
+      <div class="card reveal"><h3>AYN Odin 3 Pro</h3><p>Snapdragon 8 Elite, Adreno 830, Android 15.</p></div>
+      <div class="card reveal"><h3>Turnip drivers</h3><p>By <a href="https://github.com/MrPurple666/purple-turnip/releases">Mr Purple</a> and the Turnip builds by <a href="https://github.com/StevenMXZ/Adreno-Tools-Drivers/releases">StevenMXZ</a>.</p></div>
+      <div class="card reveal"><h3>English game files</h3><p>The game was tested mainly in English. Other languages should work but have been tested much less.</p></div>
+      <div class="card reveal"><h3>Linux</h3><p>Acer Nitro V16, Ubuntu, NVIDIA GPU.</p></div>
+    </div>
+  </div>
+</section>
+
 <section id="install">
   <div class="wrap">
     <div class="reveal">
       <div class="kicker">// Getting started</div>
-      <h2>Install in four steps</h2>
+      <h2>Install in five steps</h2>
       <p class="lead">T5Jool does not include any game files. You need your own legal copy of Call of Duty: Black Ops for PC.</p>
     </div>
     <div class="steps">
       <div class="step reveal"><div><h4>Get the game files</h4><p>Copy the folder of your PC installation of Black Ops (with <code>zone</code> and <code>main</code>) to your device.</p></div></div>
       <div class="step reveal"><div><h4>Install T5Jool</h4><p>Download the latest APK from the Releases page and install it.</p></div></div>
-      <div class="step reveal"><div><h4>Point the launcher to the game</h4><p>Open Settings in the launcher and choose the game folder. Pick a GPU driver if you use a custom one.</p></div></div>
+      <div class="step reveal"><div><h4>Install a Turnip driver</h4><p>The stock Qualcomm driver does not work yet. The first time you press Play the launcher offers to download a Turnip driver from Mr Purple or StevenMXZ and installs it for you.</p></div></div>
+      <div class="step reveal"><div><h4>Point the launcher to the game</h4><p>Open Settings in the launcher and choose the game folder.</p></div></div>
       <div class="step reveal"><div><h4>Play</h4><p>Tap Zombies or Dead Ops Arcade. The first launch builds the shader cache, so the first minutes can stutter a little.</p></div></div>
     </div>
   </div>
@@ -312,9 +332,11 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
       <div class="kicker">// Questions</div>
       <h2>FAQ</h2>
     </div>
+    <details class="reveal"><summary>Is it stable?</summary><p>Not yet. T5Jool is alpha software in active development: you may run into bugs, crashes and missing features. Every report helps, use Settings &gt; Report a problem in the launcher.</p></details>
     <details class="reveal"><summary>Does T5Jool include the game?</summary><p>No. It contains no Activision assets. It only runs the files of a copy of Black Ops that you own.</p></details>
     <details class="reveal"><summary>Is this multiplayer or campaign?</summary><p>Zombies and Dead Ops Arcade only. Co-op works over your local network.</p></details>
     <details class="reveal"><summary>Which devices are supported?</summary><p>Android arm64 devices with an Adreno GPU work best today. It is developed on an AYN Odin 3 Pro (Snapdragon 8 Elite). Linux x86_64 with a Vulkan GPU is supported too.</p></details>
+    <details class="reveal"><summary>The game closes right after starting</summary><p>On Adreno devices you need a Turnip driver: the stock Qualcomm Vulkan driver is not supported yet. Install one from Settings &gt; Download a driver.</p></details>
     <details class="reveal"><summary>Why does it stutter the first time?</summary><p>Shaders are compiled the first time they are needed and then saved. After a match or two the game runs smoothly.</p></details>
     <details class="reveal"><summary>Where is the source code?</summary><p>It will be released later. Follow the Discord for news.</p></details>
     <details class="reveal"><summary>How do I report a bug?</summary><p>Use the Logs button in the launcher to save the logs and share them on Discord or in a GitHub issue.</p></details>
@@ -337,7 +359,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
   <div class="wrap">
     <div class="row">
       <div class="brand"><img src="assets/logo.png" alt="">T5JOOL</div>
-      <div>Developed by <b style="color:var(--text)">Joolace</b> · Based on bo1-zombies-decompiled by MisaDev4 · Built with SDL2, DXVK and Vulkan</div>
+      <div>Developed by <b style="color:var(--text)">Joolace</b> · Based on bo1-zombies-decompiled by MisaDev4 · Turnip drivers by Mr Purple and StevenMXZ · Built with SDL2, DXVK and Vulkan</div>
     </div>
     <p>T5Jool is a fan project, not affiliated with or endorsed by Activision, Treyarch or Microsoft. Call of Duty and Black Ops are trademarks of their respective owners. No game files are distributed; a legally owned copy of the game is required.</p>
   </div>
