@@ -7,7 +7,7 @@
 A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 
 <p align="center">
-  <a href="https://github.com/Joolace/T5Jool/releases"><img src="https://img.shields.io/badge/download-v0.1--alpha-e2242a?style=for-the-badge" alt="Download"></a>
+  <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.1--alpha-e2242a?style=for-the-badge" alt="Download"></a>
   <a href="https://discord.gg/NXES3JBgax"><img src="https://img.shields.io/badge/discord-join-5865F2?style=for-the-badge" alt="Discord"></a>
   <a href="https://joolace.github.io/T5Jool/"><img src="https://img.shields.io/badge/website-visit-111114?style=for-the-badge" alt="Website"></a>
 </p>
