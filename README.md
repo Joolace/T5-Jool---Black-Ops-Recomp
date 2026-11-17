@@ -64,6 +64,7 @@ Use the **Logs** button in the launcher to save the logs, then share them on [Di
 - [ ] Rumble, gyro aiming, mouse and keyboard on Android
 - [ ] Mali GPU support
 - [ ] Source code release
+- [ ] Multiplayer Online
 
 ## Source code
 
