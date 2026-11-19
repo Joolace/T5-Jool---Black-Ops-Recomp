@@ -4,7 +4,7 @@ A dedicated server runs a Zombies match on its own, without graphics or sound, s
 **Multiplayer → Online** list at any time. Up to **4 players** per server.
 
 > T5Jool is in alpha: dedicated servers are new and may be unstable. Please report problems on
-> [GitHub issues](https://github.com/Joolace/T5Jool/issues) with the server log.
+> [GitHub issues](https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/issues) with the server log.
 
 ## Requirements
 
@@ -18,7 +18,7 @@ ARM servers (Oracle Ampere, Raspberry Pi) are not supported yet.
 
 ## 1. Install
 
-Download `T5Jool-v<version>-linux-x86_64.tar.gz` from the [latest release](https://github.com/Joolace/T5Jool/releases)
+Download `T5Jool-v<version>-linux-x86_64.tar.gz` from the [latest release](https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases)
 and copy your game files to the server:
 
 ```

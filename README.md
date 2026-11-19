@@ -7,7 +7,7 @@
 A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 
 <p align="center">
-  <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.3--alpha-e2242a?style=for-the-badge" alt="Download"></a>
+  <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.4--alpha-e2242a?style=for-the-badge" alt="Download"></a>
   <a href="https://discord.gg/NXES3JBgax"><img src="https://img.shields.io/badge/discord-join-5865F2?style=for-the-badge" alt="Discord"></a>
   <a href="https://joolace.github.io/T5Jool/"><img src="https://img.shields.io/badge/website-visit-111114?style=for-the-badge" alt="Website"></a>
 </p>
@@ -25,6 +25,8 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 - **Native, not emulated**: the game code runs as a 64-bit program on x86_64 Linux and arm64 Android
 - **Vulkan renderer**: Direct3D 9 translated by DXVK, with a persistent shader cache
 - **Upscalers**: Snapdragon GSR and FSR 1, render scale and sharpness options
+- **Frame generation**: Lossless Scaling frame generation on Android and Linux, with your own copy of Lossless Scaling
+- **FXAA** antialiasing on Android
 - **Online multiplayer**: dedicated servers with a server browser and ping, join mid-round, PC and Android together
 - **LAN co-op**: host from the menu, automatic game discovery, join by address
 - **Host your own server**: a Linux server with no graphics, several rooms and map rotation ([guide](SERVER.md))
@@ -60,7 +62,7 @@ Other devices may work but have not been tested yet: reports are welcome.
 ## Install (Android)
 
 1. Copy your PC installation of Black Ops (the folder with `zone` and `main`) to the device.
-2. Download the latest APK from [Releases](https://github.com/Joolace/T5Jool/releases) and install it:
+2. Download the latest APK from [Releases](https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases) and install it:
    - `T5Jool-vX-arm64-v8.2.apk`: **recommended**, optimized for Snapdragon 845 and newer
    - `T5Jool-vX-arm64.apk`: generic, for older 64-bit devices
 3. **Install a Turnip driver** (required on Adreno): the first time you press Play the launcher offers to download one. Pick a driver from Mr Purple or StevenMXZ and it is installed automatically. You can change it later in Settings > Download a driver, or import your own `.zip`.
@@ -82,6 +84,22 @@ If you use a firewall, allow UDP ports **3074** (game) and **3075** (discovery).
 A server that is not in the list: **Multiplayer → Join by address** and type its IP.
 Want to run one? See **[Hosting a dedicated server](SERVER.md)** (Linux).
 
+## Frame generation and antialiasing
+
+**Android:** Settings → **Antialiasing (post-process) → FXAA** smooths jagged edges at a low cost.
+
+**Android frame generation (experimental):** Settings → **Frame generation**. You need your own copy of
+[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/) on Steam: copy `Lossless.dll` from
+`steamapps/common/Lossless Scaling` to your device and import it once (it stays in the app's private storage and is never
+shared). Then choose 2x, 3x or 4x. Works best with a stable frame rate (set an FPS limit) and adds a little input lag.
+
+**Linux:**
+- **Frame generation** with [lsfg-vk](https://github.com/PancakeTAS/lsfg-vk) (Lossless Scaling, needs your own copy of
+  Lossless Scaling on Steam). Install lsfg-vk, create a profile named `T5Jool` in `lsfg-vk-ui` (active for `BO1Zombies`),
+  then start with `./t5jool.sh --lsfg`. Works best with a stable base frame rate (set an FPS limit) and adds a little input lag.
+- **FXAA / SMAA** with [vkBasalt](https://github.com/DadSchoorse/vkBasalt): install it, choose the effects in
+  `~/.config/vkBasalt/vkBasalt.conf`, then start with `./t5jool.sh --vkbasalt`. Don't use it together with lsfg-vk.
+
 ## Mods
 
 Put a community mod (made with the Black Ops mod tools) in the game folder as `mods/<name>/` with its `mod.ff`,
@@ -90,13 +108,13 @@ To play a mod online, everyone needs the same mod as the server.
 
 ## What's new
 
-See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.3-alpha**:
-- Online multiplayer with dedicated servers and a server browser with ping
-- Host your own Linux server: several rooms, map rotation ([guide](SERVER.md))
-- Join by address
-- Mods menu for community mods
-- Ping on screen and in the scoreboard
-- Customizable DXVK overlay in the Android launcher
+See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.4-alpha**:
+- Lossless Scaling frame generation on Android (experimental): 2x, 3x or 4x the frames on screen
+- FXAA antialiasing on Android
+- Online fixes: no more crash on Moon (gas mask + grenade), automatic updates from the right repository
+
+Previous version, **v0.3-alpha**: online multiplayer with dedicated servers, server browser with ping, join by address,
+your own Linux servers with rooms and map rotation, Mods menu, ping on screen and in the scoreboard.
 
 ## Reporting bugs
 
@@ -112,6 +130,7 @@ Use the **Logs** button in the launcher to save the logs, then share them on [Di
 - [ ] Mali GPU support (experimental, needs testers)
 - [x] Dedicated servers (Linux) and online server browser (v0.3)
 - [x] Mods menu for community mods (v0.3)
+- [x] Lossless Scaling frame generation and FXAA (v0.4)
 - [ ] Seamless map change on servers (no reconnect)
 - [ ] Custom maps and engine mods
 - [ ] Save and resume in solo
@@ -128,6 +147,7 @@ The source code is not published yet. It will be released later.
 - **iloupv**: contributions
 - **[micycle1](https://github.com/micycle1/bo1-zombies-decompiled)**: engine fixes (lighting, net fields, decompile bugs)
 - **[Mr Purple](https://github.com/MrPurple666/purple-turnip)** and **[StevenMXZ](https://github.com/StevenMXZ/Adreno-Tools-Drivers)**: the Turnip drivers T5Jool is tested with
+- [lsfg-vk](https://github.com/PancakeTAS/lsfg-vk) by PancakeTAS and its Android branch by [GameNative](https://github.com/GameNative/lsfg-vk-android) (MIT): frame generation. Lossless Scaling itself is a separate paid app and is not included
 - [SDL2](https://www.libsdl.org/), [DXVK](https://github.com/doitsujin/dxvk), [Mesa Turnip](https://docs.mesa3d.org/drivers/freedreno.html)
 
 ## Disclaimer

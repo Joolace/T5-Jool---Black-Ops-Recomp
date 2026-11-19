@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.4-alpha
+*November 2026*
+
+### Highlights
+- **Lossless Scaling frame generation on Android** (experimental): up to 2x, 3x or 4x the frames on screen, with your own copy of Lossless Scaling
+- **FXAA antialiasing** on Android, much lighter than MSAA
+- **Fixes for online play**: a crash on Moon, automatic updates from the right GitHub page
+
+### Graphics
+- **Frame generation** (Android, experimental): Settings > Frame generation. Import your own `Lossless.dll` once (from your Steam copy of Lossless Scaling: it stays in the app's private storage), then choose 2x / 3x / 4x, flow scale and performance mode. Built on lsfg-vk (MIT) by PancakeTAS and the Android branch by GameNative
+- With frame generation on, Show FPS shows both numbers, e.g. `60 FPS -> 120 LSFG`
+- **FXAA** (Android): Settings > Antialiasing (post-process). Smooths jagged edges for about 1 ms per frame
+- Linux: `./t5jool.sh --lsfg` for Lossless Scaling frame generation with lsfg-vk, `./t5jool.sh --vkbasalt` for FXAA/SMAA with vkBasalt
+
+### Fixes
+- Online: no more crash when a weapon is used before your game has received it (Moon: gas mask and then a grenade)
+- Moon: no more "sm_sunSampleSizeNear is cheat protected" flood (hundreds of lines a second in the log, extra work every frame)
+- Android launcher: automatic updates and bug reports now use the right GitHub repository (T5-Jool---Black-Ops-Recomp). If the launcher does not offer this update, download it by hand once from the Releases page
+
 ## v0.3-alpha
 *November 2026*
 
