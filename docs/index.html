@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>T5Jool — Black Ops Zombies Recomp</title>
-<meta name="description" content="T5Jool: a native 64-bit port of Black Ops Zombies for Linux and Android. Vulkan, upscalers, LAN co-op, touch and controller support.">
+<meta name="description" content="T5Jool: a native 64-bit port of Black Ops Zombies for Linux and Android. Vulkan, upscalers, online and LAN co-op, dedicated servers, mods, touch and controller support.">
 <meta property="og:title" content="T5Jool — Black Ops Zombies Recomp">
 <meta property="og:description" content="Native 64-bit Black Ops Zombies on Linux and Android handhelds.">
 <meta property="og:image" content="assets/icon.png">
@@ -194,7 +194,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
     <h1 class="title" aria-label="T5JOOL"><span>T</span><span>5</span><span>J</span><span>O</span><span>O</span><span>L</span></h1>
     <div class="subtitle">BLACK OPS ZOMBIES RECOMP</div>
     <div class="rule"></div>
-    <p class="tagline">Black Ops Zombies, rebuilt to run natively on 64-bit Linux and Android handhelds. Vulkan rendering, upscalers, LAN co-op and controls made for every screen.</p>
+    <p class="tagline">Black Ops Zombies, rebuilt to run natively on 64-bit Linux and Android handhelds. Vulkan rendering, upscalers, online co-op with dedicated servers and controls made for every screen.</p>
     <div class="cta">
       <a class="btn primary" href="https://github.com/Joolace/T5Jool/releases">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
@@ -207,7 +207,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
     </div>
     <p class="alpha-note"><b>Alpha</b> · in active development · expect bugs and crashes</p>
     <div class="badges">
-      <span class="badge"><b>●</b> v0.2-alpha</span>
+      <span class="badge"><b>●</b> v0.3-alpha</span>
       <span class="badge">Linux x86_64</span>
       <span class="badge">Android arm64</span>
       <span class="badge">Vulkan</span>
@@ -227,7 +227,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
       <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg></div><h3>Native 64-bit</h3><p>Built for x86_64 Linux and arm64 Android. Full speed on handheld chips like the Snapdragon 8 Elite.</p></div>
       <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><h3>Vulkan renderer</h3><p>Direct3D 9 through DXVK, tuned for mobile GPUs, with a persistent shader cache so stutter disappears after the first run.</p></div>
       <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></div><h3>Upscalers</h3><p>Render at a lower resolution and upscale with Snapdragon GSR or FSR 1, with adjustable sharpness.</p></div>
-      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.5c3 0 6 1.8 6 5.5"/></svg></div><h3>LAN co-op</h3><p>Host from the menu, friends on the same Wi-Fi find your game automatically and can join mid-round. PC and Android play together.</p></div>
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.5c3 0 6 1.8 6 5.5"/></svg></div><h3>Online and LAN co-op</h3><p>Join dedicated servers from the server browser, or host on your Wi-Fi. Join mid-round, see everyone's ping. PC and Android play together.</p></div>
       <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="6"/><path d="M7 10v4M5 12h4"/><circle cx="16" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg></div><h3>Controller ready</h3><p>Plug-and-play gamepads and handheld controls, with button remapping and stick configuration in the launcher.</p></div>
       <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><circle cx="12" cy="17" r="1"/><path d="M9 6h6"/></svg></div><h3>Touch controls</h3><p>An on-screen layout you can drag, resize and save, both in game and from the launcher.</p></div>
       <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M2 12h3l2-6 4 12 3-9 2 3h6"/></svg></div><h3>Vibration &amp; gyro</h3><p>Rumble on firing, hits and explosions. Gyro aiming from the controller or the device, always or only while aiming.</p></div>
@@ -238,7 +238,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
     <div class="stats reveal">
       <div class="stat"><b data-count="11">0</b><span>maps supported</span></div>
       <div class="stat"><b data-count="64">0</b><span>bit native code</span></div>
-      <div class="stat"><b data-count="4">0</b><span>players in LAN co-op</span></div>
+      <div class="stat"><b data-count="4">0</b><span>players online or in LAN</span></div>
       <div class="stat"><b data-count="2">0</b><span>platforms</span></div>
     </div>
   </div>
@@ -248,14 +248,14 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
   <div class="wrap">
     <div class="reveal">
       <div class="kicker">// What's new</div>
-      <h2>v0.2-alpha</h2>
-      <p class="lead">Smoother, with new controls and automatic updates. Full list in the <a href="https://github.com/Joolace/T5Jool/blob/main/CHANGELOG.md">changelog</a>.</p>
+      <h2>v0.3-alpha</h2>
+      <p class="lead">Online multiplayer, your own servers and mods. Full list in the <a href="https://github.com/Joolace/T5Jool/blob/main/CHANGELOG.md">changelog</a>.</p>
     </div>
     <div class="grid">
-      <div class="card reveal"><h3>Much smoother</h3><p>No more GPU stalls from light glows, lighter logging, and a CPU build tuned for Snapdragon 845 and newer.</p></div>
-      <div class="card reveal"><h3>New controls</h3><p>Vibration, gyro aiming, mouse and keyboard on Android, all configurable from the launcher.</p></div>
-      <div class="card reveal"><h3>Auto updates</h3><p>The launcher installs new T5Jool versions and tells you when your Turnip driver has an update.</p></div>
-      <div class="card reveal"><h3>Fixes</h3><p>Kino's lamps no longer flicker, Der Riese's spawn yard is no longer green, Show FPS and audio settings work. Thanks to micycle1.</p></div>
+      <div class="card reveal"><h3>Online servers</h3><p>Multiplayer &gt; Online lists the dedicated servers on the internet with their ping. Pick one and join mid-round, or join any server by its address.</p></div>
+      <div class="card reveal"><h3>Host your own</h3><p>A Linux server with no graphics: several rooms on one machine, map rotation, automatic restart. <a href="https://github.com/Joolace/T5Jool/blob/main/SERVER.md">Read the guide</a>.</p></div>
+      <div class="card reveal"><h3>Mods</h3><p>A new Mods menu loads community mods made with the Black Ops mod tools. Choose one and the game restarts with it.</p></div>
+      <div class="card reveal"><h3>Ping and overlay</h3><p>Your ping at the top right and everyone's ping in the scoreboard. The DXVK overlay shows exactly what you choose.</p></div>
     </div>
   </div>
 </section>
@@ -287,6 +287,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
           <li>Vulkan-capable GPU (AMD, Intel, NVIDIA)</li>
           <li>SDL2 window, mouse, keyboard and controllers</li>
           <li>Hosts LAN games for Android players</li>
+          <li>Runs dedicated servers with no graphics, on a PC or a VPS</li>
           <li>Windowed, fullscreen and custom resolutions</li>
         </ul>
       </div>
@@ -340,9 +341,12 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
       <div class="item done reveal"><div class="when">DONE · v0.2</div><h4>Smoother and more stable</h4><p>No more GPU stalls, lighter logging, CPU build tuned for modern Snapdragon chips, lighting fixes.</p></div>
       <div class="item done reveal"><div class="when">DONE · v0.2</div><h4>Rumble, gyro aiming, mouse and keyboard</h4><p>Better controls on handhelds and docked setups.</p></div>
       <div class="item done reveal"><div class="when">DONE · v0.2</div><h4>Automatic updates</h4><p>The launcher updates T5Jool and your Turnip driver.</p></div>
-      <div class="item now reveal"><div class="when">IN PROGRESS</div><h4>Mali GPU support</h4><p>Experimental in v0.2 with PanVK: we need testers with Mali devices.</p></div>
-      <div class="item reveal"><div class="when">PLANNED</div><h4>Multiplayer</h4><p>Online play beyond the local network: dedicated servers and joining friends over the internet.</p></div>
-      <div class="item reveal"><div class="when">PLANNED</div><h4>Mods</h4><p>Support for custom maps, scripts and engine mods, with an easy way to install them from the launcher.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.3</div><h4>Online multiplayer</h4><p>Dedicated servers, server browser with ping, join by address, rooms and map rotation.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.3</div><h4>Mods menu</h4><p>Community mods made with the Black Ops mod tools, loaded from the main menu.</p></div>
+      <div class="item now reveal"><div class="when">IN PROGRESS</div><h4>Mali GPU support</h4><p>Experimental with PanVK: we need testers with Mali devices.</p></div>
+      <div class="item reveal"><div class="when">PLANNED</div><h4>Seamless map change</h4><p>Servers change map without players reconnecting.</p></div>
+      <div class="item reveal"><div class="when">PLANNED</div><h4>Custom maps and engine mods</h4><p>More mod types, with an easy way to install them.</p></div>
+      <div class="item reveal"><div class="when">PLANNED</div><h4>Save and resume in solo</h4><p>Stop a solo game and pick it up later.</p></div>
       <div class="item reveal"><div class="when">LATER</div><h4>Source code release</h4><p>The source will be published once the project is ready.</p></div>
     </div>
   </div>

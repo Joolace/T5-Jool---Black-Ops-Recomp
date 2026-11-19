@@ -7,7 +7,7 @@
 A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 
 <p align="center">
-  <a href="https://github.com/Joolace/T5Jool/releases"><img src="https://img.shields.io/badge/download-v0.2--alpha-e2242a?style=for-the-badge" alt="Download"></a>
+  <a href="https://github.com/Joolace/T5Jool/releases"><img src="https://img.shields.io/badge/download-v0.3--alpha-e2242a?style=for-the-badge" alt="Download"></a>
   <a href="https://discord.gg/NXES3JBgax"><img src="https://img.shields.io/badge/discord-join-5865F2?style=for-the-badge" alt="Discord"></a>
   <a href="https://joolace.github.io/T5Jool/"><img src="https://img.shields.io/badge/website-visit-111114?style=for-the-badge" alt="Website"></a>
 </p>
@@ -25,7 +25,10 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 - **Native, not emulated**: the game code runs as a 64-bit program on x86_64 Linux and arm64 Android
 - **Vulkan renderer**: Direct3D 9 translated by DXVK, with a persistent shader cache
 - **Upscalers**: Snapdragon GSR and FSR 1, render scale and sharpness options
-- **LAN co-op**: host from the menu, automatic game discovery, join mid-round, PC and Android together
+- **Online multiplayer**: dedicated servers with a server browser and ping, join mid-round, PC and Android together
+- **LAN co-op**: host from the menu, automatic game discovery, join by address
+- **Host your own server**: a Linux server with no graphics, several rooms and map rotation ([guide](SERVER.md))
+- **Mods**: load community mods made with the Black Ops mod tools from the Mods menu
 - **Controls**: controllers, handheld buttons, remapping, and a touch layout you can move and resize
 - **Vibration and gyro aiming**: on the controller or the device itself, gyro always or only while aiming
 - **Mouse and keyboard** on Android too
@@ -69,20 +72,31 @@ Other devices may work but have not been tested yet: reports are welcome.
 
 The first launch compiles shaders, so the first minutes can stutter a little.
 
-## LAN co-op
+## Multiplayer
 
-On the host: **Multiplayer (LAN) → Host LAN game** and pick a map.
-On the other devices: **Multiplayer (LAN)** and select the game from the list. Everyone must be on the same network.
+**LAN co-op** - on the host: **Multiplayer → LAN → Host LAN game** and pick a map.
+On the other devices: **Multiplayer → LAN** and select the game from the list. Everyone must be on the same network.
 If you use a firewall, allow UDP ports **3074** (game) and **3075** (discovery).
+
+**Online** - **Multiplayer → Online** lists the dedicated servers on the internet, with their ping.
+A server that is not in the list: **Multiplayer → Join by address** and type its IP.
+Want to run one? See **[Hosting a dedicated server](SERVER.md)** (Linux).
+
+## Mods
+
+Put a community mod (made with the Black Ops mod tools) in the game folder as `mods/<name>/` with its `mod.ff`,
+then choose it in **Mods** in the main menu: the game restarts with it. **None** goes back to the base game.
+To play a mod online, everyone needs the same mod as the server.
 
 ## What's new
 
-See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.2-alpha**:
-- Much smoother: no more GPU stalls, lighter logging, CPU build tuned for modern Snapdragon chips
-- Vibration, gyro aiming, mouse and keyboard on Android
-- Automatic updates for T5Jool and your Turnip driver
-- Experimental Mali GPU support with PanVK
-- Kino's flickering lamps and Der Riese's green spawn yard fixed
+See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.3-alpha**:
+- Online multiplayer with dedicated servers and a server browser with ping
+- Host your own Linux server: several rooms, map rotation ([guide](SERVER.md))
+- Join by address
+- Mods menu for community mods
+- Ping on screen and in the scoreboard
+- Customizable DXVK overlay in the Android launcher
 
 ## Reporting bugs
 
@@ -95,9 +109,12 @@ Use the **Logs** button in the launcher to save the logs, then share them on [Di
 - [x] LAN co-op with discovery and join in progress
 - [x] Rumble, gyro aiming, mouse and keyboard on Android
 - [x] Automatic updates for the launcher and the GPU driver
-- [ ] Mali GPU support (experimental in v0.2, needs testers)
-- [ ] Multiplayer: dedicated servers and online play
-- [ ] Mods: custom maps, scripts and engine mods
+- [ ] Mali GPU support (experimental, needs testers)
+- [x] Dedicated servers (Linux) and online server browser (v0.3)
+- [x] Mods menu for community mods (v0.3)
+- [ ] Seamless map change on servers (no reconnect)
+- [ ] Custom maps and engine mods
+- [ ] Save and resume in solo
 - [ ] Source code release
 
 ## Source code

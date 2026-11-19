@@ -1,5 +1,49 @@
 # Changelog
 
+## v0.3-alpha
+*November 2026*
+
+### Highlights
+- **Online multiplayer with dedicated servers**: Multiplayer > Online lists the servers on the internet with their ping, and you join mid-round
+- **Host your own server** on Linux, without graphics: several rooms on one machine, map rotation, automatic restart. Guide: [SERVER.md](SERVER.md)
+- **Join by address** for servers that are not in the list
+- **Mods**: a new Mods page loads community mods made with the Black Ops mod tools
+- **Ping** on screen and in the scoreboard
+
+### Multiplayer
+- Multiplayer menu split into **LAN** (host or join on the same Wi-Fi), **Online** (dedicated servers) and **Join by address** (type an IP; the last one is remembered)
+- Joining a server on the internet works (it used to wait for an online login that T5Jool does not have)
+- **Ping indicator** at the top right when you play on someone else's game (green / yellow / red); can be turned off in Options > Show ping or in the Android launcher
+- **Scoreboard** in co-op and on servers: points, kills, headshots and the ping of every player (no more empty columns)
+- Zombies games always show at most 4 players
+
+### Dedicated servers (Linux)
+- `./t5jool-server.sh` runs a server with no graphics or sound, for a PC or a VPS. Settings in `~/.config/T5Jool/server.cfg`: name, map, max players, port, mod
+- **Several rooms on one machine**: `./t5jool-server.sh <room>` runs another server with its own map and port
+- **Map rotation**: `ROTATION="map1 map2 ..."`, one match per map; players reconnect to the new map by themselves
+- At the end of a match the server starts a new one on the same map, with the players still connected
+- An empty server restarts its match from round 1 after a minute
+- Automatic restart after a crash; Ctrl+C stops it; the script checks missing system libraries and game files
+- Master server for the online list: `tools/master/t5jool_master.py` (Python only, no dependencies)
+- No more "Field faction changed ... MG42" warnings
+
+### Mods
+- **Mods** page in the main menu: lists the mods in the game folder (`mods/<name>/` with `mod.ff`); choosing one restarts the game with it, "None" goes back to the base game
+- Mods get larger asset pools (more weapons, models, scripts and tables)
+- Dedicated servers can run a mod (`MOD="name"`); players need the same mod
+
+### Launcher (Android)
+- **DXVK overlay** can be customized: choose what it shows (FPS, frame times, GPU load, GPU memory, GPU and driver, draw calls...) and its size
+- New option: Show ping (online games)
+- The bug report zip keeps only the recent logs (it could contain more than 100 files)
+- Build: uses Java 21 or 17 by itself when the system Java is too new for Gradle
+
+### Menus and fixes
+- The **Test** page (developer helpers and power-ups) is no longer in the main and pause menus
+- After touching the screen in a menu, the controller can move through the menu again
+- Credits start from the top every time you open them, and you can scroll them (up/down, mouse wheel, or drag with your finger)
+- Logs: a performance line every 30 s of play (average FPS, 1% low, worst frame), to track down FPS drops
+
 ## v0.2-alpha
 *November 2026*
 
