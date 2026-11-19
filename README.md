@@ -7,7 +7,7 @@
 A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 
 <p align="center">
-  <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.1--alpha-e2242a?style=for-the-badge" alt="Download"></a>
+  <a href="https://github.com/Joolace/T5Jool/releases"><img src="https://img.shields.io/badge/download-v0.2--alpha-e2242a?style=for-the-badge" alt="Download"></a>
   <a href="https://discord.gg/NXES3JBgax"><img src="https://img.shields.io/badge/discord-join-5865F2?style=for-the-badge" alt="Discord"></a>
   <a href="https://joolace.github.io/T5Jool/"><img src="https://img.shields.io/badge/website-visit-111114?style=for-the-badge" alt="Website"></a>
 </p>
@@ -27,8 +27,11 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 - **Upscalers**: Snapdragon GSR and FSR 1, render scale and sharpness options
 - **LAN co-op**: host from the menu, automatic game discovery, join mid-round, PC and Android together
 - **Controls**: controllers, handheld buttons, remapping, and a touch layout you can move and resize
+- **Vibration and gyro aiming**: on the controller or the device itself, gyro always or only while aiming
+- **Mouse and keyboard** on Android too
 - **New menus**: main menu, pause menu and loading screens with map previews, custom background and music
 - **Every map**: all Black Ops Zombies maps you own, plus Dead Ops Arcade
+- **Automatic updates**: the Android launcher updates T5Jool and your Turnip driver for you
 
 ## Supported platforms
 
@@ -38,7 +41,7 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 | GPU | Adreno with a Turnip driver (required) | Any Vulkan GPU |
 | Tested on | AYN Odin 3 Pro | Acer Nitro V16 (Ubuntu, NVIDIA GPU) |
 
-Mali support is planned.
+Mali GPUs: **experimental, untested** (the launcher offers the PanVK driver). Reports welcome!
 
 ### Tested setup
 
@@ -54,7 +57,9 @@ Other devices may work but have not been tested yet: reports are welcome.
 ## Install (Android)
 
 1. Copy your PC installation of Black Ops (the folder with `zone` and `main`) to the device.
-2. Download the latest APK from [Releases](https://github.com/Joolace/T5Jool/releases) and install it.
+2. Download the latest APK from [Releases](https://github.com/Joolace/T5Jool/releases) and install it:
+   - `T5Jool-vX-arm64-v8.2.apk`: **recommended**, optimized for Snapdragon 845 and newer
+   - `T5Jool-vX-arm64.apk`: generic, for older 64-bit devices
 3. **Install a Turnip driver** (required on Adreno): the first time you press Play the launcher offers to download one. Pick a driver from Mr Purple or StevenMXZ and it is installed automatically. You can change it later in Settings > Download a driver, or import your own `.zip`.
 4. In Settings choose the game folder.
 5. Tap **Zombies** or **Dead Ops Arcade**.
@@ -70,6 +75,15 @@ On the host: **Multiplayer (LAN) → Host LAN game** and pick a map.
 On the other devices: **Multiplayer (LAN)** and select the game from the list. Everyone must be on the same network.
 If you use a firewall, allow UDP ports **3074** (game) and **3075** (discovery).
 
+## What's new
+
+See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.2-alpha**:
+- Much smoother: no more GPU stalls, lighter logging, CPU build tuned for modern Snapdragon chips
+- Vibration, gyro aiming, mouse and keyboard on Android
+- Automatic updates for T5Jool and your Turnip driver
+- Experimental Mali GPU support with PanVK
+- Kino's flickering lamps and Der Riese's green spawn yard fixed
+
 ## Reporting bugs
 
 Use the **Logs** button in the launcher to save the logs, then share them on [Discord](https://discord.gg/NXES3JBgax) or in an issue.
@@ -79,8 +93,9 @@ Use the **Logs** button in the launcher to save the logs, then share them on [Di
 - [x] Native Linux and Android builds
 - [x] Upscalers and resolution scaling
 - [x] LAN co-op with discovery and join in progress
-- [ ] Rumble, gyro aiming, mouse and keyboard on Android
-- [ ] Mali GPU support
+- [x] Rumble, gyro aiming, mouse and keyboard on Android
+- [x] Automatic updates for the launcher and the GPU driver
+- [ ] Mali GPU support (experimental in v0.2, needs testers)
 - [ ] Multiplayer: dedicated servers and online play
 - [ ] Mods: custom maps, scripts and engine mods
 - [ ] Source code release
@@ -94,6 +109,7 @@ The source code is not published yet. It will be released later.
 - **Joolace**: development
 - **MisaDev4**: [bo1-zombies-decompiled](https://github.com/MisaDev4/bo1-zombies-decompiled), the base of this port
 - **iloupv**: contributions
+- **[micycle1](https://github.com/micycle1/bo1-zombies-decompiled)**: engine fixes (lighting, net fields, decompile bugs)
 - **[Mr Purple](https://github.com/MrPurple666/purple-turnip)** and **[StevenMXZ](https://github.com/StevenMXZ/Adreno-Tools-Drivers)**: the Turnip drivers T5Jool is tested with
 - [SDL2](https://www.libsdl.org/), [DXVK](https://github.com/doitsujin/dxvk), [Mesa Turnip](https://docs.mesa3d.org/drivers/freedreno.html)
 

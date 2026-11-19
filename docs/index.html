@@ -161,6 +161,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
     <a class="brand" href="#top"><img src="assets/logo.png" alt="">T5JOOL</a>
     <div class="links">
       <a href="#features">Features</a>
+      <a href="#news">What's new</a>
       <a href="#platforms">Platforms</a>
       <a href="#install">Install</a>
       <a href="#roadmap">Roadmap</a>
@@ -206,7 +207,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
     </div>
     <p class="alpha-note"><b>Alpha</b> · in active development · expect bugs and crashes</p>
     <div class="badges">
-      <span class="badge"><b>●</b> v0.1-alpha</span>
+      <span class="badge"><b>●</b> v0.2-alpha</span>
       <span class="badge">Linux x86_64</span>
       <span class="badge">Android arm64</span>
       <span class="badge">Vulkan</span>
@@ -229,6 +230,8 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
       <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.5c3 0 6 1.8 6 5.5"/></svg></div><h3>LAN co-op</h3><p>Host from the menu, friends on the same Wi-Fi find your game automatically and can join mid-round. PC and Android play together.</p></div>
       <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="6"/><path d="M7 10v4M5 12h4"/><circle cx="16" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg></div><h3>Controller ready</h3><p>Plug-and-play gamepads and handheld controls, with button remapping and stick configuration in the launcher.</p></div>
       <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><circle cx="12" cy="17" r="1"/><path d="M9 6h6"/></svg></div><h3>Touch controls</h3><p>An on-screen layout you can drag, resize and save, both in game and from the launcher.</p></div>
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M2 12h3l2-6 4 12 3-9 2 3h6"/></svg></div><h3>Vibration &amp; gyro</h3><p>Rumble on firing, hits and explosions. Gyro aiming from the controller or the device, always or only while aiming.</p></div>
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></div><h3>Auto updates</h3><p>The Android launcher keeps T5Jool and your Turnip driver up to date by itself.</p></div>
       <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h12"/></svg></div><h3>New menus</h3><p>A clean main menu, pause menu and loading screens with map previews, your own background and music.</p></div>
       <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg></div><h3>Every map</h3><p>All Black Ops Zombies maps you own, from Nacht der Untoten to Moon, plus Dead Ops Arcade.</p></div>
     </div>
@@ -237,6 +240,22 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
       <div class="stat"><b data-count="64">0</b><span>bit native code</span></div>
       <div class="stat"><b data-count="4">0</b><span>players in LAN co-op</span></div>
       <div class="stat"><b data-count="2">0</b><span>platforms</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="news">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// What's new</div>
+      <h2>v0.2-alpha</h2>
+      <p class="lead">Smoother, with new controls and automatic updates. Full list in the <a href="https://github.com/Joolace/T5Jool/blob/main/CHANGELOG.md">changelog</a>.</p>
+    </div>
+    <div class="grid">
+      <div class="card reveal"><h3>Much smoother</h3><p>No more GPU stalls from light glows, lighter logging, and a CPU build tuned for Snapdragon 845 and newer.</p></div>
+      <div class="card reveal"><h3>New controls</h3><p>Vibration, gyro aiming, mouse and keyboard on Android, all configurable from the launcher.</p></div>
+      <div class="card reveal"><h3>Auto updates</h3><p>The launcher installs new T5Jool versions and tells you when your Turnip driver has an update.</p></div>
+      <div class="card reveal"><h3>Fixes</h3><p>Kino's lamps no longer flicker, Der Riese's spawn yard is no longer green, Show FPS and audio settings work. Thanks to micycle1.</p></div>
     </div>
   </div>
 </section>
@@ -256,7 +275,9 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
           <li>Adreno GPUs with a Turnip driver (required, downloaded by the launcher)</li>
           <li>Launcher with resolution, upscaler, FPS limit, V-Sync, controls and logs</li>
           <li>Crash reports collected for you, ready to share</li>
-          <li>Mali support is on the roadmap</li>
+          <li>Mali GPUs: experimental, with the PanVK driver (testers wanted)</li>
+          <li>Two builds: arm64-v8.2 (Snapdragon 845+) and generic arm64</li>
+          <li>Vibration, gyro aiming, mouse and keyboard</li>
         </ul>
       </div>
       <div class="plat reveal">
@@ -298,7 +319,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
     </div>
     <div class="steps">
       <div class="step reveal"><div><h4>Get the game files</h4><p>Copy the folder of your PC installation of Black Ops (with <code>zone</code> and <code>main</code>) to your device.</p></div></div>
-      <div class="step reveal"><div><h4>Install T5Jool</h4><p>Download the latest APK from the Releases page and install it.</p></div></div>
+      <div class="step reveal"><div><h4>Install T5Jool</h4><p>Download the latest APK from the Releases page: <code>arm64-v8.2</code> for Snapdragon 845 and newer (recommended), <code>arm64</code> for older devices.</p></div></div>
       <div class="step reveal"><div><h4>Install a Turnip driver</h4><p>The stock Qualcomm driver does not work yet. The first time you press Play the launcher offers to download a Turnip driver from Mr Purple or StevenMXZ and installs it for you.</p></div></div>
       <div class="step reveal"><div><h4>Point the launcher to the game</h4><p>Open Settings in the launcher and choose the game folder.</p></div></div>
       <div class="step reveal"><div><h4>Play</h4><p>Tap Zombies or Dead Ops Arcade. The first launch builds the shader cache, so the first minutes can stutter a little.</p></div></div>
@@ -316,9 +337,10 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
       <div class="item done reveal"><div class="when">DONE</div><h4>Native Linux and Android builds</h4><p>64-bit engine, Vulkan renderer, launcher, touch and controller support.</p></div>
       <div class="item done reveal"><div class="when">DONE</div><h4>Upscalers and resolution scaling</h4><p>Snapdragon GSR and FSR 1 with sharpness control.</p></div>
       <div class="item done reveal"><div class="when">DONE</div><h4>LAN co-op</h4><p>Host and join from the menu, automatic discovery, join in progress.</p></div>
-      <div class="item now reveal"><div class="when">IN PROGRESS</div><h4>Polish and stability</h4><p>Memory handling on Android, co-op fixes, missing HUD icons.</p></div>
-      <div class="item reveal"><div class="when">PLANNED</div><h4>Rumble, gyro aiming, mouse and keyboard on Android</h4><p>Better controls on handhelds and docked setups.</p></div>
-      <div class="item reveal"><div class="when">PLANNED</div><h4>Mali GPU support</h4><p>PanVK and other drivers for non-Adreno devices.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.2</div><h4>Smoother and more stable</h4><p>No more GPU stalls, lighter logging, CPU build tuned for modern Snapdragon chips, lighting fixes.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.2</div><h4>Rumble, gyro aiming, mouse and keyboard</h4><p>Better controls on handhelds and docked setups.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.2</div><h4>Automatic updates</h4><p>The launcher updates T5Jool and your Turnip driver.</p></div>
+      <div class="item now reveal"><div class="when">IN PROGRESS</div><h4>Mali GPU support</h4><p>Experimental in v0.2 with PanVK: we need testers with Mali devices.</p></div>
       <div class="item reveal"><div class="when">PLANNED</div><h4>Multiplayer</h4><p>Online play beyond the local network: dedicated servers and joining friends over the internet.</p></div>
       <div class="item reveal"><div class="when">PLANNED</div><h4>Mods</h4><p>Support for custom maps, scripts and engine mods, with an easy way to install them from the launcher.</p></div>
       <div class="item reveal"><div class="when">LATER</div><h4>Source code release</h4><p>The source will be published once the project is ready.</p></div>
