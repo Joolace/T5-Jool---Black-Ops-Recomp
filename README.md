@@ -8,7 +8,7 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 
 <p align="center">
   <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.5--alpha-e2242a?style=for-the-badge" alt="Download"></a>
-  <a href="https://discord.gg/NXES3JBgax"><img src="https://img.shields.io/badge/discord-join-5865F2?style=for-the-badge" alt="Discord"></a>
+  <a href="https://discord.gg/rcMeKZcShx"><img src="https://img.shields.io/badge/discord-join-5865F2?style=for-the-badge" alt="Discord"></a>
   <a href="https://joolace.github.io/T5Jool/"><img src="https://img.shields.io/badge/website-visit-111114?style=for-the-badge" alt="Website"></a>
 </p>
 
@@ -129,7 +129,7 @@ Previous version, **v0.4-alpha**: Lossless Scaling frame generation and FXAA on 
 
 ## Reporting bugs
 
-In the launcher use **Report a bug** (home screen) or Settings > Help and about to save the logs, then share them on [Discord](https://discord.gg/NXES3JBgax) or in an issue.
+In the launcher use **Report a bug** (home screen) or Settings > Help and about to save the logs, then share them on [Discord](https://discord.gg/rcMeKZcShx) or in an issue.
 
 ## Roadmap
 
