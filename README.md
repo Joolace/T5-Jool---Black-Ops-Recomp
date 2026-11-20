@@ -14,6 +14,11 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 
 ---
 
+<p align="center">
+  <a href="https://youtu.be/CukgP1mmFNA"><img src="https://img.youtube.com/vi/CukgP1mmFNA/maxresdefault.jpg" width="720" alt="T5Jool video: Black Ops Zombies running natively on Android"></a><br>
+  <sub>▶ Watch T5Jool in action on YouTube</sub>
+</p>
+
 > [!CAUTION]
 > **Alpha software, still in development.** Expect bugs, crashes and missing features. Save often, keep your expectations low, and please report what you find.
 
