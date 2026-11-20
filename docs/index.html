@@ -207,7 +207,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
     </div>
     <p class="alpha-note"><b>Alpha</b> · in active development · expect bugs and crashes</p>
     <div class="badges">
-      <span class="badge"><b>●</b> v0.4-alpha</span>
+      <span class="badge"><b>●</b> v0.5-alpha</span>
       <span class="badge">Linux x86_64</span>
       <span class="badge">Android arm64</span>
       <span class="badge">Vulkan</span>
@@ -248,14 +248,14 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
   <div class="wrap">
     <div class="reveal">
       <div class="kicker">// What's new</div>
-      <h2>v0.4-alpha</h2>
-      <p class="lead">Frame generation, smoother edges and online fixes. Full list in the <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/blob/main/CHANGELOG.md">changelog</a>.</p>
+      <h2>v0.5-alpha</h2>
+      <p class="lead">Solo saves, the stock Qualcomm driver and a brand new launcher. Full list in the <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/blob/main/CHANGELOG.md">changelog</a>.</p>
     </div>
     <div class="grid">
-      <div class="card reveal"><h3>Frame generation</h3><p>Lossless Scaling frame generation on Android: 2x, 3x or 4x the frames on screen. Bring your own copy of Lossless Scaling. Experimental.</p></div>
-      <div class="card reveal"><h3>FXAA</h3><p>A light antialiasing filter for Android: smoother edges for about 1 ms per frame, much cheaper than MSAA.</p></div>
-      <div class="card reveal"><h3>Online fixes</h3><p>No more crash on Moon with the gas mask and a grenade, and updates now come from the right GitHub page.</p></div>
-      <div class="card reveal"><h3>Still in v0.3</h3><p>Online servers with ping, join by address, your own Linux servers with rooms and map rotation, and the Mods menu.</p></div>
+      <div class="card reveal"><h3>Solo save</h3><p>Your solo game is saved at the start of every round, one save per map. Load it from Play Solo, retry the round you died in, or delete it.</p></div>
+      <div class="card reveal"><h3>Stock Qualcomm driver</h3><p>Turnip is no longer required on Adreno. It is still faster and stutters less, but the system driver now works too.</p></div>
+      <div class="card reveal"><h3>New launcher</h3><p>A new home screen, settings in categories with an explanation for every option, graphics presets and a loading screen between maps.</p></div>
+      <div class="card reveal"><h3>Faster loading</h3><p>Turnip's shader cache is now really kept between games, and the checkerboard square on Moon's HUD is gone.</p></div>
     </div>
   </div>
 </section>
@@ -272,7 +272,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
         <h3>Android <span class="tag">ARM64</span></h3>
         <ul>
           <li>Android 10 or newer, arm64</li>
-          <li>Adreno GPUs with a Turnip driver (required, downloaded by the launcher)</li>
+          <li>Adreno GPUs: Turnip driver recommended (downloaded by the launcher), the stock Qualcomm driver also works</li>
           <li>Launcher with resolution, upscaler, FPS limit, V-Sync, controls and logs</li>
           <li>Crash reports collected for you, ready to share</li>
           <li>Mali GPUs: experimental, with the PanVK driver (testers wanted)</li>
@@ -321,7 +321,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
     <div class="steps">
       <div class="step reveal"><div><h4>Get the game files</h4><p>Copy the folder of your PC installation of Black Ops (with <code>zone</code> and <code>main</code>) to your device.</p></div></div>
       <div class="step reveal"><div><h4>Install T5Jool</h4><p>Download the latest APK from the Releases page: <code>arm64-v8.2</code> for Snapdragon 845 and newer (recommended), <code>arm64</code> for older devices.</p></div></div>
-      <div class="step reveal"><div><h4>Install a Turnip driver</h4><p>The stock Qualcomm driver does not work yet. The first time you press Play the launcher offers to download a Turnip driver from Mr Purple or StevenMXZ and installs it for you.</p></div></div>
+      <div class="step reveal"><div><h4>Install a Turnip driver (recommended)</h4><p>The first time you press Play the launcher offers to download a Turnip driver from Mr Purple or StevenMXZ and installs it for you. The stock Qualcomm driver also works, but it is slower and stutters for the first games.</p></div></div>
       <div class="step reveal"><div><h4>Point the launcher to the game</h4><p>Open Settings in the launcher and choose the game folder.</p></div></div>
       <div class="step reveal"><div><h4>Play</h4><p>Tap Zombies or Dead Ops Arcade. The first launch builds the shader cache, so the first minutes can stutter a little.</p></div></div>
     </div>
@@ -344,10 +344,12 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
       <div class="item done reveal"><div class="when">DONE · v0.3</div><h4>Online multiplayer</h4><p>Dedicated servers, server browser with ping, join by address, rooms and map rotation.</p></div>
       <div class="item done reveal"><div class="when">DONE · v0.3</div><h4>Mods menu</h4><p>Community mods made with the Black Ops mod tools, loaded from the main menu.</p></div>
       <div class="item done reveal"><div class="when">DONE · v0.4</div><h4>Frame generation and FXAA</h4><p>Lossless Scaling frame generation on Android and Linux, FXAA on Android.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.5</div><h4>Save and resume in solo</h4><p>A save at the start of every round, Load game and Retry round.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.5</div><h4>Stock Qualcomm driver</h4><p>Play on Adreno without installing Turnip.</p></div>
       <div class="item now reveal"><div class="when">IN PROGRESS</div><h4>Mali GPU support</h4><p>Experimental with PanVK: we need testers with Mali devices.</p></div>
       <div class="item reveal"><div class="when">PLANNED</div><h4>Seamless map change</h4><p>Servers change map without players reconnecting.</p></div>
       <div class="item reveal"><div class="when">PLANNED</div><h4>Custom maps and engine mods</h4><p>More mod types, with an easy way to install them.</p></div>
-      <div class="item reveal"><div class="when">PLANNED</div><h4>Save and resume in solo</h4><p>Stop a solo game and pick it up later.</p></div>
+      <div class="item reveal"><div class="when">PLANNED</div><h4>Fuller solo saves</h4><p>Mystery box, Pack-a-Punch links, equipment and Easter egg steps in the save.</p></div>
       <div class="item reveal"><div class="when">LATER</div><h4>Source code release</h4><p>The source will be published once the project is ready.</p></div>
     </div>
   </div>
@@ -363,7 +365,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
     <details class="reveal"><summary>Does T5Jool include the game?</summary><p>No. It contains no Activision assets. It only runs the files of a copy of Black Ops that you own.</p></details>
     <details class="reveal"><summary>Is this multiplayer or campaign?</summary><p>Zombies and Dead Ops Arcade only. Co-op works over your local network.</p></details>
     <details class="reveal"><summary>Which devices are supported?</summary><p>Android arm64 devices with an Adreno GPU work best today. It is developed on an AYN Odin 3 Pro (Snapdragon 8 Elite). Linux x86_64 with a Vulkan GPU is supported too.</p></details>
-    <details class="reveal"><summary>The game closes right after starting</summary><p>On Adreno devices you need a Turnip driver: the stock Qualcomm Vulkan driver is not supported yet. Install one from Settings &gt; Download a driver.</p></details>
+    <details class="reveal"><summary>The game closes right after starting</summary><p>Update to the latest version (the stock Qualcomm driver works from v0.5), or install a Turnip driver from Settings &gt; Game &gt; Download a driver. If it still closes, send the logs from Settings &gt; Help and about &gt; Report a problem.</p></details>
     <details class="reveal"><summary>Why does it stutter the first time?</summary><p>Shaders are compiled the first time they are needed and then saved. After a match or two the game runs smoothly.</p></details>
     <details class="reveal"><summary>Where is the source code?</summary><p>It will be released later. Follow the Discord for news.</p></details>
     <details class="reveal"><summary>How do I report a bug?</summary><p>Use the Logs button in the launcher to save the logs and share them on Discord or in a GitHub issue.</p></details>

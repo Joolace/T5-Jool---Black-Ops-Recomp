@@ -7,7 +7,7 @@
 A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 
 <p align="center">
-  <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.4--alpha-e2242a?style=for-the-badge" alt="Download"></a>
+  <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.5--alpha-e2242a?style=for-the-badge" alt="Download"></a>
   <a href="https://discord.gg/NXES3JBgax"><img src="https://img.shields.io/badge/discord-join-5865F2?style=for-the-badge" alt="Discord"></a>
   <a href="https://joolace.github.io/T5Jool/"><img src="https://img.shields.io/badge/website-visit-111114?style=for-the-badge" alt="Website"></a>
 </p>
@@ -27,6 +27,7 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 - **Upscalers**: Snapdragon GSR and FSR 1, render scale and sharpness options
 - **Frame generation**: Lossless Scaling frame generation on Android and Linux, with your own copy of Lossless Scaling
 - **FXAA** antialiasing on Android
+- **Solo save**: a save at the start of every round, one per map, with Load game and Retry round after a game over
 - **Online multiplayer**: dedicated servers with a server browser and ping, join mid-round, PC and Android together
 - **LAN co-op**: host from the menu, automatic game discovery, join by address
 - **Host your own server**: a Linux server with no graphics, several rooms and map rotation ([guide](SERVER.md))
@@ -43,7 +44,7 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 | | Android | Linux |
 |---|---|---|
 | Architecture | arm64 | x86_64 |
-| GPU | Adreno with a Turnip driver (required) | Any Vulkan GPU |
+| GPU | Adreno: Turnip driver recommended, stock Qualcomm driver works | Any Vulkan GPU |
 | Tested on | AYN Odin 3 Pro | Acer Nitro V16 (Ubuntu, NVIDIA GPU) |
 
 Mali GPUs: **experimental, untested** (the launcher offers the PanVK driver). Reports welcome!
@@ -65,12 +66,13 @@ Other devices may work but have not been tested yet: reports are welcome.
 2. Download the latest APK from [Releases](https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases) and install it:
    - `T5Jool-vX-arm64-v8.2.apk`: **recommended**, optimized for Snapdragon 845 and newer
    - `T5Jool-vX-arm64.apk`: generic, for older 64-bit devices
-3. **Install a Turnip driver** (required on Adreno): the first time you press Play the launcher offers to download one. Pick a driver from Mr Purple or StevenMXZ and it is installed automatically. You can change it later in Settings > Download a driver, or import your own `.zip`.
-4. In Settings choose the game folder.
-5. Tap **Zombies** or **Dead Ops Arcade**.
+3. **Install a Turnip driver** (recommended on Adreno): the first time you press Play the launcher offers to download one. Pick a driver from Mr Purple or StevenMXZ and it is installed automatically. You can change it later in Settings > Game, or import your own `.zip`. Or choose **Try system driver** to use the stock Qualcomm driver.
+4. In Settings > Game choose the game folder.
+5. Tap **Play Zombies** or **Dead Ops Arcade**.
 
-> [!WARNING]
-> The stock Qualcomm Vulkan driver does not work yet: the game closes at startup. Use Turnip.
+> [!NOTE]
+> The stock Qualcomm Vulkan driver works from v0.5, but it is slower than Turnip and stutters while it compiles shaders
+> (less and less as the shader cache fills). Turnip is still the best choice.
 
 The first launch compiles shaders, so the first minutes can stutter a little.
 
@@ -100,6 +102,13 @@ shared). Then choose 2x, 3x or 4x. Works best with a stable frame rate (set an F
 - **FXAA / SMAA** with [vkBasalt](https://github.com/DadSchoorse/vkBasalt): install it, choose the effects in
   `~/.config/vkBasalt/vkBasalt.conf`, then start with `./t5jool.sh --vkbasalt`. Don't use it together with lsfg-vk.
 
+## Solo save
+
+In solo, the game is saved at the start of every round from round 2, one save per map.
+**Play Solo > Load game** shows your saves with round and date: continue or delete them. After a game over choose
+**Retry round**, **New game** or **Return to menu**. Saved: round, points, weapons and ammo, perks, opened doors,
+power. Not yet: mystery box spot, Pack-a-Punch links, equipment, Easter eggs. Turn it off in Options > Game.
+
 ## Mods
 
 Put a community mod (made with the Black Ops mod tools) in the game folder as `mods/<name>/` with its `mod.ff`,
@@ -108,17 +117,19 @@ To play a mod online, everyone needs the same mod as the server.
 
 ## What's new
 
-See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.4-alpha**:
-- Lossless Scaling frame generation on Android (experimental): 2x, 3x or 4x the frames on screen
-- FXAA antialiasing on Android
-- Online fixes: no more crash on Moon (gas mask + grenade), automatic updates from the right repository
+See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.5-alpha**:
+- **Solo save** (experimental): saved at the start of every round, one save per map. **Play Solo > Load game**,
+  **Retry round** after a game over, **Delete save**
+- **Stock Qualcomm driver works**: Turnip is no longer required on Adreno (still faster)
+- **New Android launcher**: new home screen, settings in categories with explanations, graphics presets, loading screen
+  between maps
+- Turnip's shader cache is now kept between games (faster loading), no more checkerboard square on Moon's HUD
 
-Previous version, **v0.3-alpha**: online multiplayer with dedicated servers, server browser with ping, join by address,
-your own Linux servers with rooms and map rotation, Mods menu, ping on screen and in the scoreboard.
+Previous version, **v0.4-alpha**: Lossless Scaling frame generation and FXAA on Android, online fixes.
 
 ## Reporting bugs
 
-Use the **Logs** button in the launcher to save the logs, then share them on [Discord](https://discord.gg/NXES3JBgax) or in an issue.
+In the launcher use **Report a bug** (home screen) or Settings > Help and about to save the logs, then share them on [Discord](https://discord.gg/NXES3JBgax) or in an issue.
 
 ## Roadmap
 
@@ -131,9 +142,11 @@ Use the **Logs** button in the launcher to save the logs, then share them on [Di
 - [x] Dedicated servers (Linux) and online server browser (v0.3)
 - [x] Mods menu for community mods (v0.3)
 - [x] Lossless Scaling frame generation and FXAA (v0.4)
+- [x] Save and resume in solo (v0.5)
+- [x] Stock Qualcomm driver on Adreno (v0.5)
 - [ ] Seamless map change on servers (no reconnect)
 - [ ] Custom maps and engine mods
-- [ ] Save and resume in solo
+- [ ] Fuller solo saves (mystery box, Pack-a-Punch links, equipment)
 - [ ] Source code release
 
 ## Source code

@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.5-alpha
+*November 2026*
+
+### Highlights
+- **Stock Qualcomm driver works**: Turnip is no longer required on Adreno (it is still faster and stutters less)
+- **Solo save** (experimental): your solo game is saved at the start of every round from round 2, one save per map. **Play Solo > Load game** lists them with round and date; New game warns you when the map already has a save
+
+### Solo save
+- Main menu: Play is now **Play Solo**, with New game and Load game
+- Saved: round, points, weapons with their ammo, perks, opened doors / debris / airlocks, power, and the next special round (dogs, thief, monkeys)
+- Not saved yet: the mystery box spot, Pack-a-Punch / teleporter links, equipment (Moon's gas mask and hacker), knife upgrades, claymores, map Easter eggs
+- **Game over menu** in solo when the map has a save: **Retry round N** (from the beginning of the round you died in), **New game** or **Return to menu**. The save stays, so Load game can also retry that round later
+- Load game > a save > **Delete save** (press twice) removes it. Turn saving off in Options > Game > Solo save
+- Files: `t5jool/saves/<map>.sav` in the T5Jool home folder. Script part: `mods/t5save` (loaded automatically, does nothing in co-op or on servers)
+
+### Android
+- **New launcher home**: big Play Zombies and Dead Ops Arcade buttons over the menu background, Settings / Report a bug / Discord buttons, and status cards on the right (game files, last solo save, graphics summary, driver) that open the right page when tapped
+- **New launcher settings**: categories on the left (Game, Graphics, Frame generation, Controls, Touch and gyro, Advanced, Help and about), a short explanation under every option, short choices as buttons instead of pop-up lists
+- **Help and about** page: T5Jool card with logo and version, your device with icons (processor, graphics, memory, system, display, storage), Discord banner in its own colours
+- **Graphics presets**: Battery, Balanced, Quality and Smooth set resolution, quality, FPS limit and antialiasing in one tap
+- **Loading screen** while the game restarts for a new map or a loaded save (it restarts to free memory) and while it starts: the map name and what is happening, instead of a black screen and a flash of the launcher
+
+### Fixes
+- Android: Turnip's shader cache is now really kept between games (it was always empty: every start compiled all shaders again). Faster map loading, less stutter
+- Android: DXVK no longer fails to allocate memory when the preferred memory type is not allowed for a resource (the stock Qualcomm driver allows only some types for buffers): the game now runs on the stock driver
+- Android: mods with scripts (horde, zinfo, the solo save) are in the app again: folders starting with "_" (mods/_stack) were left out of the APK
+- No more crash after an error in the main menu (for example "Bad server address" when joining): the game closed with "Exceeded limit of 16 'font' assets"
+- D-pad HUD: the equipment highlight, the ammo circle and the ammo counters now use their real images. Fixes the checkerboard square on Moon (missing HUD images are also no longer drawn)
+
 ## v0.4-alpha
 *November 2026*
 
@@ -15,6 +44,7 @@
 - Linux: `./t5jool.sh --lsfg` for Lossless Scaling frame generation with lsfg-vk, `./t5jool.sh --vkbasalt` for FXAA/SMAA with vkBasalt
 
 ### Fixes
+- Mods: `mod.ff` and custom map files are found in the game folder too (the engine only looked in the T5Jool home folder, so mods chosen in the Mods menu did not load)
 - Online: no more crash when a weapon is used before your game has received it (Moon: gas mask and then a grenade)
 - Moon: no more "sm_sunSampleSizeNear is cheat protected" flood (hundreds of lines a second in the log, extra work every frame)
 - Android launcher: automatic updates and bug reports now use the right GitHub repository (T5-Jool---Black-Ops-Recomp). If the launcher does not offer this update, download it by hand once from the Releases page
