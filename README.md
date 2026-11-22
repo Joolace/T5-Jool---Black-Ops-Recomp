@@ -7,7 +7,7 @@
 A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 
 <p align="center">
-  <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.5--alpha-e2242a?style=for-the-badge" alt="Download"></a>
+  <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.6--alpha-e2242a?style=for-the-badge" alt="Download"></a>
   <a href="https://discord.gg/rcMeKZcShx"><img src="https://img.shields.io/badge/discord-join-5865F2?style=for-the-badge" alt="Discord"></a>
   <a href="https://joolace.github.io/T5Jool/"><img src="https://img.shields.io/badge/website-visit-111114?style=for-the-badge" alt="Website"></a>
 </p>
@@ -30,6 +30,7 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 - **Native, not emulated**: the game code runs as a 64-bit program on x86_64 Linux and arm64 Android
 - **Vulkan renderer**: Direct3D 9 translated by DXVK, with a persistent shader cache
 - **Upscalers**: Snapdragon GSR and FSR 1, render scale and sharpness options
+- **Graphics presets**: Potato, Battery, Balanced, Quality, Smooth, including a Potato preset for weak PCs
 - **Frame generation**: Lossless Scaling frame generation on Android and Linux, with your own copy of Lossless Scaling
 - **FXAA** antialiasing on Android
 - **Solo save**: a save at the start of every round, one per map, with Load game and Retry round after a game over
@@ -122,7 +123,12 @@ To play a mod online, everyone needs the same mod as the server.
 
 ## What's new
 
-See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.5-alpha**:
+See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.6-alpha**:
+- **Faster save loading**: perks, weapons, power and doors come back almost at once (no more bottle animations)
+- **Potato graphics preset** for weak PCs and devices: in game (Options > Graphics) and in the Android launcher
+- Android: the launcher's graphics quality now really changes the texture detail
+
+Previous version, **v0.5-alpha**:
 - **Solo save** (experimental): saved at the start of every round, one save per map. **Play Solo > Load game**,
   **Retry round** after a game over, **Delete save**
 - **Stock Qualcomm driver works**: Turnip is no longer required on Adreno (still faster)
@@ -130,7 +136,7 @@ See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.5-alpha**:
   between maps
 - Turnip's shader cache is now kept between games (faster loading), no more checkerboard square on Moon's HUD
 
-Previous version, **v0.4-alpha**: Lossless Scaling frame generation and FXAA on Android, online fixes.
+Before that, **v0.4-alpha**: Lossless Scaling frame generation and FXAA on Android, online fixes.
 
 ## Reporting bugs
 
@@ -149,6 +155,7 @@ In the launcher use **Report a bug** (home screen) or Settings > Help and about 
 - [x] Lossless Scaling frame generation and FXAA (v0.4)
 - [x] Save and resume in solo (v0.5)
 - [x] Stock Qualcomm driver on Adreno (v0.5)
+- [x] Faster save loading and Potato graphics preset (v0.6)
 - [ ] Seamless map change on servers (no reconnect)
 - [ ] Custom maps and engine mods
 - [ ] Fuller solo saves (mystery box, Pack-a-Punch links, equipment)

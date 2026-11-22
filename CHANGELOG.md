@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.6-alpha
+*November 2026*
+
+### Highlights
+- **Faster save loading**: perks, weapons, power and doors come back almost at once
+- **Potato graphics preset** for weak PCs and devices, in game and in the Android launcher
+- Android: the launcher's graphics quality now really changes texture detail
+
+### Solo save
+- **Much faster loading of a save**: perks come back at once (no bottle animation at each machine), power and doors are restored at the same time as weapons and perks
+
+### Graphics
+- **Potato preset** for weak PCs and devices: in game, Options > Graphics > Preset: Potato (lowest textures, no shadows, depth of field, glow, distortion, impact marks or clouds, simpler models; on PC also 1280x720). Preset: High brings the original look back
+- Android launcher: new **Potato** graphics preset (540p, 30 FPS, Potato quality) and a Potato level in Graphics quality
+- Android: the graphics quality chosen in the launcher now really changes the texture detail (the game was choosing it by itself and ignored it)
+
+### For modders
+- `+set t5_dumpscripts 1` saves the game scripts loaded from your own fastfiles to `t5jool/scriptdump` (off by default), to write mods and features against the real scripts
+
 ## v0.5-alpha
 *November 2026*
 
