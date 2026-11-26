@@ -37,7 +37,7 @@ extern "C" void nx_sbrk_flush_log(void);
 #include "win_configure.h"
 #include <direct.h>
 #include "win_steam.h"
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX)
 #include <universal/local_player_name.h>
 #endif
 
@@ -997,7 +997,7 @@ int __cdecl PrivateUnhandledExceptionFilter(_EXCEPTION_POINTERS *ExceptionInfo)
 #endif
 }
 
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX)
 static void Win_ApplyPlayerName(char *cmdline, size_t size)
 {
     // Use the executable's directory, independent of the launcher's working directory.
@@ -1074,7 +1074,7 @@ int __stdcall WinMain(HINSTANCE__ *hInstance, HINSTANCE__ *hPrevInstance, char *
             Sys_FindInfo();
             g_wv.hInstance = hInstance;
             I_strncpyz(sys_cmdline, lpCmdLine, 1024);
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX)
             Win_ApplyPlayerName(sys_cmdline, sizeof(sys_cmdline));
 #endif
             if ( g_open_automate_benchmark[0] )

@@ -98,3 +98,12 @@ bool NX_JoyConMouse(NxJoyConMouse *mouse)
     return false;
 }
 void NX_JoyConMouseClaimClicks(bool) {}
+
+// ------------------------------------------------------------------ hooks of the Switch's DXVK build (Sarek, src/nx/dxvk)
+// DXVK-native is a separate library here: its device lock and counters are not reachable. Every
+// call on the device takes DXVK's own lock (the device is created multithreaded), which is what
+// the zone loader's background texture uploads need.
+extern "C" void NX_DxvkHoldDeviceLock(void *, bool) {}
+extern "C" void NX_DxvkReportCounters(void *) {}
+extern "C" void NX_DxvkInitThreadAffinity() {}
+extern "C" void NX_DxvkSetThreadName(const char *) {}

@@ -60,6 +60,8 @@ include(cmake/splitscreen.cmake)
 
 if(NINTENDO_SWITCH)
     include(cmake/switch.cmake)
+elseif(UNIX)
+    include(cmake/t5jool.cmake)   # T5Jool: Linux and Android
 elseif(WIN32)
     include(cmake/windows.cmake)
 else()

@@ -83,7 +83,7 @@ void __cdecl IN_StartupGamepads()
 
 void __cdecl IN_RecenterMouse()
 {
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX) // T5Jool: mouse and keyboard on PCs and phones
     tagRECT window_rect; // [esp+0h] [ebp-10h] BYREF
 
     GetWindowRect(g_wv.hWnd, &window_rect);
@@ -100,7 +100,7 @@ bool __cdecl IN_IsForegroundWindow()
 
 void __cdecl IN_ActivateMouse(int force)
 {
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX) // T5Jool: mouse and keyboard on PCs and phones
     if ( s_wmv.mouseInitialized )
     {
         if ( !r_fullscreen
@@ -123,7 +123,7 @@ void __cdecl IN_ActivateMouse(int force)
 
 void __cdecl IN_DeactivateMouse()
 {
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX) // T5Jool: mouse and keyboard on PCs and phones
     if ( s_wmv.mouseInitialized && s_wmv.mouseActive )
     {
         s_wmv.mouseActive = 0;
@@ -139,7 +139,7 @@ void IN_DeactivateWin32Mouse()
 
 void __cdecl IN_StartupMouse()
 {
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX) // T5Jool: mouse and keyboard on PCs and phones
     s_wmv.mouseInitialized = 0;
     if ( in_mouse->current.enabled )
     {
@@ -155,7 +155,7 @@ void __cdecl IN_StartupMouse()
 
 void __cdecl IN_MouseEvent(int mstate)
 {
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX) // T5Jool: mouse and keyboard on PCs and phones
     int diff; // [esp+0h] [ebp-8h]
     int button; // [esp+4h] [ebp-4h]
 
@@ -178,7 +178,7 @@ void __cdecl IN_MouseEvent(int mstate)
 
 void __cdecl IN_SetCursorPos(unsigned int x, unsigned int y)
 {
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX) // T5Jool: mouse and keyboard on PCs and phones
     tagPOINT curPos; // [esp+0h] [ebp-8h] BYREF
 
     //curPos = (tagPOINT)__PAIR64__(y, x);
@@ -192,7 +192,7 @@ void __cdecl IN_SetCursorPos(unsigned int x, unsigned int y)
 
 void __cdecl IN_ShowSystemCursor(bool show)
 {
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX) // T5Jool: mouse and keyboard on PCs and phones
     int actualShow; // [esp+0h] [ebp-8h]
     int desiredShow; // [esp+4h] [ebp-4h]
 
@@ -205,7 +205,7 @@ void __cdecl IN_ShowSystemCursor(bool show)
 
 void __cdecl IN_Startup()
 {
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX) // T5Jool: mouse and keyboard on PCs and phones
     IN_StartupMouse();
     Dvar_ClearModified(in_mouse);
 #endif
@@ -219,7 +219,7 @@ void __cdecl IN_Shutdown()
 
 void __cdecl IN_Init()
 {
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX) // T5Jool: mouse and keyboard on PCs and phones
     in_mouse = _Dvar_RegisterBool("in_mouse", 1, 0x21u, "Initialize the mouse drivers");
 #endif
 #ifdef KISAK_NX2
@@ -302,7 +302,7 @@ static void IN_JoyConMouseMove()
 
 void __cdecl IN_Frame()
 {
-#ifdef KISAK_NX
+#if defined(KISAK_NX) && !defined(T5_POSIX)
     if (in_appactive && IN_IsForegroundWindow())
     {
 #ifdef KISAK_NX2
@@ -437,7 +437,7 @@ void IN_GamepadsMove()
 
 void IN_MouseMove()
 {
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX) // T5Jool: mouse and keyboard on PCs and phones
     int v0; // [esp+0h] [ebp-10h]
     tagPOINT curPos; // [esp+4h] [ebp-Ch] BYREF
     int dy; // [esp+Ch] [ebp-4h]

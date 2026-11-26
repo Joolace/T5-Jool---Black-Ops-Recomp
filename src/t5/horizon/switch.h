@@ -242,3 +242,6 @@ static inline u64 t5_meminfo_kb(const char *key)
 }
 static inline u64 heapGetTotalSize(void) { return t5_meminfo_kb("MemTotal") << 10; }
 static inline u64 heapGetFreeSize(void) { return t5_meminfo_kb("MemAvailable") << 10; }
+
+// the game window (SDL_Window*) for the D3D9 bridge's CreateDevice (t5_main.cpp)
+void *nwindowGetDefault(void);
