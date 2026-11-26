@@ -1,0 +1,4 @@
+#ifndef KISAK_COMPAT_STEAM_ISTEAMFRIENDS_H
+#define KISAK_COMPAT_STEAM_ISTEAMFRIENDS_H
+#include "steam_api.h"
+#endif

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenBLOPS-NX Installer</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="platform">Nintendo Switch and Switch 2</p>
+      <h1>OpenBLOPS-NX</h1>
+      <p>Install Campaign, Zombies, and Multiplayer from your own PC copy of Call of Duty: Black Ops.</p>
+    </header>
+    <section class="setup" aria-label="Installer setup">
+      <div class="step">
+        <div><h2>Console</h2><p id="console-label">The build for your console.</p></div>
+        <select id="console" aria-label="Console">
+          <option value="switch">Nintendo Switch</option>
+          <option value="switch2">Nintendo Switch 2</option>
+        </select>
+      </div>
+      <div class="step">
+        <div><h2>Black Ops folder</h2><p id="source-label">Choose the PC folder containing main and zone.</p></div>
+        <button id="source" type="button">Choose game folder</button>
+        <input id="source-files" class="visually-hidden" type="file" webkitdirectory multiple>
+      </div>
+      <div class="step">
+        <div><h2>Install location</h2><p id="destination-label">Choose your SD card or a staging folder (not needed for Save as ZIP).</p></div>
+        <button id="destination" type="button">Choose destination</button>
+      </div>
+      <div class="action">
+        <p>Your game files stay on this device.</p>
+        <button id="zip" type="button" disabled>Save as ZIP</button>
+        <button id="install" class="primary" type="button" disabled>Install to folder</button>
+      </div>
+    </section>
+    <section id="result" class="result" aria-label="Installation progress" hidden>
+      <p id="status" role="status"></p>
+      <progress id="progress" max="1" value="0" aria-label="Installation progress"></progress>
+      <details id="issues" hidden><summary>Conversion report</summary><ul id="errors"></ul></details>
+    </section>
+    <footer>
+      <a href="https://github.com/HDErick/OpenBLOPS-NX/releases/latest">Latest GitHub release</a>
+      <span>Output goes to <code id="output-path">switch/OpenBLOPS-NX/</code>.</span>
+    </footer>
+  </main>
+</body>
+</html>
