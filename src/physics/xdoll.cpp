@@ -429,7 +429,7 @@ char __cdecl XDoll_CreatePhysObj(
 #ifdef KISAK_SP
                 surfFlags = 0x00D00000;
 #else
-                surfFlags = (int)"t";
+                surfFlags = (int)(uintptr_t)"t";
 #endif
             aabb_gjk_geom = create_aabb_gjk_geom(
                                                 model->mins,

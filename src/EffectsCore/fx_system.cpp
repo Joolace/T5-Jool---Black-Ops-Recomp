@@ -471,7 +471,7 @@ void __cdecl FX_RunGarbageCollectionAndPrioritySort(FxSystem *system)
 #ifdef KISAK_SP
                     if ((reinterpret_cast<FxEffectContainer *>(effect)->atomics.status & 0x3FFF) != 0)
 #else
-                    if ( ((int)effect[1].def & 0x3FFF) != 0 )
+                    if ( ((int)(uintptr_t)effect[1].def & 0x3FFF) != 0 )
 #endif
                     {
                         system->shared->allEffectHandles[((_WORD)freedCount + (_WORD)activeIndex) & 0x3FF] = effectHandle;

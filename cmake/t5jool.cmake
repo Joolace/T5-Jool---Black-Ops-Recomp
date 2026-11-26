@@ -102,6 +102,8 @@ target_compile_options(${BIN_NAME} PRIVATE
     "SHELL:-include \"${NX_DIR}/compat/nx_prefix.h\""
     -w -Wno-c++11-narrowing
     $<$<COMPILE_LANGUAGE:C>:-Wno-incompatible-function-pointer-types>
+    $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-function-declaration>
+    $<$<COMPILE_LANGUAGE:C>:-Wno-int-conversion>
 )
 
 # Windows-era paths ('\', mixed case) go through the case-insensitive normalizer (nx_wincompat.cpp)

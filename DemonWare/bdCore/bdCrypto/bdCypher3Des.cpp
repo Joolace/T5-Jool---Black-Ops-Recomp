@@ -6,7 +6,7 @@
 #include <libs/libtomcrypt-1.17/src/headers/tomcrypt_misc.h>
 
 #if !defined(KISAK_SP) || defined(KISAK_DW)
-static void des3_done(symmetric_key *skey)
+static void bd_des3_done(symmetric_key *skey) // T5Jool: tomcrypt declares des3_done extern
 {
     //LTC_UNUSED_PARAM(skey);
     // 3DES has no dynamic key state to free
