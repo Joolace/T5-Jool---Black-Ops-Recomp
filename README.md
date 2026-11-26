@@ -3,11 +3,11 @@
 </p>
 
 <h1 align="center">T5JOOL</h1>
-<p align="center"><b>Black Ops Zombies Recomp</b><br>
-A native 64-bit port of Black Ops Zombies for Linux and Android</p>
+<p align="center"><b>Black Ops Recomp</b><br>
+A native 64-bit port of Black Ops Zombies and Multiplayer for Linux and Android</p>
 
 <p align="center">
-  <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.6--alpha-e2242a?style=for-the-badge" alt="Download"></a>
+  <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.8--alpha-e2242a?style=for-the-badge" alt="Download"></a>
   <a href="https://discord.gg/rcMeKZcShx"><img src="https://img.shields.io/badge/discord-join-5865F2?style=for-the-badge" alt="Discord"></a>
   <a href="https://joolace.github.io/T5Jool/"><img src="https://img.shields.io/badge/website-visit-111114?style=for-the-badge" alt="Website"></a>
 </p>
@@ -34,14 +34,16 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 - **Frame generation**: Lossless Scaling frame generation on Android and Linux, with your own copy of Lossless Scaling
 - **FXAA** antialiasing on Android
 - **Solo save**: a save at the start of every round, one per map, with Load game and Retry round after a game over
-- **Online multiplayer**: dedicated servers with a server browser and ping, join mid-round, PC and Android together
+- **Zombies online co-op**: dedicated servers with a server browser and ping, join mid-round, PC and Android together
+- **Host online games**: host a Zombies game or a Multiplayer match that anyone can find in the online list. UPnP opens your router by itself, and when that is not possible (mobile network, CGNAT) the game goes through the T5Jool relay
+- **Multiplayer (beta)**: matches against bots (Team Deathmatch and Free-for-all) and online matches, with native team and class menus and **Create a Class**
 - **LAN co-op**: host from the menu, automatic game discovery, join by address
 - **Host your own server**: a Linux server with no graphics, several rooms and map rotation ([guide](SERVER.md))
 - **Mods**: load community mods made with the Black Ops mod tools from the Mods menu
 - **Controls**: controllers, handheld buttons, remapping, and a touch layout you can move and resize
 - **Vibration and gyro aiming**: on the controller or the device itself, gyro always or only while aiming
 - **Mouse and keyboard** on Android too
-- **New menus**: main menu, pause menu and loading screens with map previews, custom background and music
+- **New menus**: main menu with Zombies and Multiplayer sections, pause menu and loading screens with map previews, custom background and music
 - **Every map**: all Black Ops Zombies maps you own, plus Dead Ops Arcade
 - **Automatic updates**: the Android launcher updates T5Jool and your Turnip driver for you
 
@@ -53,7 +55,7 @@ A native 64-bit port of Black Ops Zombies for Linux and Android</p>
 | GPU | Adreno: Turnip driver recommended, stock Qualcomm driver works | Any Vulkan GPU |
 | Tested on | AYN Odin 3 Pro | Acer Nitro V16 (Ubuntu, NVIDIA GPU) |
 
-Mali GPUs: **experimental, untested** (the launcher offers the PanVK driver). Reports welcome!
+Mali GPUs: **experimental**. The stock Mali driver does not work: install a **PanVK** driver in the launcher (tested in game on a Mali-G615). Reports welcome!
 
 ### Tested setup
 
@@ -74,7 +76,7 @@ Other devices may work but have not been tested yet: reports are welcome.
    - `T5Jool-vX-arm64.apk`: generic, for older 64-bit devices
 3. **Install a Turnip driver** (recommended on Adreno): the first time you press Play the launcher offers to download one. Pick a driver from Mr Purple or StevenMXZ and it is installed automatically. You can change it later in Settings > Game, or import your own `.zip`. Or choose **Try system driver** to use the stock Qualcomm driver.
 4. In Settings > Game choose the game folder.
-5. Tap **Play Zombies** or **Dead Ops Arcade**.
+5. Tap **Zombies**, **Multiplayer** or **Dead Ops Arcade**.
 
 > [!NOTE]
 > The stock Qualcomm Vulkan driver works from v0.5, but it is slower than Turnip and stutters while it compiles shaders
@@ -84,12 +86,23 @@ The first launch compiles shaders, so the first minutes can stutter a little.
 
 ## Multiplayer
 
-**LAN co-op** - on the host: **Multiplayer → LAN → Host LAN game** and pick a map.
-On the other devices: **Multiplayer → LAN** and select the game from the list. Everyone must be on the same network.
+The main menu has two sections, **Zombies** and **Multiplayer**.
+
+**Zombies co-op online** - **Zombies → Co-op online** lists the dedicated servers and the games hosted by players, with their ping.
+**Host online game** opens your own game to everyone: the pause menu tells you whether other players can reach it.
+
+**Zombies LAN co-op** - on the host: **Zombies → Co-op on local network → Host LAN game** and pick a map.
+On the other devices: **Zombies → Co-op on local network** and select the game from the list. Everyone must be on the same network.
 If you use a firewall, allow UDP ports **3074** (game) and **3075** (discovery).
 
-**Online** - **Multiplayer → Online** lists the dedicated servers on the internet, with their ping.
-A server that is not in the list: **Multiplayer → Join by address** and type its IP.
+**Multiplayer (beta)**
+- **Play vs bots**: an offline match against bots (Team Deathmatch and Free-for-all), choose mode, map, bots and difficulty
+- **Host online match**: a match anyone can find (players only, no bots in network matches)
+- **Find matches**: the matches hosted by other players
+
+**Hosted games** open the router ports by themselves with UPnP. If that is not possible (router without UPnP, mobile network, CGNAT), the game goes through the T5Jool relay, so it can still be joined.
+
+A server that is not in the list: **Join by address** in the main menu, and type its IP.
 Want to run one? See **[Hosting a dedicated server](SERVER.md)** (Linux).
 
 ## Frame generation and antialiasing
@@ -111,7 +124,7 @@ shared). Then choose 2x, 3x or 4x. Works best with a stable frame rate (set an F
 ## Solo save
 
 In solo, the game is saved at the start of every round from round 2, one save per map.
-**Play Solo > Load game** shows your saves with round and date: continue or delete them. After a game over choose
+**Zombies > Solo > Load game** shows your saves with round and date: continue or delete them. After a game over choose
 **Retry round**, **New game** or **Return to menu**. Saved: round, points, weapons and ammo, perks, opened doors,
 power. Not yet: mystery box spot, Pack-a-Punch links, equipment, Easter eggs. Turn it off in Options > Game.
 
@@ -123,7 +136,18 @@ To play a mod online, everyone needs the same mod as the server.
 
 ## What's new
 
-See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.6-alpha**:
+See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.8-alpha**:
+- **No longer Zombies only**: new menu and launcher with **Zombies** and **Multiplayer** sections
+- **Host online games**: Zombies co-op and Multiplayer matches (beta) that anyone can find, with UPnP or the T5Jool relay
+- **Multiplayer (beta)**: matches against bots, Create a Class, touch controls and gamepads
+
+**v0.7 / v0.7.1-experimental**:
+- Fewer "Out of memory" errors on phones with less memory
+- **Mali GPUs with PanVK** reach the game (experimental)
+- Second fire button and D-pad in the touch controls, menus scroll with a finger
+- Gamepad mappings with `gamecontrollerdb.txt`, no more stretched image on screens wider than 16:9
+
+**v0.6-alpha**:
 - **Faster save loading**: perks, weapons, power and doors come back almost at once (no more bottle animations)
 - **Potato graphics preset** for weak PCs and devices: in game (Options > Graphics) and in the Android launcher
 - Android: the launcher's graphics quality now really changes the texture detail
@@ -149,13 +173,16 @@ In the launcher use **Report a bug** (home screen) or Settings > Help and about 
 - [x] LAN co-op with discovery and join in progress
 - [x] Rumble, gyro aiming, mouse and keyboard on Android
 - [x] Automatic updates for the launcher and the GPU driver
-- [ ] Mali GPU support (experimental, needs testers)
+- [ ] Mali GPU support (experimental with PanVK, needs testers)
 - [x] Dedicated servers (Linux) and online server browser (v0.3)
 - [x] Mods menu for community mods (v0.3)
 - [x] Lossless Scaling frame generation and FXAA (v0.4)
 - [x] Save and resume in solo (v0.5)
 - [x] Stock Qualcomm driver on Adreno (v0.5)
-- [x] Faster save loading and Potato graphics preset (v0.6)
+- [x] Faster save loading and Potato preset (v0.6)
+- [x] Multiplayer against bots and Create a Class (v0.7)
+- [x] Host online games with UPnP and relay, Zombies and Multiplayer menus (v0.8)
+- [ ] Bots in online multiplayer matches
 - [ ] Seamless map change on servers (no reconnect)
 - [ ] Custom maps and engine mods
 - [ ] Fuller solo saves (mystery box, Pack-a-Punch links, equipment)

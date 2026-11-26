@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>T5Jool — Black Ops Zombies Recomp</title>
-<meta name="description" content="T5Jool: a native 64-bit port of Black Ops Zombies for Linux and Android. Vulkan, upscalers, online and LAN co-op, dedicated servers, mods, touch and controller support.">
-<meta property="og:title" content="T5Jool — Black Ops Zombies Recomp">
-<meta property="og:description" content="Native 64-bit Black Ops Zombies on Linux and Android handhelds.">
+<title>T5Jool — Black Ops Recomp</title>
+<meta name="description" content="T5Jool: a native 64-bit port of Black Ops Zombies and Multiplayer for Linux and Android. Vulkan, upscalers, online games anyone can join, LAN co-op, dedicated servers, mods, touch and controller support.">
+<meta property="og:title" content="T5Jool — Black Ops Recomp">
+<meta property="og:description" content="Native 64-bit Black Ops Zombies and Multiplayer on Linux and Android handhelds.">
 <meta property="og:image" content="assets/icon.png">
 <link rel="icon" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -195,9 +195,9 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
   <div class="hero-inner wrap">
     <img class="logo" src="assets/logo.png" alt="T5Jool logo">
     <h1 class="title" aria-label="T5JOOL"><span>T</span><span>5</span><span>J</span><span>O</span><span>O</span><span>L</span></h1>
-    <div class="subtitle">BLACK OPS ZOMBIES RECOMP</div>
+    <div class="subtitle">BLACK OPS RECOMP</div>
     <div class="rule"></div>
-    <p class="tagline">Black Ops Zombies, rebuilt to run natively on 64-bit Linux and Android handhelds. Vulkan rendering, upscalers, online co-op with dedicated servers and controls made for every screen.</p>
+    <p class="tagline">Black Ops Zombies and Multiplayer, rebuilt to run natively on 64-bit Linux and Android handhelds. Vulkan rendering, upscalers, online games anyone can join and controls made for every screen.</p>
     <div class="cta">
       <a class="btn primary" href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
@@ -210,7 +210,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
     </div>
     <p class="alpha-note"><b>Alpha</b> · in active development · expect bugs and crashes</p>
     <div class="badges">
-      <span class="badge"><b>●</b> v0.6-alpha</span>
+      <span class="badge"><b>●</b> v0.8-alpha</span>
       <span class="badge">Linux x86_64</span>
       <span class="badge">Android arm64</span>
       <span class="badge">Vulkan</span>
@@ -264,12 +264,12 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
   <div class="wrap">
     <div class="reveal">
       <div class="kicker">// What's new</div>
-      <h2>v0.6-alpha</h2>
-      <p class="lead">Faster save loading and a Potato preset for weak hardware, on top of v0.5's solo saves and new launcher. Full list in the <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/blob/main/CHANGELOG.md">changelog</a>.</p>
+      <h2>v0.8-alpha</h2>
+      <p class="lead">No longer Zombies only: a new menu with Zombies and Multiplayer, and online games anyone can join. Full list in the <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/blob/main/CHANGELOG.md">changelog</a>.</p>
     </div>
     <div class="grid">
-      <div class="card reveal"><h3>Faster save loading</h3><p>New in v0.6: perks, weapons, power and doors come back almost at once when you load a save. No more waiting for the bottle animations.</p></div>
-      <div class="card reveal"><h3>Potato preset</h3><p>New in v0.6: the lightest graphics settings in one tap, for weak PCs and devices. In game and in the Android launcher.</p></div>
+      <div class="card reveal"><h3>Zombies and Multiplayer</h3><p>New in v0.8: a new menu and launcher with two sections. Multiplayer (beta) has matches against bots, Create a Class and online matches.</p></div>
+      <div class="card reveal"><h3>Host online games</h3><p>New in v0.8: host a Zombies game or a Multiplayer match that anyone can find. UPnP opens your router, and the T5Jool relay covers mobile networks.</p></div>
       <div class="card reveal"><h3>Solo save</h3><p>Your solo game is saved at the start of every round, one save per map. Load it from Play Solo, retry the round you died in, or delete it.</p></div>
       <div class="card reveal"><h3>Stock Qualcomm driver</h3><p>Turnip is no longer required on Adreno. It is still faster and stutters less, but the system driver now works too.</p></div>
       <div class="card reveal"><h3>New launcher</h3><p>A new home screen, settings in categories with an explanation for every option, graphics presets and a loading screen between maps.</p></div>
@@ -341,7 +341,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
       <div class="step reveal"><div><h4>Install T5Jool</h4><p>Download the latest APK from the Releases page: <code>arm64-v8.2</code> for Snapdragon 845 and newer (recommended), <code>arm64</code> for older devices.</p></div></div>
       <div class="step reveal"><div><h4>Install a Turnip driver (recommended)</h4><p>The first time you press Play the launcher offers to download a Turnip driver from Mr Purple or StevenMXZ and installs it for you. The stock Qualcomm driver also works, but it is slower and stutters for the first games.</p></div></div>
       <div class="step reveal"><div><h4>Point the launcher to the game</h4><p>Open Settings in the launcher and choose the game folder.</p></div></div>
-      <div class="step reveal"><div><h4>Play</h4><p>Tap Zombies or Dead Ops Arcade. The first launch builds the shader cache, so the first minutes can stutter a little.</p></div></div>
+      <div class="step reveal"><div><h4>Play</h4><p>Tap Zombies, Multiplayer or Dead Ops Arcade. The first launch builds the shader cache, so the first minutes can stutter a little.</p></div></div>
     </div>
   </div>
 </section>
@@ -365,6 +365,8 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
       <div class="item done reveal"><div class="when">DONE · v0.5</div><h4>Save and resume in solo</h4><p>A save at the start of every round, Load game and Retry round.</p></div>
       <div class="item done reveal"><div class="when">DONE · v0.5</div><h4>Stock Qualcomm driver</h4><p>Play on Adreno without installing Turnip.</p></div>
       <div class="item done reveal"><div class="when">DONE · v0.6</div><h4>Faster saves and Potato preset</h4><p>Save loading in a moment, lightest graphics in one tap.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.7</div><h4>Multiplayer against bots</h4><p>Offline matches with bots, native team and class menus, Create a Class.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.8</div><h4>Online games anyone can join</h4><p>Zombies and Multiplayer hosting with UPnP and the T5Jool relay, new menu and launcher.</p></div>
       <div class="item now reveal"><div class="when">IN PROGRESS</div><h4>Mali GPU support</h4><p>Experimental with PanVK: we need testers with Mali devices.</p></div>
       <div class="item reveal"><div class="when">PLANNED</div><h4>Seamless map change</h4><p>Servers change map without players reconnecting.</p></div>
       <div class="item reveal"><div class="when">PLANNED</div><h4>Custom maps and engine mods</h4><p>More mod types, with an easy way to install them.</p></div>
@@ -382,7 +384,7 @@ footer p{max-width:760px;margin-top:20px;line-height:1.7}
     </div>
     <details class="reveal"><summary>Is it stable?</summary><p>Not yet. T5Jool is alpha software in active development: you may run into bugs, crashes and missing features. Every report helps, use Settings &gt; Report a problem in the launcher.</p></details>
     <details class="reveal"><summary>Does T5Jool include the game?</summary><p>No. It contains no Activision assets. It only runs the files of a copy of Black Ops that you own.</p></details>
-    <details class="reveal"><summary>Is this multiplayer or campaign?</summary><p>Zombies and Dead Ops Arcade only. Co-op works over your local network.</p></details>
+    <details class="reveal"><summary>Is this multiplayer or campaign?</summary><p>Zombies, Dead Ops Arcade and Multiplayer (beta). Zombies co-op works online and on your local network; Multiplayer has matches against bots and online matches. No campaign.</p></details>
     <details class="reveal"><summary>Which devices are supported?</summary><p>Android arm64 devices with an Adreno GPU work best today. It is developed on an AYN Odin 3 Pro (Snapdragon 8 Elite). Linux x86_64 with a Vulkan GPU is supported too.</p></details>
     <details class="reveal"><summary>The game closes right after starting</summary><p>Update to the latest version (the stock Qualcomm driver works from v0.5), or install a Turnip driver from Settings &gt; Game &gt; Download a driver. If it still closes, send the logs from Settings &gt; Help and about &gt; Report a problem.</p></details>
     <details class="reveal"><summary>Why does it stutter the first time?</summary><p>Shaders are compiled the first time they are needed and then saved. After a match or two the game runs smoothly.</p></details>

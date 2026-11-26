@@ -1,7 +1,7 @@
 # Hosting a T5Jool dedicated server
 
 A dedicated server runs a Zombies match on its own, without graphics or sound, so players can join it from the
-**Multiplayer → Online** list at any time. Up to **4 players** per server.
+**Zombies → Co-op online** list at any time. Up to **4 players** per server.
 
 > T5Jool is in alpha: dedicated servers are new and may be unstable. Please report problems on
 > [GitHub issues](https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/issues) with the server log.

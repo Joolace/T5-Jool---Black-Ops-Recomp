@@ -1,5 +1,107 @@
 # Changelog
 
+## v0.8-alpha
+*November 2026*
+
+> T5Jool is no longer Zombies only: a new menu with Zombies and Multiplayer, games and matches anyone can join from the online list, and the relay for players behind a router or a mobile network.
+
+### Highlights
+- **New menu and launcher** with Zombies and Multiplayer sections
+- **Host online games** (Zombies co-op) and **online matches** (Multiplayer, beta) that anyone can find, with UPnP or the master server relay
+- Includes every fix of v0.7 and v0.7.1 (low memory devices, Mali with PanVK, touch, gamepads, wide screens)
+
+### Menus
+- **New menu layout**: the main menu has **Zombies** (Solo, Co-op online, Co-op on local network) and **Multiplayer** (Play vs bots, Host online match, Find matches), then Join by address, Options, Mods, Credits and Quit. Each online list shows only its own kind of game
+- **Launcher**: T5Jool is now "Black Ops Recomp". The home screen has two large cards side by side, **ZOMBIES** and **MULTIPLAYER** (opens the game on the Multiplayer page, with its own picture), with Dead Ops Arcade, Settings, Report a bug and Discord in one row below. More space between items, and graphics and driver are shown in a single card. The card pictures can be replaced with your own: put `card_mp.jpg` (or `card_zombies.jpg`, also .png or .webp) in the T5Jool folder. Small buttons no longer wrap their text
+- After a multiplayer match, and after Quit to menu from one, the game comes back to the Multiplayer page
+
+### Online
+- **Host online game** (Zombies > Co-op online): host a Zombies co-op game that anyone can find in the online list. The game opens the router ports by itself with UPnP (home Wi-Fi), and the pause menu shows whether other players can reach you
+- The online list only shows games that can really be joined: the master server checks each one from another port. Games hosted behind a router without UPnP, or on a mobile network, are not listed (friends can still use Join by address)
+- **Relay for hosted games**: when a hosted game is not reachable (router without UPnP, mobile network, CGNAT), it goes through the master server's relay. Players join it from the online list like any server, also with older versions of T5Jool
+- **Online matches (beta)**: Multiplayer > Host online match hosts a multiplayer match that anyone can find in Multiplayer > Find matches (players only: the game scripts add no bots to network matches), with UPnP or the relay like Zombies
+- Online list: a game hosted through the relay was shown with the wrong port (the host's own 3074), so joining it connected to the dedicated server on the same machine. The game port now comes from the port that answered, and pings are matched by address and port
+- Joining a game from the list switches the game to multiplayer or Zombies by itself when needed (a multiplayer match needs a restart in multiplayer mode)
+- Master server (`tools/master`): reachability check from UDP port 3077, relay on UDP 3078 and 3100-3199, which must be open on the VPS
+
+## v0.7.1-experimental
+*November 2026*
+
+> Experimental update of v0.7: Mali GPUs with PanVK reach the game, more touch controls, touch scrolling in the menus.
+
+### Highlights
+- **Mali GPUs with PanVK: fixed the crash right after startup** (tested in game on a Mali-G615)
+- **Touch controls in multiplayer**, a **second fire button** and a **D-pad**
+- **Menu lists scroll with a finger**, and Versus has Start match at the top
+
+### Update (same version)
+- **Gamepads**: a `gamecontrollerdb.txt` (the community mapping database for SDL) in the game folder or in `t5jool/` adds mappings for pads SDL does not know. The log lists every pad with its name and type (Xbox, PS4, PS5, Switch Pro...), and says when one is ignored
+- Touch: **fixed the menu scrolling by itself** after a tap, and taps on an item work at the first try (the jump of the cursor to the finger no longer counts as a drag, and small finger movements are ignored). The finger lift did not always reach the menu, so the list kept following the cursor; the menu now reads whether the finger is still down
+- Fewer log lines during play: the memory diagnostics printed a line every time an image streamed in, which could cause small stutters
+
+### Fixes
+- **No more stretched image on screens wider than 16:9** (most phones, 21:9 monitors): with the aspect ratio on auto the game stopped at 16:9 and stretched the picture sideways. It now uses the real screen ratio, with a wider field of view
+- **Gamepads in multiplayer (Versus)**: the pad worked in Zombies but not in multiplayer. Multiplayer starts straight into the map, so the pad button and stick bindings, loaded at the first main menu, were never loaded. This also affected the touch controls, which are a virtual pad
+- Mali GPUs: when the graphics do not start, the error window explains that the stock Mali driver is not enough and a PanVK driver is needed (or, with a custom driver, to try another PanVK version)
+- **Touch: the menu lists scroll by dragging a finger** (Options, Versus, maps, Create a Class...). A tap still selects: the item is chosen when the finger lifts, and only if it did not move
+- Versus: **Start match is now at the top** of the page. On short screens, and with touch, the list did not scroll down to it
+- **Mali GPUs with PanVK: fixed a crash right after startup** (Mali-G615): the driver reports "present wait", but on Android the swapchain belongs to the system Vulkan loader and the call jumped to an invalid address. DXVK no longer uses present wait on Android
+- A Turnip driver (for Adreno) chosen on a phone without an Adreno GPU is now skipped with a clear message in the log, instead of failing graphics startup
+
+### Touch controls
+- **Touch controls in multiplayer** (Versus): they never appeared, because in a multiplayer match other input states stay on besides menu and console
+- **Second fire button** on the left, above the stick, to shoot with either hand
+- **D-pad** (up, down, left, right) in the top left: on Moon the P.E.S. helmet and the special items use it
+- All new buttons can be moved and resized in Touch controls layout; layouts saved before keep working
+
+## v0.7-experimental
+*November 2026*
+
+> **Experimental build for testing more devices.** It fixes "Out of memory" on phones with less low memory and adds Versus (beta), but several changes have had little testing. If something breaks, please send your logs (launcher > Logs) on Discord with your device model.
+
+### Highlights
+- **Less "Out of memory" on Kino der Toten, Five and Der Riese** on phones with less low memory (tested on a Motorola edge 70 max)
+- **Versus (beta)**: an offline multiplayer match against bots from the main menu, with native team and class menus and **Create a Class**
+- **Mali GPUs (experimental)**: custom PanVK drivers are now loaded the same way as Turnip on Adreno
+- Several 64-bit crash fixes: explosions near cars and barrels, player bodies, vehicles, map unload
+
+### Fixes
+- Custom Vulkan drivers on Mali GPUs (PanVK) load through the driver namespace like Turnip on Adreno. They failed with "libhardware.so not found", and the stock Mali driver lacks VK_EXT_robustness2, which DXVK needs
+- Android: Quit to menu (pause) and Return to menu (game over) restart the game into the menu with clean memory. On phones with less low memory the disconnect itself ran out of memory
+- **Less "Out of memory" when loading Kino der Toten, Five and Der Riese on phones with less low memory** (seen on Snapdragon 778G and SM8845): a map needs about 190 MB in one block, and only the largest free zone below 2 GB can hold it. Other large blocks now go into that zone only when they fit nowhere else, and the skinned vertex cache, index buffers and temporary image memory (about 40 MB) no longer use memory below 2 GB
+- **Fixed a crash when a multiplayer map unloads** (end of match, map rotation): invalid material pointers in the multiplayer menus are skipped while the game checks which assets are still in use
+- **Fixed a crash when a vehicle spawns** (the RC-XD killstreak in the multiplayer test boot): the vehicle's collision helper lost its function table when the vehicle was cleared
+- **Fixed a crash when the player dies and leaves a body** (blown up next to a car in the multiplayer test boot): six places looked up the player with the 32-bit position of the entity's class name. This also affected zombie corpses and AI pathing
+- **Fixed a crash when something explodes near destructible objects** (barrels, cars, crates): the queued area damage lost the upper half of the object's address on 64-bit. Seen on Verrückt and in the multiplayer test boot, after a few minutes of play
+
+### Development
+- Low memory diagnostics for the "Out of memory" on some phones (Kino der Toten, Five, Der Riese): the log lists the large allocations below 2 GB and, when memory runs out, the address space below 4 GB. Two test switches: `+set bo1_lowmem_waste N` takes N MB of low memory to reproduce a phone with less of it, and `+set bo1_pmem_ext 1` loads large fastfiles between 2 and 4 GB (not safe yet: it crashes in places that keep pointers in 32-bit integers)
+- Model lighting no longer passes a pointer through a 32-bit integer (first of those places)
+- **Versus (beta)** in the main menu: an offline multiplayer match against bots without typing a command line. Choose the mode, map, time limit, friendly and enemy bots (Team Deathmatch and Free-for-all) and their difficulty, then Start match. The game restarts in multiplayer with every item unlocked. The choices are saved
+- **Create a Class (Versus)**: five custom classes with every weapon, attachment, perk, grenade, equipment and killstreak. In a match the team and class choices use the native menu (touch, pad and keyboard), and "Edit custom classes" opens the editor. Classes are saved in `t5jool/classes.txt` in the game's home folder. The offline game read custom classes from a function that always returned nothing on PC
+- Create a Class: choosing a custom class again reloads it, so changes made in the editor apply from the next spawn. Killstreaks can be chosen
+- Fixed a crash in the graphics driver when a Versus match ends and the game restarts into the menu
+- The native team and class menus work even when the native menu is turned off in the multiplayer settings
+- Versus: the choices no longer jump back to the first option. At the end of a match the game restarts into the T5Jool menu instead of closing (it looked like a crash)
+- Multiplayer test boot (`+set bo1_zombies 0`): the Zombies solo save mod is not loaded
+- Multiplayer test boot: fixed a freeze after startup and while loading the map (the loading screen waited for a file the game was still loading)
+- Multiplayer test boot: fixed a crash right after the map loaded (the Zombies screen effects are missing on multiplayer maps and are now skipped)
+- Multiplayer test boot: if no frame starts for 60 seconds the game stops and writes where every thread got stuck
+- Android crash log: also lists the registers and stack entries that point into the game code, so a crash with a broken call stack can still be traced
+- Android: stack protection in the game code (a stack overwrite stops in the function that caused it) and the build ID in the log, so crash reports are always translated with the right symbols
+- Android build: the symbols saved for crash reports now come from the library just built (an old one from a previous build configuration was picked)
+- **Fixed a stack overwrite when a map loads** (exposure settings wrote past the map name buffer): it crashed the multiplayer test boot on Android right after the map loaded
+- Multiplayer test boot: **multiplayer stats work**: the stats buffers are 40 KB (the launch-day exe had 40168 bytes, the updated game files need 40548), in the player's storage, the server's per-client copies and the stats sent between them. Before, the first stat written (blowing up a car) ended the match, then stats were skipped
+- Multiplayer test boot: log lines for the team and class menus (`T5Jool menu:`), including the keys they receive
+- Multiplayer test boot: the gamepad D-pad and left stick move through the original menus (team, class), A selects; a tap selects the item under the finger
+- Menus: framed panels whose material is missing from the game files are no longer drawn as a checkerboard (multiplayer Settings panel)
+- Android: the touch screen now moves the menu cursor of the original game menus (the cursor position stayed at the corner)
+- Multiplayer test boot: bots (Combat Training) move, shoot and knife: the script only enabled them in developer builds
+- Multiplayer test boot (Android): leaving a match goes back to the launcher instead of crashing while the multiplayer menus are reloaded
+- Multiplayer test boot: the pause button opens the original multiplayer menu (choose team and class) instead of the Zombies pause menu
+- Android "Out of memory": the log now shows how much low memory is free and how it is split, to tell "used up" from "fragmented"
+- Startup watchdog: if the game is still not past startup after 45 seconds it stops and writes where every game thread got stuck to the log (`BO1_INIT_TIMEOUT`, 0 = off)
+
 ## v0.6-alpha
 *November 2026*
 
