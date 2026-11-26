@@ -782,7 +782,7 @@ char __cdecl Scr_CompileFunction(scriptInstance_t inst, sval_u *func_name, sval_
     func = GetFunction(inst, &pName, &type);
     if ( !func )
         return 0;
-    func_name->stringValue = (unsigned int)func;
+    func_name->stringValue = (unsigned int)(uintptr_t)func;
     Scr_CompileCallExpressionList(inst, params);
     return 1;
 }
@@ -817,7 +817,7 @@ char __cdecl Scr_CompileMethod(scriptInstance_t inst, sval_u *expr, sval_u *func
     if ( !meth )
         return 0;
     Scr_CompilePrimitiveExpression(inst, expr);
-    func_name->stringValue = (unsigned int)meth;
+    func_name->stringValue = (unsigned int)(uintptr_t)meth;
     Scr_CompileCallExpressionList(inst, params);
     return 1;
 }

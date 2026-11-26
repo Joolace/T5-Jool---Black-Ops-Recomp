@@ -325,7 +325,7 @@ const char *UI_LoadArenasFromFile_LoadObj()
     v1 = result;
     v3 = listbuf;
     v8 = 0;
-    while ( v8 < (int)v1 )
+    while ( v8 < (int)(uintptr_t)v1 )
     {
         v9 = strlen(v3);
         sprintf(string, "%s/%s", "mp", v3);

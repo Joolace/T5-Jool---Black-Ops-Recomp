@@ -209,7 +209,7 @@ int __thiscall CStringEdPackage::ReadLine(const char **psParsePos, char *psDest)
     v3 = strchr(*psParsePos, '\n');
     if ( v3 )
     {
-        iCharsToCopy = (int)v3 - (unsigned int)*psParsePos;
+        iCharsToCopy = (int)(uintptr_t)v3 - (unsigned int)(uintptr_t)*psParsePos;
         strncpy(psDest, *psParsePos, iCharsToCopy);
         psDest[iCharsToCopy] = 0;
         for ( *psParsePos += iCharsToCopy; **psParsePos; ++*psParsePos )

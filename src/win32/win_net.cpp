@@ -388,7 +388,7 @@ DWORD WINAPI NxRecvThread(LPVOID)
         packet.socket = socket;
         packet.fromlen = 16;
         packet.err = 0;
-        packet.len = recvfrom(socket, (char *)packet.data, sizeof(packet.data), 0, &packet.from, &packet.fromlen);
+        packet.len = recvfrom(socket, (char *)packet.data, sizeof(packet.data), 0, &packet.from, (socklen_t *)&packet.fromlen);
         if (packet.len < 0)
         {
             packet.err = WSAGetLastError();
@@ -482,7 +482,7 @@ int __cdecl Sys_GetPacket(netadr_t *net_from, msg_t *net_message)
             int queuedErr = 0;
             ret = NxQueuedRecvFrom(net_socket, (char *)net_message->data, net_message->maxsize, &from, &fromlen, &queuedErr);
 #else
-            ret = recvfrom(net_socket, (char *)net_message->data, net_message->maxsize, 0, &from, &fromlen);
+            ret = recvfrom(net_socket, (char *)net_message->data, net_message->maxsize, 0, &from, (socklen_t *)&fromlen);
 #endif
             if (ret == -1)
             {
@@ -1057,7 +1057,7 @@ int __cdecl Sys_SocketPool_GetPacket(netadr_t *net_from, msg_t *net_message)
     {
         if ( !poolsockets[i].ready )
         {
-            ret = recvfrom(poolsockets[i].m_sock, (char *)net_message->data, net_message->maxsize, 0, &from, &fromlen);
+            ret = recvfrom(poolsockets[i].m_sock, (char *)net_message->data, net_message->maxsize, 0, &from, (socklen_t *)&fromlen);
             if ( ret != -1 )
             {
                 cl_socketpool_lastpacket_time = Sys_Milliseconds();

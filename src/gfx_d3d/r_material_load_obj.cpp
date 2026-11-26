@@ -1393,7 +1393,7 @@ MaterialTechnique *__cdecl Material_LoadTechnique(char *name)
             nameSize = strlen(name) + 1;
             technique = Material_Alloc(nameSize + 24 * passCount + 8);
             stateMapForPass = (MaterialStateMap **)&technique[20 * passCount + 8];
-            *(unsigned int *)technique = (unsigned int)&stateMapForPass[passCount];
+            *(unsigned int *)technique = (unsigned int)(uintptr_t)&stateMapForPass[passCount];
             memcpy(*(unsigned __int8 **)technique, (unsigned __int8 *)name, nameSize);
 
             *((_WORD *)technique + 2) = techFlags;
@@ -2606,7 +2606,7 @@ MaterialVertexShader *__cdecl Material_LoadVertexShader(char *shaderName)
     v4 = shader;
     v2 = (unsigned __int8 *)shader->GetBufferPointer();
     //v2 = (unsigned __int8 *)((int (__thiscall *)(ID3DXBuffer *))shader->GetBufferPointer)(shader);
-    memcpy((unsigned __int8 *)program, v2, (unsigned int)v4);
+    memcpy((unsigned __int8 *)program, v2, (unsigned int)(uintptr_t)v4);
     hr = dx.device->CreateVertexShader((const DWORD*)program, &mtlShader->prog.vs);
     //hr = ((int (__stdcall *)(IDirect3DDevice9 *, unsigned int *, MaterialVertexShaderProgram *, unsigned int))dx.device->CreateVertexShader)(
     //             dx.device,
@@ -4948,7 +4948,7 @@ char __cdecl Material_AddShaderArgumentFromLiteral(
     {
         __debugbreak();
     }
-    arg->u.codeSampler = (unsigned int)literal;
+    arg->u.codeSampler = (unsigned int)(uintptr_t)literal;
     return MaterialAddShaderArgument(shaderName, paramName, arg, registerUsage);
 }
 
@@ -7184,7 +7184,7 @@ void __cdecl Material_BuildStateBitsTable(Material *material, __int16 toolFlags,
         v3 = material->localTechniqueSet->techniques[i];
         if ( v3 )
         {
-            v5 = (int)&v3->passArray[v3->passCount];
+            v5 = (int)(uintptr_t)&v3->passArray[v3->passCount];
             for ( j = 0; j < v3->passCount; ++j )
                 Material_RemapStateBits(
                     material,

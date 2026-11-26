@@ -72,7 +72,7 @@ const FxEffectDef *__cdecl FX_Convert(const FxEditorEffectDef *editorEffect, voi
                     if ( !*((unsigned int *)elemVisual->anonymous + 59) )
                     {
                         v2 = FX_RegisterPhysPreset("default");
-                        *((unsigned int *)elemVisual->anonymous + 59) = (unsigned int)v2;
+                        *((unsigned int *)elemVisual->anonymous + 59) = (unsigned int)(uintptr_t)v2;
                         Com_PrintError(
                             20,
                             "ERROR: no physics preset specified for the FX model [%s]\n",

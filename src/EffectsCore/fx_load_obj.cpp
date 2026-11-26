@@ -1478,7 +1478,7 @@ const FxEffectDef *__cdecl FX_LoadFailed(const char *name)
     baseBytesNeeded = fx_load.defaultEffect->totalSize - (v5 - fx_load.defaultEffect->name);
     effectDef = FX_AllocMem(fx_load.defaultEffect->totalSize - (v5 - (fx_load.defaultEffect->name + 1)) + strlen(name));
     memcpy(effectDef, (unsigned __int8 *)fx_load.defaultEffect, baseBytesNeeded);
-    *(unsigned int *)effectDef = (unsigned int) & effectDef[baseBytesNeeded];
+    *(unsigned int *)effectDef = (unsigned int)(uintptr_t) & effectDef[baseBytesNeeded];
     v4 = name;
     v3 = *(_BYTE **)effectDef;
     do

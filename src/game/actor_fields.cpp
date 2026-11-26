@@ -1136,7 +1136,7 @@ void __cdecl Cmd_AI_DisplayValue(actor_s *pSelf, unsigned __int8 *pBase, const a
             case F_ENTITY:
                 if ( !*(unsigned int *)&pBase[pField->ofs] )
                     goto LABEL_43;
-                i = (signed int)(*(unsigned int *)&pBase[pField->ofs] - (unsigned int)level.gentities) / 760;
+                i = (signed int)(*(unsigned int *)&pBase[pField->ofs] - (unsigned int)(uintptr_t)level.gentities) / 760;
                 if ( i >= 0x400
                     && !Assert_MyHandler(
                                 "C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_fields.cpp",

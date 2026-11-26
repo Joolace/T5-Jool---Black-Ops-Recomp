@@ -1961,7 +1961,7 @@ void __cdecl destroy_broad_phase_info_list(broad_phase_info *list_bpi)
             p_g_list_broad_phase_info->debug_remove((phys_free_list<broad_phase_info>::T_internal *)p_m_gjk_geom);
             v5 = (unsigned int *)*((unsigned int *)p_m_gjk_geom + 1);
             v6 = *(unsigned int *)p_m_gjk_geom;
-            *(unsigned int *)(v6 + 4) = (unsigned int)v5;
+            *(unsigned int *)(v6 + 4) = (unsigned int)(uintptr_t)v5;
             *v5 = v6;
 #ifdef KISAK_64BIT
             PMM_FREE((unsigned __int8 *)p_m_gjk_geom, sizeof(phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal), PHYS_POOL_ALIGN(phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal, 16));
@@ -2727,7 +2727,7 @@ void    broad_phase_group::collision_prolog()
     //v83[1] = (_UNKNOWN *)vars0;
     v2 = this;
     v3 = this->m_list_bpi_head == 0;
-    wheel_count = (int)this;
+    wheel_count = (int)(uintptr_t)this;
     if (v3
         && _tlAssert(
             "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
@@ -2848,7 +2848,7 @@ void    broad_phase_group::collision_prolog()
         rb_mat = (const phys_mat44 *)m_rbvm->m_wheels.m_alloc_count;
         //v34 = (phys_wheel_collide_info *)phys_transient_allocator::mt_allocate(&G_BPM->g_collision_memory_buffer, m_rbvm->m_wheels.m_alloc_count << 6, 16, 0, "broad phase collision out of memory.");
         v34 = (phys_wheel_collide_info *)G_BPM->g_collision_memory_buffer.mt_allocate(m_rbvm->m_wheels.m_alloc_count << 6, 16, 0, "broad phase collision out of memory.");
-        m_buffer = (int)v2->m_rbvm->m_wheels.m_buffer;
+        m_buffer = (int)(uintptr_t)v2->m_rbvm->m_wheels.m_buffer;
         v2->m_list_wci = v34;
         if (*(int *)(m_buffer + 20) <= 0
             && _tlAssert(
@@ -2862,13 +2862,13 @@ void    broad_phase_group::collision_prolog()
         half_dims_12 = (const phys_mat44 *)(***(_DWORD ***)(m_buffer + 16) + 48);
         v36 = 0;
         *(float *)&i = 0.0;
-        if ((int)rb_mat > 0)
+        if ((int)(uintptr_t)rb_mat > 0)
         {
             v80 = 0.0;
             while (1)
             {
                 v37 = (phys_vec3 *)((char *)&v2->m_list_wci->m_ray_pos + LODWORD(v80));
-                LODWORD(v38) = (unsigned int)v2->m_rbvm->m_wheels.m_buffer;
+                LODWORD(v38) = (unsigned int)(uintptr_t)v2->m_rbvm->m_wheels.m_buffer;
                 v79 = v38;
                 if ((v36 < 0 || v36 >= *(_DWORD *)(LODWORD(v38) + 20))
                     && _tlAssert(
@@ -2953,7 +2953,7 @@ void    broad_phase_group::collision_prolog()
                 LODWORD(v80) += 64;
                 v2 = (broad_phase_group *)wheel_count;
                 aabb2_max.x = v79;
-                v52 = i + 1 < (int)rb_mat;
+                v52 = i + 1 < (int)(uintptr_t)rb_mat;
                 aabb2_max.y = v78;
                 ++i;
                 aabb2_max.z = v82;
@@ -3019,7 +3019,7 @@ void __thiscall broad_phase_group::collision_epilog()
             while ( 1 )
             {
                 v3 = &v1->m_list_wci[v7];
-                m_buffer = (int)v1->m_rbvm->m_wheels.m_buffer;
+                m_buffer = (int)(uintptr_t)v1->m_rbvm->m_wheels.m_buffer;
                 if ( v2 < 0 || v2 >= *(unsigned int *)(m_buffer + 20) )
                 {
                     if ( _tlAssert(

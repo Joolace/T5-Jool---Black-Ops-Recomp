@@ -159,7 +159,7 @@ unsigned int __stdcall ShellExecuteThredProc(const char *lpParam)
     char currentDirectory[268]; // [esp+0h] [ebp-110h] BYREF
 
     GetCurrentDirectoryA(0x104u, currentDirectory);
-    g_ShellExecuteErr = (int)ShellExecuteA(0, "open", lpParam, 0, 0, 1);
+    g_ShellExecuteErr = (int)(uintptr_t)ShellExecuteA(0, "open", lpParam, 0, 0, 1);
     _InterlockedExchange(&g_ShellExecuteInProgress, 0);
     return 0;
 }

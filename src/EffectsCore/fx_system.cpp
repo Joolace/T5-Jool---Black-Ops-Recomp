@@ -2328,7 +2328,7 @@ int __cdecl FX_MakePhysId(const FxElemDef *elemDef, const float *origin, const f
     return sequence
              + (((int)vel[2] + (int)vel[1] + (int)*vel + (int)origin[2] + (int)origin[1] + (int)*origin)
                 ^ time
-                ^ (unsigned int)elemDef);
+                ^ (unsigned int)(uintptr_t)elemDef);
 }
 
 void __cdecl FX_SpawnTrailElem_NoCull(

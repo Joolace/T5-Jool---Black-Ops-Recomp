@@ -882,7 +882,7 @@ void __cdecl G_SpawnPathnodeDynamic(SpawnVar *spawnVar)
                         {
                             animscript = SL_ConvertToString(loadNode->constant.animscript, SCRIPTINSTANCE_SERVER);
                             DataForFile = Hunk_FindDataForFile(1, animscript);
-                            loadNode->constant.animscriptfunc = (int)DataForFile;
+                            loadNode->constant.animscriptfunc = (int)(uintptr_t)DataForFile;
                             if ( !loadNode->constant.animscriptfunc )
                             {
                                 printf(

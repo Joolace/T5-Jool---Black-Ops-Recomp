@@ -449,9 +449,9 @@ FS_SERVER_COMPARE_RESULT __cdecl FS_CompareIwds(char *needediwds, int len, int d
     userMapDirAdded = 0;
     string = fs_gameDirVar->current.string;
     v7 = string + 1;
-    v9 = (unsigned int)&string[strlen(string) + 1];
-    gameDirNameLength = v9 - (unsigned int)v7;
-    isBaseDir = v9 == (unsigned int)v7;
+    v9 = (unsigned int)(uintptr_t)&string[strlen(string) + 1];
+    gameDirNameLength = v9 - (unsigned int)(uintptr_t)v7;
+    isBaseDir = v9 == (unsigned int)(uintptr_t)v7;
     for ( i = 0; i < fs_numServerReferencedIwds; ++i )
     {
         haveiwd = 0;
@@ -960,7 +960,7 @@ void __cdecl FS_ServerSetReferencedFFs(const char *FFSums, const char *FFNames)
                                                                 fs_serverReferencedFFNames);
 }
 
-char basename[64];
+char fs_mapBaseName[64];
 char *__cdecl FS_GetMapBaseName(char *mapname)
 {
     unsigned int v2; // [esp+0h] [ebp-18h]
@@ -975,13 +975,13 @@ char *__cdecl FS_GetMapBaseName(char *mapname)
     len = v2;
     if ( !I_stricmp(&mapname[v2 - 3], "bsp") )
         len = v2 - 7;
-    memcpy((unsigned __int8 *)basename, (unsigned __int8 *)mapname, len);
-    basename[len] = 0;
+    memcpy((unsigned __int8 *)fs_mapBaseName, (unsigned __int8 *)mapname, len);
+    fs_mapBaseName[len] = 0;
     for ( c = 0; c < len; ++c )
     {
-        if ( basename[c] == 37 )
-            basename[c] = 95;
+        if ( fs_mapBaseName[c] == 37 )
+            fs_mapBaseName[c] = 95;
     }
-    return basename;
+    return fs_mapBaseName;
 }
 

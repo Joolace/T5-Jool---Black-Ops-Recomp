@@ -291,7 +291,7 @@ void __cdecl SND_RvFrame(
     float *outLSa; // [esp+4Ch] [ebp+2Ch]
     ptrdiff_t inLFOffset; // [esp+50h] [ebp+30h]
 
-    SND_RvFrameParam(params, state, (unsigned int)count);
+    SND_RvFrameParam(params, state, (unsigned int)(uintptr_t)count);
     earlyLpfState = state->earlyLpfState;
     counta = 4;
     do

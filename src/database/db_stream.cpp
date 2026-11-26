@@ -84,7 +84,7 @@ unsigned __int8 *__cdecl DB_AllocStreamPos(int alignment)
     {
         __debugbreak();
     }
-    g_streamPos = (unsigned __int8 *)(~alignment & (unsigned int)&g_streamPos[alignment]);
+    g_streamPos = (unsigned __int8 *)(~alignment & (unsigned int)(uintptr_t)&g_streamPos[alignment]);
     return g_streamPos;
 }
 

@@ -1099,13 +1099,13 @@ const bpei_database_id *__cdecl get_database_id(bpei_database_id *result, gjk_ph
 {
     if (collision_visitor->cent)
     {
-        result->m_id1 = (unsigned int)collision_visitor->cent;
+        result->m_id1 = (unsigned int)(uintptr_t)collision_visitor->cent;
         result->m_id2 = 0;
         return result;
     }
     else if (collision_visitor->glass)
     {
-        result->m_id1 = (unsigned int)collision_visitor->glass;
+        result->m_id1 = (unsigned int)(uintptr_t)collision_visitor->glass;
         result->m_id2 = 0;
         return result;
     }
@@ -1121,7 +1121,7 @@ const bpei_database_id *__cdecl get_database_id(bpei_database_id *result, gjk_ph
         {
             __debugbreak();
         }
-        result->m_id1 = (unsigned int)collision_visitor->dynEntDef;
+        result->m_id1 = (unsigned int)(uintptr_t)collision_visitor->dynEntDef;
         result->m_id2 = 0;
         return result;
     }
@@ -1719,7 +1719,7 @@ void standard_query::query(
                 continue;
 
             broad_phase_environment_info *bpei_mt =
-                G_BPM->g_bpei_database.get_bpei_mt(bpei_database_id((unsigned int)brush));
+                G_BPM->g_bpei_database.get_bpei_mt(bpei_database_id((unsigned int)(uintptr_t)brush));
 
             if (!bpei_mt->m_data)
             {
@@ -1785,7 +1785,7 @@ void standard_query::query(
                 continue;
 
             broad_phase_environment_info *bpei_mt =
-                G_BPM->g_bpei_database.get_bpei_mt(bpei_database_id((unsigned int)partition));
+                G_BPM->g_bpei_database.get_bpei_mt(bpei_database_id((unsigned int)(uintptr_t)partition));
 
             if (!bpei_mt->m_data)
             {
@@ -1949,7 +1949,7 @@ void standard_query::query(
                 gjk_base_t *first_geom = userRb->m_gjk_geom_list.m_first_geom;
 
                 broad_phase_environment_info *bpei_mt =
-                    G_BPM->g_bpei_database.get_bpei_mt(bpei_database_id((unsigned int)userRb));
+                    G_BPM->g_bpei_database.get_bpei_mt(bpei_database_id((unsigned int)(uintptr_t)userRb));
 
                 if (!bpei_mt->m_data)
                 {
@@ -2086,8 +2086,8 @@ bool gjk_physics_collision_visitor::query_create_prolog(const void *geom)
     {
         __debugbreak();
     }
-    this->m_local_database_id.m_id1 = (unsigned int)this->m_local_entity;
-    this->m_local_database_id.m_id2 = (unsigned int)geom;
+    this->m_local_database_id.m_id1 = (unsigned int)(uintptr_t)this->m_local_entity;
+    this->m_local_database_id.m_id2 = (unsigned int)(uintptr_t)geom;
     //this->m_local_bpei = bpei_database_t::get_bpei_mt(&G_BPM->g_bpei_database, this->m_local_database_id);
     this->m_local_bpei = G_BPM->g_bpei_database.get_bpei_mt(this->m_local_database_id);
 

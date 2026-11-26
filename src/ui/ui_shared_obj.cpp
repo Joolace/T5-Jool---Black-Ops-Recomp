@@ -3560,7 +3560,7 @@ int __cdecl ItemParse_state(itemDef_s *item, int handle)
         item->animInfo->animStates = g_load_0.animStates;
         *item->animInfo->animStates = (animParamsDef_t *)UI_Alloc(0x6Cu, 4);
         Item_PropertiesToAnimState(item, *item->animInfo->animStates);
-        **(unsigned int **)item->animInfo->animStates = (unsigned int)String_Alloc("Default");
+        **(unsigned int **)item->animInfo->animStates = (unsigned int)(uintptr_t)String_Alloc("Default");
         ++item->animInfo->animStateCount;
     }
     animParams = (animParamsDef_t *)UI_Alloc(0x6Cu, 4);

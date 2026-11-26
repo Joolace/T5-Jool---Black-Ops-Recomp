@@ -1213,7 +1213,7 @@ void __cdecl InitFlameTable(flameTable *fTable)
     while ( iField < 119 )
     {
         if ( !pField->iFieldType )
-            *(unsigned int *)((char *)&fTable->flameVar_streamChunkGravityStart + pField->iOffset) = (unsigned int)"";
+            *(unsigned int *)((char *)&fTable->flameVar_streamChunkGravityStart + pField->iOffset) = (unsigned int)(uintptr_t)"";
         ++iField;
         ++pField;
     }

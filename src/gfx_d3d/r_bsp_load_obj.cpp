@@ -700,7 +700,7 @@ void __cdecl R_LoadLightmaps(GfxBspLoad *load)
                 __debugbreak();
             }
             if ( newLmapIndex
-                && groupInfo[newLmapIndex].highCount > (int)(&buf_p)[2 * newLmapIndex]
+                && groupInfo[newLmapIndex].highCount > (int)(uintptr_t)(&buf_p)[2 * newLmapIndex]
                 && !Assert_MyHandler(
                             "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_bsp_load_obj.cpp",
                             1015,
@@ -2829,7 +2829,7 @@ unsigned int R_CalculateVertexStream2Usage()
             {
                 if ( vertexCount > existingUse->vertexCount )
                     existingUse->vertexCount = vertexCount;
-                tris->stream2ByteOffset = (int)existingUse;
+                tris->stream2ByteOffset = (int)(uintptr_t)existingUse;
             }
             else
             {
@@ -2838,7 +2838,7 @@ unsigned int R_CalculateVertexStream2Usage()
                 newUsage.vertexCount = vertexCount;
                 newUsage.next = 0;
                 inserted = InsertNewUsage(&usageList, &newUsage);
-                tris->stream2ByteOffset = (int)inserted;
+                tris->stream2ByteOffset = (int)(uintptr_t)inserted;
             }
         }
         else
@@ -3616,7 +3616,7 @@ void __cdecl R_MaterialUsage(Material *material, unsigned int firstVertex, int v
         }
         v4 = Z_Malloc(8, "R_MaterialUsage", 0);
         *v4 = firstVertex;
-        v4[1] = (unsigned int)materialUsage->verts;
+        v4[1] = (unsigned int)(uintptr_t)materialUsage->verts;
         materialUsage->verts = (VertUsage *)v4;
         materialUsage->memory += 44 * vertexCount;
     }
@@ -4941,7 +4941,7 @@ int R_LoadPortals()
         if ( cellIndex >= s_world.dpvsPlanes.cellCount )
             break;
         if ( s_world.cells[cellIndex].portalCount )
-            v1 = &out[(int)s_world.cells[cellIndex].portals / 68];
+            v1 = &out[(int)(uintptr_t)s_world.cells[cellIndex].portals / 68];
         else
             v1 = 0;
         s_world.cells[cellIndex].portals = v1;

@@ -1410,7 +1410,7 @@ void __cdecl R_RenderWaterModel(unsigned int viewIndex)
                 waterSurf->vertCount = 289;
                 waterSurf->triCount = data.tileTriCount[lod];
                 surfId = modelSurf - (char *)frontEndDataOut;
-                if ( (((_BYTE)modelSurf - (_BYTE)frontEndDataOut) & 3) != 0
+                if ( (((_BYTE)(uintptr_t)modelSurf - (_BYTE)(uintptr_t)frontEndDataOut) & 3) != 0
                     && !Assert_MyHandler(
                                 "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_water_sim.cpp",
                                 1374,
@@ -2926,12 +2926,12 @@ void    R_WaterSimulationSkinMesh(const WaterSimulationCmd *cmd)
     dest = (GfxWaterVertex *)cmd->skin.srcBuf;
     for ( tileu = 0; (unsigned int)tileu < 0x10; ++tileu )
     {
-        tilev = (int)cmd->skin.meshesEA[tileu];
+        tilev = (int)(uintptr_t)cmd->skin.meshesEA[tileu];
         if ( tilev )
         {
             if ( !Sys_QueryD3DDeviceOKEvent() )
                 return;
-            maxBox.u[3] = (unsigned int)R_LockVertexBuffer(data.vertexBuffer, 0, 0, 0x1000u);
+            maxBox.u[3] = (unsigned int)(uintptr_t)R_LockVertexBuffer(data.vertexBuffer, 0, 0, 0x1000u);
             if ( !maxBox.u[3] )
                 return;
             maxBox.u[3] += 16 * *(unsigned int *)(tilev + 24);
@@ -2969,39 +2969,39 @@ void    R_WaterSimulationSkinMesh(const WaterSimulationCmd *cmd)
                     v161 = (unsigned int)worldU;
                     *(float *)&x = (float)(unsigned int)worldU;
                     Float4LoadFloats(x, y, (0.0), (0.0), (float4 *)v163);
-                    *(float4 *)&a[4] = *ReadValue(&v160, worldV - 1, worldUV.u[3] - 1, (unsigned int)dest);
+                    *(float4 *)&a[4] = *ReadValue(&v160, worldV - 1, worldUV.u[3] - 1, (unsigned int)(uintptr_t)dest);
                     v157 = *(_QWORD *)&a[4];
                     v158 = *(float *)&a[12];
                     *(unsigned int *)a = *(unsigned int *)&a[16];
-                    *(float4 *)&b[4] = *ReadValue(&v156, worldV, worldUV.u[3] - 1, (unsigned int)dest);
+                    *(float4 *)&b[4] = *ReadValue(&v156, worldV, worldUV.u[3] - 1, (unsigned int)(uintptr_t)dest);
                     v153 = *(_QWORD *)&b[4];
                     v154 = *(float *)&b[12];
                     *(unsigned int *)b = *(unsigned int *)&b[16];
-                    *(float4 *)&c[4] = *ReadValue(&v152, worldV + 1, worldUV.u[3] - 1, (unsigned int)dest);
+                    *(float4 *)&c[4] = *ReadValue(&v152, worldV + 1, worldUV.u[3] - 1, (unsigned int)(uintptr_t)dest);
                     v149 = *(_QWORD *)&c[4];
                     v150 = *(float *)&c[12];
                     *(unsigned int *)c = *(unsigned int *)&c[16];
-                    *(float4 *)&d[4] = *ReadValue(&v148, worldV - 1, worldUV.u[3], (unsigned int)dest);
+                    *(float4 *)&d[4] = *ReadValue(&v148, worldV - 1, worldUV.u[3], (unsigned int)(uintptr_t)dest);
                     v145 = *(_QWORD *)&d[4];
                     v146 = *(float *)&d[12];
                     *(unsigned int *)d = *(unsigned int *)&d[16];
-                    *(float4 *)&e[4] = *ReadValue(&v144, worldV, worldUV.u[3], (unsigned int)dest);
+                    *(float4 *)&e[4] = *ReadValue(&v144, worldV, worldUV.u[3], (unsigned int)(uintptr_t)dest);
                     v141 = *(_QWORD *)&e[4];
                     v142 = *(float *)&e[12];
                     *(unsigned int *)e = *(unsigned int *)&e[16];
-                    *(float4 *)&f[4] = *ReadValue(&v140, worldV + 1, worldUV.u[3], (unsigned int)dest);
+                    *(float4 *)&f[4] = *ReadValue(&v140, worldV + 1, worldUV.u[3], (unsigned int)(uintptr_t)dest);
                     v137 = *(_QWORD *)&f[4];
                     v138 = *(float *)&f[12];
                     *(unsigned int *)f = *(unsigned int *)&f[16];
-                    *(float4 *)&g[4] = *ReadValue(&v136, worldV - 1, worldUV.u[3] + 1, (unsigned int)dest);
+                    *(float4 *)&g[4] = *ReadValue(&v136, worldV - 1, worldUV.u[3] + 1, (unsigned int)(uintptr_t)dest);
                     v133 = *(_QWORD *)&g[4];
                     v134 = *(float *)&g[12];
                     *(unsigned int *)g = *(unsigned int *)&g[16];
-                    *(float4 *)&h[4] = *ReadValue(&v132, worldV, worldUV.u[3] + 1, (unsigned int)dest);
+                    *(float4 *)&h[4] = *ReadValue(&v132, worldV, worldUV.u[3] + 1, (unsigned int)(uintptr_t)dest);
                     v129 = *(_QWORD *)&h[4];
                     v130 = *(float *)&h[12];
                     *(unsigned int *)h = *(unsigned int *)&h[16];
-                    *(float4 *)&i[4] = *ReadValue(&v128, worldV + 1, worldUV.u[3] + 1, (unsigned int)dest);
+                    *(float4 *)&i[4] = *ReadValue(&v128, worldV + 1, worldUV.u[3] + 1, (unsigned int)(uintptr_t)dest);
                     *(_QWORD *)&avgpos[12] = *(_QWORD *)&i[4];
                     waterheight = *(float *)&i[12];
                     *(unsigned int *)i = *(unsigned int *)&i[16];

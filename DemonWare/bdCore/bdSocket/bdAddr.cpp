@@ -268,7 +268,7 @@ int bdSocket::receiveFrom(bdAddr &address, void *data, unsigned int size)
     sockaddr_in remote = {};
     int addressSize = sizeof(remote);
     const int result = ::recvfrom(m_handle, static_cast<char *>(data), size, 0,
-        reinterpret_cast<sockaddr *>(&remote), &addressSize);
+        reinterpret_cast<sockaddr *>(&remote), (socklen_t *)&addressSize);
     if (result < 0)
     {
         const int error = WSAGetLastError();

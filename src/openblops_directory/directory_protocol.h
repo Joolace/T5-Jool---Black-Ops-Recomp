@@ -22,6 +22,7 @@ struct Endpoint
     std::string Text() const;
     static bool Parse(const std::string &, Endpoint &);
 };
+struct JsonField;
 struct Json
 {
     enum Type
@@ -36,11 +37,16 @@ struct Json
     std::string text;
     int number = 0;
     bool boolean = false;
-    std::vector<std::pair<std::string, Json>> fields;
+    std::vector<JsonField> fields; // T5Jool: pair<string, Json> needs a complete Json (libstdc++/clang)
     std::vector<Json> items;
     const Json &Get(const char *) const;
     bool Int(const char *, int &) const;
     bool Str(const char *, std::string &) const;
+};
+struct JsonField
+{
+    std::string first;
+    Json second;
 };
 bool Parse(const char *data, size_t size, Json &out);
 std::string Quote(const std::string &);

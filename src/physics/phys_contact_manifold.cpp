@@ -75,7 +75,7 @@ double __thiscall phys_contact_manifold::compute_convex_poly_area()
     area = 0.0;
     v2 = *m_list_contact_point;
     v3 = (int *)(m_list_contact_point + 1);
-    v4 = (int)&m_list_contact_point[this->m_list_contact_point_count - 1];
+    v4 = (int)(uintptr_t)&m_list_contact_point[this->m_list_contact_point_count - 1];
     if ( m_list_contact_point + 1 != (contact_manifold_mesh_point **)v4 )
     {
         do

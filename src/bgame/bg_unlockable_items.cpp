@@ -2875,11 +2875,11 @@ bool __cdecl BG_UnlockablesIsItemEquippedInAnyCustomClass(int controllerIndex, i
         if ( customClassName && BG_UnlockablesIsItemEquipped(controllerIndex, customClassName, itemIndex) )
         {
             String = Dvar_GetString(customClassName);
-            v8 = (unsigned int)&String[strlen(String) + 1];
+            v8 = (unsigned int)(uintptr_t)&String[strlen(String) + 1];
             p_isEquipped = &isEquipped;
             while ( *++p_isEquipped )
                 ;
-            memcpy(p_isEquipped, String, v8 - (unsigned int)String);
+            memcpy(p_isEquipped, String, v8 - (unsigned int)(uintptr_t)String);
             v4 = &isEquipped;
             while ( *++v4 )
                 ;

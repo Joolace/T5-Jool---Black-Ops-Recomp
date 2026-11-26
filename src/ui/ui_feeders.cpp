@@ -2410,7 +2410,7 @@ void __cdecl UI_OverrideCursorPos_Servers(int localClientNum, int contextIndex, 
     {
         if (sharedUiInfo.serverStatus.currentServer >= 0)
         {
-            maxScroll = (int)Item_ListBox_MaxScroll(localClientNum, contextIndex, item);
+            maxScroll = (int)(uintptr_t)Item_ListBox_MaxScroll(localClientNum, contextIndex, item);
             if ( listPtr->startPos[contextIndex] > maxScroll )
                 listPtr->startPos[contextIndex] = maxScroll;
             if ( listPtr->cursorPos[contextIndex] >= listPtr->startPos[contextIndex]

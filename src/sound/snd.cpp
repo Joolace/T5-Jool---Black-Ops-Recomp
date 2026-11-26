@@ -177,7 +177,7 @@ void __cdecl DoLengthNotify(unsigned int msec, const char *lengthNotifyData, snd
 {
     if ( id == SND_LENGTH_NOTIFY_SCRIPT )
     {
-        SND_LengthNotify((unsigned int)lengthNotifyData, msec);
+        SND_LengthNotify((unsigned int)(uintptr_t)lengthNotifyData, msec);
     }
     else if ( id == SND_LENGTH_NOTIFY_SUBTITLE )
     {
@@ -1183,7 +1183,7 @@ snd_alias_t *__cdecl SND_PickSoundAliasFromList(snd_alias_list_t *aliasList, int
         randomIndex = -1;
         if ( (((selectionArray[0]->flags & 0xE0000000) >> 29) & 4) != 0 )
         {
-            seed = (int)aliasList + objectId;
+            seed = (int)(uintptr_t)aliasList + objectId;
             v3 = RandWithSeed(&seed);
             randomIndex = v3 % actualCount;
         }

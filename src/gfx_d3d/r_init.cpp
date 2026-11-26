@@ -775,7 +775,7 @@ void __cdecl R_SetWndParms(GfxWindowParms *wndParms)
     {
         refreshRateString = Dvar_EnumToString(r_displayRefresh);
         sscanf(refreshRateString, "%i Hz", &refreshRate);
-        wndParms->hz = (int)R_ClosestRefreshRateForMode(wndParms->displayWidth, wndParms->displayHeight, refreshRate);
+        wndParms->hz = (int)(uintptr_t)R_ClosestRefreshRateForMode(wndParms->displayWidth, wndParms->displayHeight, refreshRate);
     }
     else
     {
@@ -1356,7 +1356,7 @@ int __stdcall R_MonitorEnumCallback(HMONITOR__ *monitorHandle, HDC__ *hdc, tagRE
     }
     else
     {
-        userData[1] = (unsigned int)monitorHandle;
+        userData[1] = (unsigned int)(uintptr_t)monitorHandle;
         return 0;
     }
 }

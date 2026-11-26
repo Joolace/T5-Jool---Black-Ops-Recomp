@@ -81,7 +81,7 @@ void __cdecl DB_ConvertOffsetToAlias(unsigned int *data)
 
 void __cdecl DB_ConvertOffsetToPointer(unsigned int *data)
 {
-    *data = (unsigned int)&g_streamBlocks[(unsigned int)(*data - 1) >> 29].data[(*data - 1) & 0x1FFFFFFF];
+    *data = (unsigned int)(uintptr_t)&g_streamBlocks[(unsigned int)(*data - 1) >> 29].data[(*data - 1) & 0x1FFFFFFF];
 }
 
 void __cdecl Load_XStringCustom(const char **str)
@@ -89,7 +89,7 @@ void __cdecl Load_XStringCustom(const char **str)
     unsigned __int8 *numBytesLoaded; // [esp+4h] [ebp-8h]
 
     numBytesLoaded = DB_LoadXFileDataNullTerminated((unsigned __int8 *)*str);
-    DB_IncStreamPos((int)numBytesLoaded);
+    DB_IncStreamPos((int)(uintptr_t)numBytesLoaded);
 }
 
 void __cdecl Load_TempStringCustom(const char **str)

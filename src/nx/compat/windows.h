@@ -276,6 +276,9 @@ static inline PVOID InterlockedCompareExchangePointer(volatile PVOID *p, PVOID e
     return expected;
 }
 static inline LONGLONG InterlockedExchange64(volatile LONGLONG *p, LONGLONG v) { return __atomic_exchange_n(p, v, __ATOMIC_SEQ_CST); }
+#if defined(__cplusplus) && defined(__LP64__) && !defined(__SWITCH__)
+static inline long long InterlockedExchange64(volatile long long *p, long long v) { return __atomic_exchange_n(p, v, __ATOMIC_SEQ_CST); }
+#endif
 static inline LONGLONG InterlockedIncrement64(volatile LONGLONG *p) { return __atomic_add_fetch(p, 1, __ATOMIC_SEQ_CST); }
 
 #ifdef __cplusplus

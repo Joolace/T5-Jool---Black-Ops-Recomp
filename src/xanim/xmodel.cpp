@@ -783,14 +783,14 @@ void __cdecl PrefetchArrayIndexed(char *mem, unsigned int elementCount, unsigned
     unsigned int umem; // [esp+4h] [ebp-Ch]
     const unsigned __int8 *memIter; // [esp+8h] [ebp-8h]
 
-    umem = (unsigned int)&mem[elementSize * index];
+    umem = (unsigned int)(uintptr_t)&mem[elementSize * index];
     if ( !elementCount
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\xanim\\xmodel.cpp", 1095, 0, "%s", "elementCount") )
     {
         __debugbreak();
     }
     for ( memIter = (const unsigned __int8 *)(umem & 0xFFFFFF80);
-                (unsigned int)memIter <= ((umem + elementSize * elementCount - 1) & 0xFFFFFF80);
+                (unsigned int)(uintptr_t)memIter <= ((umem + elementSize * elementCount - 1) & 0xFFFFFF80);
                 memIter += 128 )
     {
         _mm_prefetch((const char *)memIter, 1);

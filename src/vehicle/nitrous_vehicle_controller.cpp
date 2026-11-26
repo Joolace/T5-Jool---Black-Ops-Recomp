@@ -892,7 +892,7 @@ void NitrousVehicleController::UpdateControlsDefault(
         if ( v10 )
         {
             m_phys_user_data = rbveh->m_phys_user_data;
-            p_m_mat = (int)&m_phys_user_data->body->m_mat;
+            p_m_mat = (int)(uintptr_t)&m_phys_user_data->body->m_mat;
             v7 = (float *)(p_m_mat + 16);
             //velocity = NitrousVehicle::get_velocity(rbveh, (phys_vec3 *)&v6);
             phys_vec3 tmp;

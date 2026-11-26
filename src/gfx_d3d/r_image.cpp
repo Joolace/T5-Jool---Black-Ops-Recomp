@@ -713,7 +713,7 @@ void __cdecl R_DelayLoadImage(XAssetHeader header, void *data)
         image->cardMemory.platform[1] = 0;
         if (r_loadForRenderer->current.enabled && !Image_LoadFromFile(image, 0))
             Image_AssignDefaultTexture(image);
-        DB_LoadedExternalData((unsigned int)externalDataSize);
+        DB_LoadedExternalData((unsigned int)(uintptr_t)externalDataSize);
     }
 }
 
@@ -1335,7 +1335,7 @@ GfxImage *R_InitRawImage()
                                                      1,
                                                      "%s",
                                                      "rgp.rawImage");
-        if ( !(_BYTE)result )
+        if ( !(_BYTE)(uintptr_t)result )
             __debugbreak();
     }
     return result;
@@ -1435,7 +1435,7 @@ GfxImage *R_InitCodeImages()
                                                      1,
                                                      "%s",
                                                      "rgp.r32fWhiteImage");
-        if ( !(_BYTE)result )
+        if ( !(_BYTE)(uintptr_t)result )
             __debugbreak();
     }
     rgp.heatMapImage = 0;

@@ -3038,7 +3038,7 @@ void __cdecl DB_GetXAsset(XAssetType type, XAssetHeader header)
     XAssetEntry *assetEntry; // [esp+14h] [ebp-4h]
 
     if ( s_inuseCacheEnabled
-        && s_inuseCache[((unsigned int)header.xmodelPieces >> 2) & 0x1FFF] == HIWORD(header.physPreset) )
+        && s_inuseCache[((unsigned int)(uintptr_t)header.xmodelPieces >> 2) & 0x1FFF] == HIWORD(header.physPreset) )
     {
         ++s_inuseCacheHits;
     }
@@ -3057,7 +3057,7 @@ void __cdecl DB_GetXAsset(XAssetType type, XAssetHeader header)
             {
                 assetEntry->inuse = 1;
                 if ( s_inuseCacheEnabled )
-                    s_inuseCache[((unsigned int)header.xmodelPieces >> 2) & 0x1FFF] = HIWORD(header.physPreset);
+                    s_inuseCache[((unsigned int)(uintptr_t)header.xmodelPieces >> 2) & 0x1FFF] = HIWORD(header.physPreset);
                 return;
             }
         }

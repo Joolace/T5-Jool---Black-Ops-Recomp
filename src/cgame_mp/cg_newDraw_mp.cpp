@@ -5045,7 +5045,7 @@ void    CG_DrawPlayerStance(
     fadeAlpha = 9.313225746154785e-10;
     cgs = (const cgs_t *)(int)(v19 + 9.313225746154785e-10);
     x = cgs;
-    y = CG_FadeHudMenu(localClientNum, hud_fade_stance, cgameGlob->stanceFadeTime, (int)cgs);
+    y = CG_FadeHudMenu(localClientNum, hud_fade_stance, cgameGlob->stanceFadeTime, (int)(uintptr_t)cgs);
     if ( y != 0.0 )
     {
         if ( cg_hudStanceHintPrints->current.enabled )

@@ -569,10 +569,10 @@ bool bdByteBuffer::writeString(char *buf, unsigned int cnt)
     v14 = 0;
     v13 = 0;
     v16 = bdByteBuffer::writeDataType(BD_BB_SIGNED_CHAR8_STRING_TYPE);
-    v3 = (int)memchr((unsigned __int8 *)buf, 0, cnt);
+    v3 = (int)(uintptr_t)memchr((unsigned __int8 *)buf, 0, cnt);
     v10 = v3;
     if (v3)
-        v7 = v10 - (_DWORD)buf;
+        v7 = v10 - (_DWORD)(uintptr_t)buf;
     else
         v7 = cnt;
     v11 = v7;

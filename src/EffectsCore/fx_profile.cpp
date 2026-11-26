@@ -267,7 +267,7 @@ void __cdecl FX_DrawPriorityDebug(int clientIndex, void (__cdecl *drawFunc)(char
             {
                 __debugbreak();
             }
-            base[2 * num] = (unsigned int)v14->effect.def;
+            base[2 * num] = (unsigned int)(uintptr_t)v14->effect.def;
             base[2 * num++ + 1] = 1;
         }
     }

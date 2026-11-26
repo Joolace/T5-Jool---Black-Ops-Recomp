@@ -5152,7 +5152,7 @@ void __cdecl CScr_IsSplitScreen()
 // -> flags=0x08) rather than aborting the calling script thread; a real GSC caller that
 // truly relies on retail's error for malformed calls would behave differently here, but
 // silently failing to play a movie was judged worse than the fidelity gap.
-static void __cdecl CScr_PlayBink()
+void __cdecl CScr_PlayBink()
 {
     unsigned int flags;
     const char *name;

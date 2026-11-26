@@ -173,7 +173,7 @@ struct Parser
                 if (!Value(child, depth + 1))
                     return false;
                 if (object)
-                    v.fields.emplace_back(key, std::move(child));
+                    v.fields.push_back(JsonField{key, std::move(child)});
                 else
                     v.items.push_back(std::move(child));
                 if (Eat(close))

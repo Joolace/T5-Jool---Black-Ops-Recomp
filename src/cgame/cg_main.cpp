@@ -148,7 +148,7 @@ void __cdecl CG_RegisterVehicle(const char *name, __int16 index)
         memset(dst, 0, sizeof(vehicle_info_t));   // nx-port: was 0x1DD8 (x86)
         v6 = name;
         v5 = dst;
-        HIDWORD(v4) = (int)dst;
+        HIDWORD(v4) = (int)(uintptr_t)dst;
         do
         {
             BYTE3(v4) = *v6;

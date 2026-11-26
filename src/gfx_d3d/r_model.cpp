@@ -142,7 +142,7 @@ void __cdecl R_GetModelList(XAssetHeader header, XAssetHeader *data)
     {
         __debugbreak();
     }
-    data[(int)data->xmodelPieces++ + 1] = header;
+    data[(int)(uintptr_t)data->xmodelPieces++ + 1] = header;
 }
 
 XModel *__cdecl R_RegisterModel(char *name)

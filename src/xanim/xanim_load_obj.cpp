@@ -615,7 +615,7 @@ XAnimParts *__cdecl XAnimLoadFile(char *name, void *(__cdecl *Alloc)(int), bool 
                                 v87[animPartIndex].partIndex = j;
                                 v7 = *(unsigned int *)&part[animPartIndex].partIndex;
                                 v8 = j;
-                                v85[2 * j] = (unsigned int)part[animPartIndex].quat;
+                                v85[2 * j] = (unsigned int)(uintptr_t)part[animPartIndex].quat;
                                 v85[2 * v8 + 1] = v7;
                                 parts->names[j] = v82[animPartIndex];
                                 PartQuatType = XAnimGetPartQuatType(animPartIndex);
@@ -658,7 +658,7 @@ XAnimParts *__cdecl XAnimLoadFile(char *name, void *(__cdecl *Alloc)(int), bool 
                                 animPartIndex = *(unsigned __int16 *)&v86[2 * j];
                                 v14 = *(unsigned int *)&v87[animPartIndex].partIndex;
                                 v15 = j;
-                                *(unsigned int *)&dest[8 * j + 128] = (unsigned int)v87[animPartIndex].trans;
+                                *(unsigned int *)&dest[8 * j + 128] = (unsigned int)(uintptr_t)v87[animPartIndex].trans;
                                 *(unsigned int *)&dest[8 * v15 + 132] = v14;
                                 PartQuatType = XAnimGetPartTransType(animPartIndex);
                                 *(&i + PartQuatType) = j + 1;

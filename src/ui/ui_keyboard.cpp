@@ -6,7 +6,7 @@
 #include <qcommon/com_clients.h>
 #include <qcommon/profanityfilter.h>
 #include <stringed/stringed_hooks.h>
-#ifdef KISAK_NX
+#ifdef __SWITCH__
 #include <algorithm>
 #include <stdio.h>
 #include <switch.h>
@@ -54,7 +54,7 @@ void __cdecl UI_ClearKeyboardActive()
     uiKeyboard.keyboardType = 0;
 }
 
-#ifdef KISAK_NX
+#ifdef __SWITCH__
 static bool UI_NX_IsAllowedChar(unsigned char ch, UiNxTextFilter filter)
 {
     if (ch < 32 || ch >= 127)
@@ -205,7 +205,7 @@ void __cdecl UI_Keyboard_New_f()
 {
     const char *v0; // eax
     int keyboardType; // [esp+4Ch] [ebp-10h]
-#ifndef KISAK_NX
+#ifndef __SWITCH__
     char *defaultString; // [esp+54h] [ebp-8h]
     char *title; // [esp+58h] [ebp-4h]
 
@@ -218,7 +218,7 @@ void __cdecl UI_Keyboard_New_f()
         keyboardType = atoi(v0);
         if ( keyboardType > 0 && keyboardType < 3 )
         {
-#ifdef KISAK_NX
+#ifdef __SWITCH__
             if (keyboardType == 1)
                 UI_NX_OpenVirtualKeyboard(keyboardType, Demo_GetKeyboardTitle(), Demo_GetKeyboardDefaultText(),
                     Demo_GetKeyboardTextSize());

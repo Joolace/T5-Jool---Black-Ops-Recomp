@@ -673,11 +673,11 @@ void __cdecl DestructibleDef_Strcpy(unsigned __int8 *member, const char *keyValu
             *v3++ = *v4++;
         }
         while ( v2 );
-        *(unsigned int *)member = (unsigned int)buf;
+        *(unsigned int *)member = (unsigned int)(uintptr_t)buf;
     }
     else
     {
-        *(unsigned int *)member = (unsigned int)"";
+        *(unsigned int *)member = (unsigned int)(uintptr_t)"";
     }
 }
 
@@ -734,7 +734,7 @@ int __cdecl Destructible_ParseDefSpecificFieldType(unsigned __int8 *pStruct, cha
                                                 }
                                                 else if ( iFieldType - 335 < *((unsigned int *)pStruct + 3) )
                                                 {
-                                                    *(unsigned int *)(*((unsigned int *)pStruct + 4) + 312 * (iFieldType - 335) + 280) = (unsigned int)FX_Register(pValue);
+                                                    *(unsigned int *)(*((unsigned int *)pStruct + 4) + 312 * (iFieldType - 335) + 280) = (unsigned int)(uintptr_t)FX_Register(pValue);
                                                 }
                                             }
                                             else if ( !G_ExitAfterToolComplete() && iFieldType - 303 < *((unsigned int *)pStruct + 3) )
@@ -746,7 +746,7 @@ int __cdecl Destructible_ParseDefSpecificFieldType(unsigned __int8 *pStruct, cha
                                         }
                                         else if ( iFieldType - 271 < *((unsigned int *)pStruct + 3) && pValue && *pValue )
                                         {
-                                            *(unsigned int *)(*((unsigned int *)pStruct + 4) + 312 * (iFieldType - 271) + 268) = (unsigned int)XModel_PhysConstraintsPrecache(pValue, 0);
+                                            *(unsigned int *)(*((unsigned int *)pStruct + 4) + 312 * (iFieldType - 271) + 268) = (unsigned int)(uintptr_t)XModel_PhysConstraintsPrecache(pValue, 0);
                                         }
                                     }
                                     else if ( iFieldType - 239 < *((unsigned int *)pStruct + 3) )
@@ -893,7 +893,7 @@ DestructibleDef *__cdecl DestructibleDefLoadFile(const char *name, void *(__cdec
                         {
                             count = 312 * *((unsigned int *)pStruct + 3);
                             v4 = Alloc(count);
-                            *((unsigned int *)pStruct + 4) = (unsigned int)v4;
+                            *((unsigned int *)pStruct + 4) = (unsigned int)(uintptr_t)v4;
                             memset(*((unsigned __int8 **)pStruct + 4), 0, count);
                             if ( ParseConfigStringToStruct(
                                          pStruct,

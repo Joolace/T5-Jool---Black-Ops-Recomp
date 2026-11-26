@@ -540,7 +540,7 @@ usercmd_s *__cdecl CL_CreateCmd(usercmd_s *result, int localClientNum)
 #ifdef KISAK_NX
             && (!Key_IsCatcherActive(localClientNum, 16) || UI_GetActiveMenu(localClientNum) == UIMENU_SCOREBOARD
 #ifdef KISAK_SP
-                || (Com_IsMenuLevel(localClientNum) && UI_MenuIsUI3D(localClientNum))
+                || (Com_IsMenuLevel(nullptr) && UI_MenuIsUI3D(localClientNum))
 #endif
                 )
 #endif
@@ -940,7 +940,7 @@ void __cdecl CL_GamepadMove(int localClientNum, usercmd_s *cmd)
                     cmd->button_bits.setBit(0);
                 CG_HandleSpecialStateInput(localClientNum, &cmd->button_bits);
 #if defined(KISAK_NX) && defined(KISAK_SP)
-                if (Com_IsMenuLevel(localClientNum) && UI_MenuIsUI3D(localClientNum))
+                if (Com_IsMenuLevel(nullptr) && UI_MenuIsUI3D(localClientNum))
                 {
                     constexpr float menuYawSpeed = 55.0f;
                     constexpr float menuPitchSpeed = 40.0f;

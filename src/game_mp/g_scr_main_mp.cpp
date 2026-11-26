@@ -998,7 +998,7 @@ void __cdecl GScr_SetScriptsForPathNode(scriptInstance_t inst, pathnode_t *loadN
                 {
                     __debugbreak();
                 }
-                loadNode->constant.animscriptfunc = (int)Hunk_FindDataForFile(1, animscript);
+                loadNode->constant.animscriptfunc = (int)(uintptr_t)Hunk_FindDataForFile(1, animscript);
                 if ( !loadNode->constant.animscriptfunc )
                 {
                     Com_sprintf(filename, 0x40u, GSCR_ANIMSCRIPTS_DIR "traverse/%s", animscript);
@@ -19042,9 +19042,9 @@ void print_0()
         for (i = 0; ; i = (const dvar_s *)((char *)i + 1))
         {
             result = i;
-            if ((int)i >= num)
+            if ((int)(uintptr_t)i >= num)
                 break;
-            DebugString = Scr_GetDebugString((unsigned int)i, SCRIPTINSTANCE_SERVER);
+            DebugString = Scr_GetDebugString((unsigned int)(uintptr_t)i, SCRIPTINSTANCE_SERVER);
             Com_Printf(level.scriptPrintChannel, "%s", DebugString);
         }
     }

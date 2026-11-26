@@ -261,7 +261,7 @@ unsigned int CMod_LoadNodes()
                 Com_Error(ERR_DROP, "CMod_LoadNodes: children exceeded");
         }
         ++nodeIter;
-        result = (unsigned int)&out[1];
+        result = (unsigned int)(uintptr_t)&out[1];
         ++out;
         in += 36;
     }
@@ -348,7 +348,7 @@ unsigned int CMod_LoadCollisionBorders()
         out->start = in->start;
         out->length = in->length;
         ++index;
-        result = (unsigned int)&in[1];
+        result = (unsigned int)(uintptr_t)&in[1];
         ++in;
         ++out;
     }
@@ -398,7 +398,7 @@ unsigned int CMod_LoadCollisionPartitions()
             __debugbreak();
         }
         ++index;
-        result = (unsigned int)(in + 20);
+        result = (unsigned int)(uintptr_t)(in + 20);
         in += 20;
         ++out;
     }
@@ -1269,7 +1269,7 @@ unsigned int CMod_LoadCollisionAabbTrees()
         out->childCount = *((_WORD *)in + 13);
         out->u.firstChildIndex = *((unsigned int *)in + 7);
         ++index;
-        result = (unsigned int)(in + 32);
+        result = (unsigned int)(uintptr_t)(in + 32);
         in += 32;
         ++out;
     }

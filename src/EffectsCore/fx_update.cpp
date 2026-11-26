@@ -2575,7 +2575,7 @@ char __cdecl FX_AcquireEffectLock_IsLiveEffect(FxEffect *effect)
     while ( _InterlockedExchangeAdd((volatile unsigned __int32 *)&effect[1], 0x20000000u) >= 0x20000000 )
     {
         _InterlockedExchangeAdd((volatile unsigned __int32 *)&effect[1], 0xE0000000);
-        if ( ((int)effect[1].def & 0x3FFF) == 0 )
+        if ( ((int)(uintptr_t)effect[1].def & 0x3FFF) == 0 )
             return 0;
     }
     return 1;

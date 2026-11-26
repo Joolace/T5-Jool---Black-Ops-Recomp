@@ -28,7 +28,12 @@
 #define _declspec(x) __declspec(x)
 
 // MSVC's FILE tag; newlib's is __sFILE
-#define _iobuf __sFILE
+#if defined(__GLIBC__)
+#define _iobuf _IO_FILE // T5Jool Linux: glibc's FILE tag
+#define __sFILE _IO_FILE
+#else
+#define _iobuf __sFILE  // newlib (Switch) and bionic (Android)
+#endif
 
 // MSVC jmp_buf was int[16]; game code passes (int*) buffers around. The
 // buffers themselves are enlarged to real jmp_bufs under KISAK_64BIT; this cast
@@ -163,15 +168,29 @@ static inline long long _InterlockedCompareExchange64(volatile long long *p, lon
     return expected;
 }
 static inline long long _InterlockedExchange64(volatile long long *p, long long v) { return __atomic_exchange_n(p, v, __ATOMIC_SEQ_CST); }
+#if defined(__LP64__) && !defined(__SWITCH__)
+// T5Jool (glibc, bionic): int64_t/LONG64 is 'long' there, 'long long' on newlib
+static inline long _InterlockedCompareExchange64(volatile long *p, long exchange, long comparand)
+{
+    long expected = comparand;
+    __atomic_compare_exchange_n(p, &expected, exchange, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    return expected;
+}
+static inline long _InterlockedExchange64(volatile long *p, long v) { return __atomic_exchange_n(p, v, __ATOMIC_SEQ_CST); }
+#endif
 static inline long long _InterlockedExchangeAdd64(volatile long long *p, long long v) { return __atomic_fetch_add(p, v, __ATOMIC_SEQ_CST); }
 #endif // __cplusplus
 
+#if defined(__x86_64__) || defined(__i386__)
+#include <x86intrin.h> // T5Jool Linux x86_64: the real __rdtsc
+#else
 static inline uint64_t __rdtsc(void)
 {
     uint64_t cnt;
     __asm__ __volatile__("mrs %0, cntvct_el0" : "=r"(cnt));
     return cnt;
 }
+#endif
 
 #define _ReturnAddress() __builtin_return_address(0)
 

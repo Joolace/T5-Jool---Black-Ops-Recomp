@@ -5248,7 +5248,7 @@ void __cdecl CG_FireWeapon(
             AnglesToAxis(cent->pose.angles, entMatrix);
             R_FoliageNofityWeaponFiring(
                 (int)localClientNum,
-                (unsigned int)cent,
+                (unsigned int)(uintptr_t)cent,
                 fireOrigin,
                 entMatrix[0],
                 weaponDef->weapClass == WEAPCLASS_GAS);

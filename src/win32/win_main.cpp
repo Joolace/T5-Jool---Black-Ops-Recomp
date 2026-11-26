@@ -362,14 +362,14 @@ char *__cdecl Sys_GetClipboardData()
         hClipboardData = GetClipboardData(1u);
         if ( hClipboardData )
         {
-            cliptext = (char *)GlobalLock(hClipboardData);
+            cliptext = (char *)GlobalLock((HGLOBAL)hClipboardData);
             if ( cliptext )
             {
-                v0 = GlobalSize(hClipboardData);
+                v0 = GlobalSize((HGLOBAL)hClipboardData);
                 data = (char *)Z_Malloc(v0 + 1, "Sys_GetClipboardData", 11);
-                v1 = GlobalSize(hClipboardData);
+                v1 = GlobalSize((HGLOBAL)hClipboardData);
                 I_strncpyz(data, cliptext, v1);
-                GlobalUnlock(hClipboardData);
+                GlobalUnlock((HGLOBAL)hClipboardData);
                 strtok(data, "\n\r\b");
             }
         }

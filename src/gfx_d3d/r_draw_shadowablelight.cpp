@@ -243,7 +243,7 @@ void    R_SetLightProperties(
         y = source->input.consts[12];
         source->input.consts[12][0] = v42;
         y[1] = v41;
-        *((_DWORD *)y + 2) = (DWORD)updateLight;
+        *((_DWORD *)y + 2) = (DWORD)(uintptr_t)updateLight;
         y[3] = x;
         R_DirtyCodeConstant(source, CONST_SRC_CODE_LIGHT_SPOT_AABB);
         z = light;

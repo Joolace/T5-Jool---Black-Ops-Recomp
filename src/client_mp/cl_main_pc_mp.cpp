@@ -820,9 +820,9 @@ void CL_RconLogin()
     if ( Cmd_Argc() == 3 )
     {
         password = (char *)Cmd_Argv(2);
-        v0 = (unsigned int)&password[strlen(password) + 1];
-        if ( v0 - (unsigned int)(password + 1) < 0x18 )
-            memcpy((unsigned __int8 *)&rconGlob, (unsigned __int8 *)password, v0 - (unsigned int)password);
+        v0 = (unsigned int)(uintptr_t)&password[strlen(password) + 1];
+        if ( v0 - (unsigned int)(uintptr_t)(password + 1) < 0x18 )
+            memcpy((unsigned __int8 *)&rconGlob, (unsigned __int8 *)password, v0 - (unsigned int)(uintptr_t)password);
         else
             Com_Printf(14, "rcon password must be %i characters or less\n", 24);
     }

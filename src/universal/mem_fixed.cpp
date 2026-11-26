@@ -55,11 +55,11 @@ _fixed_heapnode *__cdecl Hunk_FixedInit(
     else
         v8 = *scheme_specific_data;
     buffer[5].next = (_fixed_heapnode *)v8;
-    count = (size - 28) / (unsigned int)&buffer[5].next[1];
+    count = (size - 28) / (unsigned int)(uintptr_t)&buffer[5].next[1];
     node = buffer + 7;
     buffer[6].next = buffer + 7;
     for ( i = 0; i < (int)(count - 1); ++i )
-        node->next = (_fixed_heapnode *)((char *)buffer[5].next + (unsigned int)node);
+        node->next = (_fixed_heapnode *)((char *)buffer[5].next + (unsigned int)(uintptr_t)node);
     node->next = 0;
     return buffer;
 }
@@ -119,7 +119,7 @@ void __cdecl Hunk_FixedFree(HunkUser *_user, char *ptr)
         }
         else
         {
-            *(unsigned int *)ptr = (unsigned int)_user[1].name;
+            *(unsigned int *)ptr = (unsigned int)(uintptr_t)_user[1].name;
             _user[1].name = ptr;
         }
     }

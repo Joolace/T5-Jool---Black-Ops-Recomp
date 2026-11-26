@@ -2490,7 +2490,7 @@ void    Phys_FindAndRenderEntityBrushes(const float *pos, int contentmask)
                 v36 = (const float *)v47;
             else
                 v36 = v48;
-            v6 = (unsigned int)v40;
+            v6 = (unsigned int)(uintptr_t)v40;
             XModell = DObjGetXModel(ServerDObj, 0);
             render_xmodel_chull(XModell, v6, &v38, v36);
         }
@@ -2500,7 +2500,7 @@ void    Phys_FindAndRenderEntityBrushes(const float *pos, int contentmask)
                 v35 = (const float *)v47;
             else
                 v35 = v48;
-            render_brushmodel_chull(v40->s.index.brushmodel, (unsigned int)v40, &v38, v35);
+            render_brushmodel_chull(v40->s.index.brushmodel, (unsigned int)(uintptr_t)v40, &v38, v35);
         }
     }
     v34 = Phys_GetMaskFromDVar() == 0x2820011
@@ -2529,7 +2529,7 @@ void    Phys_FindAndRenderEntityBrushes(const float *pos, int contentmask)
                         v26 = (const float *)v44;
                     else
                         v26 = (const float *)v45;
-                    v7 = (unsigned int)Entity;
+                    v7 = (unsigned int)(uintptr_t)Entity;
                     v5 = DObjGetXModel(ClientDObj, 0);
                     render_xmodel_chull(v5, v7, &v28, v26);
                 }
@@ -2543,7 +2543,7 @@ void    Phys_FindAndRenderEntityBrushes(const float *pos, int contentmask)
                         v25 = (const float *)v44;
                     else
                         v25 = (const float *)v45;
-                    render_brushmodel_chull(Entity->nextState.index.brushmodel, (unsigned int)Entity, &v28, v25);
+                    render_brushmodel_chull(Entity->nextState.index.brushmodel, (unsigned int)(uintptr_t)Entity, &v28, v25);
                 }
             }
         }
@@ -2578,15 +2578,15 @@ void    Phys_FindAndRenderEntityBrushes(const float *pos, int contentmask)
                 Phys_Vec3ToNitrousVec(v12->pose.origin, &v10.w);
                 if ( k )
                 {
-                    render_brushmodel_chull(EntityDef->brushModel, (unsigned int)EntityDef, &v10, v46);
+                    render_brushmodel_chull(EntityDef->brushModel, (unsigned int)(uintptr_t)EntityDef, &v10, v46);
                 }
                 else
                 {
-                    render_xmodel_chull(EntityDef->xModel, (unsigned int)EntityDef, &v10, v48);
+                    render_xmodel_chull(EntityDef->xModel, (unsigned int)(uintptr_t)EntityDef, &v10, v48);
                     if ( XModelHasCollmap(EntityDef->xModel) )
                     {
                         Collmap = XModelGetCollmap(EntityDef->xModel, 0);
-                        collmap_chull = get_collmap_chull(Collmap, (unsigned int)EntityDef);
+                        collmap_chull = get_collmap_chull(Collmap, (unsigned int)(uintptr_t)EntityDef);
                         render_chull(collmap_chull, &v10, v46);
                     }
                 }
@@ -3014,7 +3014,7 @@ void __cdecl print_static_models_stats()
         numStaticModels = 0x4000;
     num = numStaticModels;
     for ( i = 0; i < (int)num; ++i )
-        base[i] = (unsigned int) & cm.staticModelList[i];
+        base[i] = (unsigned int)(uintptr_t) & cm.staticModelList[i];
     qsort(base, num, sizeof((base)[0]), SortModelsFunc);
     refcount = 1;
     smodel = (cStaticModel_s *)base[0];
@@ -4171,7 +4171,7 @@ void collide_vehicle_wheels(PhysObjUserData *userData)
                 //rigid_body_constraint_wheel::get_wheel_collide_segment(v33, v41, &rb->m_mat, &v30, &v31);
                 v33->get_wheel_collide_segment(&rb->m_mat, &v30, &v31);
                 v29 = (float)(v30.z - v31.z) * 0.30000001;
-                LODWORD(p0[3]) = (DWORD)&v30.z;
+                LODWORD(p0[3]) = (DWORD)(uintptr_t)&v30.z;
                 v30.z = v30.z + v29;
                 Phys_NitrousVecToVec3(&v30, p0);
                 Phys_NitrousVecToVec3(&v31, p1);

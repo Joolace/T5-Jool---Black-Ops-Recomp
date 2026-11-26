@@ -176,7 +176,7 @@ void __cdecl RB_Resource_Callback(void (__cdecl *callback)())
         __debugbreak();
     }
     action->action = ACTION_CALLBACK;
-    action->resource = callback;
+    action->resource = (void *)callback;
     RB_Resource_Unlock();
 }
 
@@ -192,7 +192,7 @@ void __cdecl RB_Resource_CallbackParam(void (__cdecl *callback)(void *), void *d
         __debugbreak();
     }
     action->action = ACTION_CALLBACKPARAM;
-    action->resource = callback;
+    action->resource = (void *)callback;
     action->data = data;
     RB_Resource_Unlock();
 }
