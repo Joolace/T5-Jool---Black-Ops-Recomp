@@ -60,6 +60,7 @@ void __cdecl Sys_SetErrorText(const char *buf)
         strncpy(s_errorText, buf, sizeof(s_errorText) - 1);
         fprintf(stderr, "SYS ERROR: %s\n", buf);
         fflush(stderr);
+#ifdef __SWITCH__
         const AppletType type = appletGetAppletType();
         if (type == AppletType_Application || type == AppletType_SystemApplication) {
             char message[0x800];
@@ -68,6 +69,10 @@ void __cdecl Sys_SetErrorText(const char *buf)
             if (R_SUCCEEDED(errorApplicationCreate(&config, message, nullptr)))
                 errorApplicationShow(&config);
         }
+#else
+        extern void T5_ShowFatalError(const char *message); // t5/t5_main.cpp
+        T5_ShowFatalError(buf);
+#endif
     }
 }
 

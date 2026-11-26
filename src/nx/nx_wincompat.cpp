@@ -11,6 +11,13 @@
 
 #include <switch.h>
 
+// Switch 2 (mimalloc) and T5Jool's Linux/Android builds: no newlib sbrk heap to wrap or report.
+#if defined(KISAK_NX2) || !defined(__SWITCH__)
+#define NX_HEAP_NO_SBRK 1
+#else
+#define NX_HEAP_NO_SBRK 0
+#endif
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,10 +29,79 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <ctype.h>
+#include <strings.h>
 
 // ===========================================================================
 // path normalization ('\' separators and case come from Windows-era code)
 // ===========================================================================
+#ifndef __SWITCH__
+// T5Jool (Linux, Android): the Switch SD card ignores case, ext4 does not. The game data comes from
+// Windows (main/, zone/, "Zone/English"...), so every missing component is looked up again ignoring
+// case; components that do not exist at all stay as written (files to create). A "C:" drive is dropped.
+static bool t5_find_nocase(const char *dir, const char *name, char *found, size_t foundSize)
+{
+    DIR *d = opendir(dir[0] ? dir : ".");
+    if (!d)
+        return false;
+    bool ok = false;
+    while (struct dirent *e = readdir(d)) {
+        if (!strcasecmp(e->d_name, name)) {
+            snprintf(found, foundSize, "%s", e->d_name);
+            ok = true;
+            break;
+        }
+    }
+    closedir(d);
+    return ok;
+}
+
+static void t5_resolve_case(char *path, size_t size)
+{
+    if (isalpha((unsigned char)path[0]) && path[1] == ':')
+        memmove(path, path + 2, strlen(path + 2) + 1);
+    struct stat st;
+    if (!path[0] || stat(path, &st) == 0)
+        return;
+    char result[1024] = "";
+    size_t len = 0;
+    const char *p = path;
+    if (*p == '/') {
+        result[len++] = '/';
+        result[len] = 0;
+        ++p;
+    }
+    bool missing = false;
+    while (*p) {
+        const char *slash = strchr(p, '/');
+        size_t n = slash ? (size_t)(slash - p) : strlen(p);
+        char comp[256];
+        if (n >= sizeof(comp))
+            return;
+        memcpy(comp, p, n);
+        comp[n] = 0;
+        if (n && len + n + 2 < sizeof(result)) {
+            char candidate[1024], found[256];
+            snprintf(candidate, sizeof(candidate), "%s%s", result, comp);
+            if (!missing && stat(candidate, &st) != 0) {
+                char dir[1024];
+                snprintf(dir, sizeof(dir), "%s", result);
+                if (len > 1 && dir[len - 1] == '/')
+                    dir[len - 1] = 0;
+                if (t5_find_nocase(dir, comp, found, sizeof(found)))
+                    snprintf(candidate, sizeof(candidate), "%s%s", result, found);
+                else
+                    missing = true;
+            }
+            len = (size_t)snprintf(result, sizeof(result), "%s%s", candidate, slash ? "/" : "");
+        }
+        if (!slash)
+            break;
+        p = slash + 1;
+    }
+    snprintf(path, size, "%s", result);
+}
+#endif
 extern "C" void nx_normalize_path(const char *in, char *out, size_t outSize)
 {
     size_t j = 0;
@@ -38,6 +114,9 @@ extern "C" void nx_normalize_path(const char *in, char *out, size_t outSize)
         out[j++] = c;
     }
     out[j] = 0;
+#ifndef __SWITCH__
+    t5_resolve_case(out, outSize);
+#endif
 }
 
 static void nx_norm(const char *in, char *buf) { nx_normalize_path(in, buf, 1024); }
@@ -397,7 +476,7 @@ static void nxThreadEntry(void *arg)
 // the system's); on Switch 2, every core the process's core mask allows.
 static u32 nxAppCoreMask(void)
 {
-#ifdef KISAK_NX2
+#if NX_HEAP_NO_SBRK
     static const u32 s_mask = [] {
         u64 mask = 0;
         if (R_FAILED(svcGetInfo(&mask, InfoType_CoreMask, CUR_PROCESS_HANDLE, 0)) || !(mask & 0xFF))
@@ -414,7 +493,7 @@ static u32 nxAppCoreMask(void)
 // over the cores after the main (0) and render (1) threads.
 static int nxNewThreadCore(void)
 {
-#ifdef KISAK_NX2
+#if NX_HEAP_NO_SBRK
     static unsigned s_next;
     const u32 cores = nxAppCoreMask() & ~3u;
     if (!cores)
@@ -1456,7 +1535,7 @@ extern "C" void nx_mem_report(const char *why, size_t request)
     nx_mem_status(&total, &avail);
     int regions = 0;
     size_t vtotal = nxVmemTotal(&regions);
-#ifdef KISAK_NX2
+#if NX_HEAP_NO_SBRK
     printf("[nx-mem] %s (request %zu KB): free heap %llu MB of %llu MB, VirtualAlloc %zu MB in %d regions\n",
            why, request >> 10, (unsigned long long)(avail >> 20),
            (unsigned long long)(heapGetTotalSize() >> 20), vtotal >> 20, regions);
@@ -1529,7 +1608,7 @@ static void nxGuardRelease(void *page)
     __atomic_sub_fetch(&s_guardsLive, 1, __ATOMIC_RELAXED);
 }
 
-#ifdef KISAK_NX2
+#if NX_HEAP_NO_SBRK
 // Switch 2's allocator (mimalloc) keeps no block header, so only VirtualAlloc
 // regions get guard pages.
 static void nxFreeRegion(void *p)
@@ -1665,7 +1744,7 @@ LPVOID VirtualAlloc(LPVOID address, SIZE_T size, DWORD type, DWORD)
         void *p = memalign(NX_PAGE, rounded + NX_PAGE);
         if (!p) {
             nx_mem_report("VirtualAlloc failed", rounded);
-#ifndef KISAK_NX2
+#if !NX_HEAP_NO_SBRK
             ptrdiff_t lastIncr;
             void *lastResult;
             unsigned calls;
@@ -1791,7 +1870,7 @@ BOOL GlobalUnlock(HGLOBAL) { return TRUE; }
 extern "C" char *fake_heap_start;
 extern "C" char *fake_heap_end;
 
-#ifndef KISAK_NX2
+#if !NX_HEAP_NO_SBRK
 // Every heap growth goes through _sbrk_r (linked with --wrap=_sbrk_r). Log
 // large steps and every refusal, with the break position, to tell a heap that
 // is really full from one malloc cannot grow.
@@ -1864,7 +1943,7 @@ extern "C" void nx_mem_status(uint64_t *totalOut, uint64_t *availOut)
     u64 totalMem = 0;
     svcGetInfo(&totalMem, InfoType_TotalMemorySize, CUR_PROCESS_HANDLE, 0);
 
-#ifdef KISAK_NX2
+#if NX_HEAP_NO_SBRK
     // libounce's allocator (mimalloc) manages the whole heap; newlib's figures
     // do not describe it (switch2/memory/heap.h).
     size_t heapSize = (size_t)heapGetTotalSize();

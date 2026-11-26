@@ -16,6 +16,7 @@
 #include <sys/syscall.h>
 #include <sys/mman.h>
 #include <sys/random.h>
+#include <stdlib.h>
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -224,3 +225,20 @@ static inline AppletType appletGetAppletType(void) { return AppletType_Applicati
 static inline Result appletGetCurrentPerformanceConfiguration(u32 *c) { *c = 0; return 0; }
 
 #endif
+
+// ---------------------------------------------------------------- heap figures (Switch 2's libounce names)
+#include <stdio.h>
+static inline u64 t5_meminfo_kb(const char *key)
+{
+    FILE *f = fopen("/proc/meminfo", "r");
+    if (!f) return 0;
+    char line[256];
+    u64 v = 0;
+    size_t n = strlen(key);
+    while (fgets(line, sizeof(line), f))
+        if (!strncmp(line, key, n) && line[n] == ':') { v = strtoull(line + n + 1, NULL, 10); break; }
+    fclose(f);
+    return v;
+}
+static inline u64 heapGetTotalSize(void) { return t5_meminfo_kb("MemTotal") << 10; }
+static inline u64 heapGetFreeSize(void) { return t5_meminfo_kb("MemAvailable") << 10; }

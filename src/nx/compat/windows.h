@@ -313,7 +313,11 @@ static inline LONG InterlockedCompareExchange(volatile unsigned int *p, unsigned
 // ===========================================================================
 typedef struct _RTL_CRITICAL_SECTION {
     // Opaque storage; see nx_wincompat.cpp (libnx RMutex + init flag).
+#ifdef __SWITCH__
     uint32_t opaque[6];
+#else
+    uint64_t opaque[8]; // T5Jool: a recursive pthread mutex (40 bytes on glibc and bionic) + the flag
+#endif
 } CRITICAL_SECTION, *PCRITICAL_SECTION, *LPCRITICAL_SECTION;
 
 void InitializeCriticalSection(LPCRITICAL_SECTION cs);

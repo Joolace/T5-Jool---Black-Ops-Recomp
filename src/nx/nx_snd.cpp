@@ -36,6 +36,9 @@
 
 #include <switch.h>
 #include <binklib/bink_audio.h>
+#ifndef __SWITCH__
+#include <SDL.h> // T5Jool (Linux/Android): the mixer's output goes to SDL audio instead of audout
+#endif
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -46,7 +49,13 @@ extern "C" {
 
 // The WMA v2 decoder by name: avcodec_find_decoder would pull in the whole
 // codec list, and every codec with it. FFCodec starts with its AVCodec.
+#ifdef KISAK_FFMPEG_STATIC_DECODERS
 extern "C" const AVCodec ff_wmav2_decoder;
+#define NX_WMAV2_DECODER (&ff_wmav2_decoder)
+#else
+// T5Jool: shared FFmpeg (system libavcodec on Linux, the reduced build on Android)
+#define NX_WMAV2_DECODER avcodec_find_decoder(AV_CODEC_ID_WMAV2)
+#endif
 
 namespace {
 
@@ -132,8 +141,13 @@ Thread s_thread;
 bool s_threadRunning;
 u64 s_outputSubmitted;
 volatile bool s_quit;
+#ifdef __SWITCH__
 AudioOutBuffer s_outBuf[NX_OUT_BUFFERS];
 int16_t *s_outData[NX_OUT_BUFFERS];
+#else
+SDL_AudioDeviceID s_sdlDevice;
+int16_t s_sdlOut[NX_MIX_FRAMES * 2];
+#endif
 float s_mix[NX_MIX_FRAMES * 2];
 
 // For the periodic report.
@@ -459,12 +473,18 @@ void mixInto(int16_t *out)
         {
             unsigned queued = (NX_OUT_BUFFERS - 1) * NX_MIX_FRAMES;
             u64 played;
+#ifdef __SWITCH__
             if (hosversionAtLeast(4, 0, 0) && R_SUCCEEDED(audoutGetAudioOutPlayedSampleCount(&played)))
             {
                 const u64 pending = s_outputSubmitted > played ? s_outputSubmitted - played : 0;
                 if (pending <= NX_OUT_BUFFERS * NX_MIX_FRAMES)
                     queued = unsigned(pending);
             }
+#else
+            (void)played;
+            if (s_sdlDevice)
+                queued = SDL_GetQueuedAudioSize(s_sdlDevice) / 4; // frames still queued in SDL
+#endif
             s_cinematicAudio->mix(s_mix, NX_MIX_FRAMES, queued, Sys_BinkTimeUs());
         }
     }
@@ -475,6 +495,50 @@ void mixInto(int16_t *out)
     s_mixTicks += armGetSystemTick() - t0;
 }
 
+#ifndef __SWITCH__
+// T5Jool: keep NX_OUT_BUFFERS mixes queued in SDL, the same latency as the audout buffers
+void mixerThread(void *)
+{
+    while (!s_quit) {
+        if (SDL_GetQueuedAudioSize(s_sdlDevice) >= (Uint32)((NX_OUT_BUFFERS - 1) * NX_OUT_BYTES)) {
+            svcSleepThread(2000000); // 2 ms
+            continue;
+        }
+        mixInto(s_sdlOut);
+        if (SDL_QueueAudio(s_sdlDevice, s_sdlOut, NX_OUT_BYTES) == 0)
+            s_outputSubmitted += NX_MIX_FRAMES;
+    }
+}
+
+bool startOutput()
+{
+    if (!SDL_WasInit(SDL_INIT_AUDIO) && SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
+        printf("[nx-snd] SDL audio: %s\n", SDL_GetError());
+        return false;
+    }
+    SDL_AudioSpec want = {}, have = {};
+    want.freq = NX_SND_RATE;
+    want.format = AUDIO_S16SYS;
+    want.channels = 2;
+    want.samples = NX_MIX_FRAMES;
+    s_sdlDevice = SDL_OpenAudioDevice(nullptr, 0, &want, &have, 0);
+    if (!s_sdlDevice) {
+        printf("[nx-snd] SDL_OpenAudioDevice: %s\n", SDL_GetError());
+        return false;
+    }
+    s_outputSubmitted = 0;
+    s_quit = false;
+    if (R_FAILED(threadCreate(&s_thread, mixerThread, nullptr, nullptr, 0x10000, 0x2B, -2))
+        || R_FAILED(threadStart(&s_thread))) {
+        SDL_CloseAudioDevice(s_sdlDevice);
+        s_sdlDevice = 0;
+        return false;
+    }
+    SDL_PauseAudioDevice(s_sdlDevice, 0);
+    s_threadRunning = true;
+    return true;
+}
+#else
 void mixerThread(void *)
 {
     while (!s_quit) {
@@ -520,6 +584,7 @@ bool startOutput()
     s_threadRunning = true;
     return true;
 }
+#endif
 
 // ---------------------------------------------------------------------------
 // The engine side, after snd_driver_xaudio2.cpp
@@ -551,7 +616,7 @@ bool openWma(int voiceIndex, const snd_asset *snd)
             av_log_set_level(AV_LOG_ERROR);
             s_avLogQuiet = true;
         }
-        AVCodecContext *ctx = avcodec_alloc_context3(&ff_wmav2_decoder);
+        AVCodecContext *ctx = avcodec_alloc_context3(NX_WMAV2_DECODER);
         if (!ctx)
             return false;
         ctx->sample_rate = (int)snd->frame_rate;
@@ -564,7 +629,7 @@ bool openWma(int voiceIndex, const snd_asset *snd)
             ctx->extradata_size = 6;
             ctx->extradata[4] = 31;   // as FFmpeg's xwma demuxer: exp VLC, bit reservoir, variable blocks
         }
-        if (avcodec_open2(ctx, &ff_wmav2_decoder, nullptr) < 0) {
+        if (avcodec_open2(ctx, NX_WMAV2_DECODER, nullptr) < 0) {
             avcodec_free_context(&ctx);
             return false;
         }
@@ -864,12 +929,17 @@ void SD_Shutdown()
         threadWaitForExit(&s_thread);
         threadClose(&s_thread);
         s_threadRunning = false;
+#ifdef __SWITCH__
         audoutStopAudioOut();
         audoutExit();
         for (int i = 0; i < NX_OUT_BUFFERS; ++i) {
             free(s_outData[i]);
             s_outData[i] = nullptr;
         }
+#else
+        SDL_CloseAudioDevice(s_sdlDevice);
+        s_sdlDevice = 0;
+#endif
     }
 }
 
