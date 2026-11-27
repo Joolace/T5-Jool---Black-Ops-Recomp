@@ -6043,8 +6043,15 @@ static bool UI_NX_HandleTitleKey(int localClientNum, UiContext *dc, menuDef_t *m
 {
     if (!menu->window.name || I_stricmp(menu->window.name, "main_lockout"))
         return false;
+#ifdef T5_POSIX
+    // T5Jool: "press any key" means any key: keyboard, mouse buttons or the pad's A (not Esc or the console key)
+    if (!down || key == K_ESCAPE || key == '`' || key == '~')
+        return true;
+    key = K_BUTTON_A;
+#else
     if (!down || key != K_BUTTON_A)
         return true;
+#endif
     if (Menu_CheckOnKey(localClientNum, dc, menu, key) || Menu_CheckOnKey(localClientNum, dc, menu, K_ENTER))
         return true;
 
