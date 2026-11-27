@@ -1232,7 +1232,7 @@ bool __cdecl Key_IsValidGamePadChar(char key)
 char tinystr[5];
 const char *__cdecl Key_KeynumToString(int keynum, int translate)
 {
-#ifdef KISAK_NX
+#if defined(KISAK_NX) && !defined(T5_POSIX) // T5Jool: keyboards and mice exist here
     if (translate)
     {
         switch (keynum)
@@ -1309,7 +1309,7 @@ const char *__cdecl Key_KeynumToString(int keynum, int translate)
 
 void __cdecl Key_SetBinding(int localClientNum, int keynum, const char *binding, int bindNum)
 {
-#ifdef KISAK_NX
+#if defined(KISAK_NX) && !defined(T5_POSIX) // T5Jool: keyboards and mice exist here
     if (keynum < 0 || keynum > K_LASTGAMEPADBUTTON_RANGE_3 || !Key_IsValidGamePadChar(keynum))
         return;
 #endif
@@ -1409,7 +1409,7 @@ int __cdecl Key_GetCommandAssignmentInternal(
     const char *binding; // [esp+4h] [ebp-8h]
     int count; // [esp+8h] [ebp-4h]
 
-#ifdef KISAK_NX
+#if defined(KISAK_NX) && !defined(T5_POSIX) // T5Jool: keyboards and mice exist here
     gamePadOnly = 1;
 #endif
     twokeys[1] = -1;
@@ -1872,7 +1872,7 @@ void __cdecl CL_InitKeyCommands()
 
 void __cdecl CL_KeyEvent(int localClientNum, int key, int down, unsigned int time)
 {
-#ifdef KISAK_NX
+#if defined(KISAK_NX) && !defined(T5_POSIX) // T5Jool: keyboards and mice exist here
     // Switch 2 also takes the Joy-Con mouse's clicks and wheel (win_input.cpp).
     if (!IsGamepadKey(key)
 #ifdef KISAK_NX2
@@ -2329,7 +2329,7 @@ void __cdecl CL_HandleKeySpectatorInput(int localClientNum, int key)
 
 void __cdecl CL_CharEvent(int localClientNum, int key)
 {
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX)
     clientUIActive_t *LocalClientUIGlobals; // [esp+0h] [ebp-8h]
 
     if ( DevGui_IsActive() || key == 96 || key == 126 )
