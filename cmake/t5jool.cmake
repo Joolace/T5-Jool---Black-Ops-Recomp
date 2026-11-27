@@ -67,6 +67,7 @@ list(APPEND T5_SOURCES
     "${T5_DIR}/sdl/t5_user32.cpp"
     "${T5_DIR}/sdl/t5_xinput.cpp"
     $<$<BOOL:${ANDROID}>:${T5_DIR}/android/t5_android.cpp>
+    $<$<BOOL:${ANDROID}>:${T5_DIR}/t5_touch.cpp>
 )
 set_target_properties(${BIN_NAME} PROPERTIES SOURCES "${T5_SOURCES}")
 
@@ -178,6 +179,7 @@ if(ANDROID)
     endif()
     # frame pointers and symbols for the crash logs (the APK's copy is stripped); stack protector
     target_compile_options(${BIN_NAME} PRIVATE -fno-omit-frame-pointer -g -fstack-protector-strong)
+    target_compile_definitions(${BIN_NAME} PRIVATE T5_TOUCH)   # touch controls (src/t5/t5_touch.cpp)
     option(T5_ARMV82 "Android: build for ARMv8.2-A" ON)
     if(T5_ARMV82)
         target_compile_options(${BIN_NAME} PRIVATE -march=armv8.2-a+fp16+dotprod+rcpc)

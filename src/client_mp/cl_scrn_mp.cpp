@@ -1,4 +1,7 @@
 #ifdef KISAK_NX
+#ifdef T5_TOUCH
+#include <t5/t5_touch.h>
+#endif
 #include <nx/nx_stall_scope.h>
 #endif
 #include "cl_scrn_mp.h"
@@ -892,6 +895,9 @@ LABEL_31:
             }
             if ( !refreshedUI && Key_IsCatcherActive(localClientNum, 16) )
                 UI_Refresh(localClientNum);
+#ifdef T5_TOUCH
+            BO1Touch_Draw(localClientNum);   // T5Jool: touch controls over the game (Android, src/t5/t5_touch.cpp)
+#endif
             if ( net_showprofile->current.integer )
                 Net_DisplayProfile(localClientNum);
             R_UI3D_SetupBackendData(&frontEndDataOut->rbUI3D);
