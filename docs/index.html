@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>T5Jool — Black Ops Recomp</title>
+<meta name="description" content="T5Jool: a native 64-bit port of Black Ops for Linux and Android: Campaign, Zombies and Multiplayer. Vulkan, upscalers, a community server browser, touch and controller support. Open source (GPL-3.0).">
+<meta property="og:title" content="T5Jool — Black Ops Recomp">
+<meta property="og:description" content="Native 64-bit Black Ops Campaign, Zombies and Multiplayer on Linux and Android handhelds.">
+<meta property="og:image" content="assets/icon.png">
+<link rel="icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090b; --bg2:#111114; --line:#24242a; --text:#ececef; --dim:#9a9aa3;
+  --red:#e2242a; --red2:#ff4a3d; --redglow:rgba(226,36,42,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:16px/1.6 Inter,system-ui,sans-serif;overflow-x:hidden}
+a{color:inherit}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+.mono{font-family:"JetBrains Mono",monospace}
+
+/* grana e vignettatura su tutta la pagina */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* barra in alto */
+nav{position:fixed;top:0;left:0;right:0;z-index:40;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
+nav.solid{background:rgba(9,9,11,.82);backdrop-filter:blur(12px);border-color:var(--line)}
+nav .wrap{display:flex;align-items:center;height:64px;gap:28px}
+nav .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 20px Oswald;letter-spacing:.12em}
+nav .brand img{height:22px}
+nav .links{margin-left:auto;display:flex;gap:26px;font-size:14px;color:var(--dim)}
+nav .links a{text-decoration:none;transition:color .2s}
+nav .links a:hover{color:var(--text)}
+@media(max-width:720px){nav .links a:not(.keep){display:none}}
+
+/* hero */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(60% 55% at 50% 45%,rgba(150,16,18,.38),transparent 70%);animation:breathe 5s ease-in-out infinite;pointer-events:none}
+@keyframes breathe{50%{opacity:.6}}
+.claws{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.claws path{fill:none;stroke:url(#clawGrad);stroke-linecap:round;stroke-dasharray:1400;stroke-dashoffset:1400;filter:url(#glow);animation:slash .55s cubic-bezier(.2,.8,.2,1) forwards}
+.claws path:nth-child(2){animation-delay:.12s}
+.claws path:nth-child(3){animation-delay:.24s}
+@keyframes slash{to{stroke-dashoffset:0}}
+.hero-inner{position:relative;z-index:2;padding:120px 0 80px}
+.logo{width:min(360px,62vw);filter:drop-shadow(0 0 40px var(--redglow));opacity:0;transform:scale(.7);animation:pop .8s .55s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes pop{to{opacity:1;transform:none}}
+.title{font:700 clamp(54px,10vw,112px)/1 Oswald;letter-spacing:.2em;margin:34px 0 8px;padding-left:.2em}
+.title span{display:inline-block;opacity:0;transform:translateY(24px);animation:rise .5s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.subtitle{font:500 clamp(14px,2vw,19px) Oswald;letter-spacing:.38em;color:var(--dim);opacity:0;animation:fade .8s 1.5s forwards}
+.rule{width:0;height:3px;background:var(--red);margin:22px auto 0;animation:grow .7s 1.6s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes grow{to{width:240px}}
+@keyframes fade{to{opacity:1}}
+.tagline{max-width:640px;margin:28px auto 0;color:#c9c9cf;font-size:18px;opacity:0;animation:fade .8s 1.8s forwards}
+.cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:38px;opacity:0;animation:fade .8s 2s forwards}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border-radius:10px;font:600 15px Inter;text-decoration:none;border:1px solid var(--line);background:var(--bg2);transition:transform .15s,border-color .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);border-color:#3a3a42}
+.btn.primary{background:var(--red);border-color:var(--red);box-shadow:0 10px 40px -10px var(--redglow)}
+.btn.primary:hover{background:var(--red2);box-shadow:0 14px 50px -8px rgba(255,74,61,.5)}
+.btn svg{width:18px;height:18px}
+.alpha-note{margin-top:22px;font:500 13px "JetBrains Mono";color:#ffb3a8;opacity:0;animation:fade .8s 2.1s forwards}
+.alpha-note b{background:var(--red);color:#fff;padding:2px 8px;border-radius:5px;margin-right:4px;letter-spacing:.08em}
+.badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:28px;opacity:0;animation:fade .8s 2.2s forwards}
+.badge{font:500 12px "JetBrains Mono";color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.badge b{color:var(--red2);font-weight:500}
+.scroll{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:2;width:24px;height:38px;border:2px solid #3a3a42;border-radius:14px;opacity:0;animation:fade 1s 2.6s forwards}
+.scroll::after{content:"";position:absolute;left:50%;top:7px;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:var(--red);animation:wheel 1.6s infinite}
+@keyframes wheel{0%{opacity:1;transform:none}100%{opacity:0;transform:translateY(12px)}}
+
+/* sezioni */
+section{padding:110px 0;position:relative}
+.kicker{font:500 13px "JetBrains Mono";color:var(--red2);letter-spacing:.2em;text-transform:uppercase}
+h2{font:700 clamp(34px,5vw,52px)/1.1 Oswald;letter-spacing:.03em;margin:12px 0 18px;text-transform:uppercase}
+.lead{color:var(--dim);max-width:640px;font-size:17px}
+.video{position:relative;width:100%;aspect-ratio:16/9;margin-top:28px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#000;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s,transform .8s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* funzioni */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-top:48px}
+.card{position:relative;background:linear-gradient(180deg,#141418,#0e0e11);border:1px solid var(--line);border-radius:14px;padding:26px;overflow:hidden;transition:border-color .25s,transform .25s}
+.card:hover{border-color:#4a1d1f;transform:translateY(-3px)}
+.card::before{content:"";position:absolute;inset:-1px;background:radial-gradient(400px circle at var(--mx,50%) var(--my,0%),rgba(226,36,42,.14),transparent 40%);opacity:0;transition:opacity .3s;pointer-events:none}
+.card:hover::before{opacity:1}
+.icon{width:44px;height:44px;border-radius:10px;background:rgba(226,36,42,.12);display:grid;place-items:center;margin-bottom:18px}
+.icon svg{width:22px;height:22px;stroke:var(--red2);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.card h3{font:600 20px Oswald;letter-spacing:.04em;margin-bottom:8px}
+.card p{color:var(--dim);font-size:15px}
+
+/* numeri */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px}
+@media(max-width:820px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{border-left:3px solid var(--red);padding:6px 0 6px 18px}
+.stat b{display:block;font:700 44px/1 Oswald}
+.stat span{color:var(--dim);font-size:14px}
+
+/* piattaforme */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:48px}
+@media(max-width:820px){.split{grid-template-columns:1fr}}
+.plat{border:1px solid var(--line);border-radius:16px;padding:32px;background:var(--bg2)}
+.plat h3{font:700 26px Oswald;letter-spacing:.06em;display:flex;align-items:center;gap:12px}
+.plat h3 .tag{font:500 11px "JetBrains Mono";letter-spacing:.1em;padding:4px 9px;border-radius:999px;background:rgba(226,36,42,.15);color:var(--red2)}
+.plat ul{list-style:none;margin-top:18px}
+.plat li{padding:9px 0 9px 26px;border-bottom:1px dashed var(--line);color:#cfcfd5;position:relative;font-size:15px}
+.plat li:last-child{border:0}
+.plat li::before{content:"";position:absolute;left:2px;top:17px;width:10px;height:3px;background:var(--red);transform:skewX(-30deg)}
+
+/* passi */
+.steps{counter-reset:s;display:grid;gap:14px;margin-top:44px}
+.step{counter-increment:s;display:grid;grid-template-columns:64px 1fr;gap:18px;align-items:start;border:1px solid var(--line);border-radius:14px;padding:22px;background:var(--bg2)}
+.step::before{content:counter(s,decimal-leading-zero);font:700 32px/1 Oswald;color:var(--red)}
+.step h4{font:600 18px Oswald;letter-spacing:.04em;margin-bottom:4px}
+.step p{color:var(--dim);font-size:15px}
+.step code{font:500 13px "JetBrains Mono";background:#1b1b20;border:1px solid var(--line);padding:2px 7px;border-radius:6px;color:#e6e6ea}
+
+/* roadmap */
+.road{position:relative;margin-top:48px;padding-left:30px}
+.road::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--red),#2a2a30)}
+.item{position:relative;padding:0 0 30px}
+.item::before{content:"";position:absolute;left:-28px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:3px solid #3a3a42}
+.item.done::before{border-color:var(--red);background:var(--red);box-shadow:0 0 16px var(--redglow)}
+.item.now::before{border-color:var(--red);animation:ping 1.8s infinite}
+@keyframes ping{50%{box-shadow:0 0 0 8px rgba(226,36,42,.15)}}
+.item h4{font:600 19px Oswald;letter-spacing:.04em}
+.item p{color:var(--dim);font-size:15px}
+.item .when{font:500 12px "JetBrains Mono";color:var(--red2);letter-spacing:.1em}
+
+/* faq */
+details{border:1px solid var(--line);border-radius:12px;background:var(--bg2);margin-top:12px;overflow:hidden}
+summary{cursor:pointer;list-style:none;padding:20px 22px;font:600 17px Inter;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font:400 24px/1 Inter;color:var(--red2);transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{padding:0 22px 20px;color:var(--dim)}
+
+/* discord */
+.community{text-align:center;border:1px solid #3a1416;border-radius:22px;padding:70px 24px;background:radial-gradient(80% 120% at 50% 0%,rgba(226,36,42,.18),transparent 60%),var(--bg2)}
+.community h2{margin-top:0}
+.community .lead{margin:0 auto}
+.community .btn{margin-top:30px}
+
+footer{border-top:1px solid var(--line);padding:46px 0 60px;color:#6f6f78;font-size:13px}
+footer .row{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
+footer .brand{display:flex;align-items:center;gap:10px;font:700 16px Oswald;letter-spacing:.12em;color:var(--text)}
+footer .brand img{height:18px}
+footer p{max-width:760px;margin-top:20px;line-height:1.7}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition:none!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="assets/logo.png" alt="">T5JOOL</a>
+    <div class="links">
+      <a href="#video">Video</a>
+      <a href="#features">Features</a>
+      <a href="#news">What's new</a>
+      <a href="#platforms">Platforms</a>
+      <a href="#install">Install</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#faq">FAQ</a>
+      <a class="keep" href="https://discord.gg/rcMeKZcShx">Discord</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <svg class="claws" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="clawGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#e2242a" stop-opacity="0"/>
+        <stop offset=".5" stop-color="#ff4a3d" stop-opacity=".28"/>
+        <stop offset="1" stop-color="#e2242a" stop-opacity=".08"/>
+      </linearGradient>
+      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <g>
+      <path d="M1220 40 C 1000 300, 760 560, 430 880" stroke-width="9"/>
+      <path d="M1330 70 C 1110 330, 870 590, 540 900" stroke-width="7"/>
+      <path d="M1440 100 C 1220 360, 980 620, 650 920" stroke-width="5"/>
+    </g>
+  </svg>
+  <div class="hero-inner wrap">
+    <img class="logo" src="assets/logo.png" alt="T5Jool logo">
+    <h1 class="title" aria-label="T5JOOL"><span>T</span><span>5</span><span>J</span><span>O</span><span>O</span><span>L</span></h1>
+    <div class="subtitle">BLACK OPS RECOMP</div>
+    <div class="rule"></div>
+    <p class="tagline">Black Ops Campaign, Zombies and Multiplayer, running natively on 64-bit Linux and Android handhelds. Vulkan rendering, upscalers, a community server browser and controls made for every screen. Now open source.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        Download alpha
+      </a>
+      <a class="btn" href="https://discord.gg/rcMeKZcShx">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z"/><path d="M9 11h.01M15 11h.01M9.5 14.5c1.4 1 3.6 1 5 0"/></svg>
+        Join the Discord
+      </a>
+    </div>
+    <p class="alpha-note"><b>Alpha</b> · in active development · expect bugs and crashes</p>
+    <div class="badges">
+      <span class="badge"><b>●</b> v0.9-alpha</span>
+      <span class="badge">Linux x86_64</span>
+      <span class="badge">Android arm64</span>
+      <span class="badge">Vulkan</span>
+    </div>
+  </div>
+  <a class="scroll" href="#features" aria-label="Scroll down"></a>
+</header>
+
+<section id="video">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// See it running</div>
+      <h2>T5Jool in action</h2>
+      <p class="lead">Black Ops Zombies running natively on an Android handheld.</p>
+    </div>
+    <div class="video reveal">
+      <iframe src="https://www.youtube-nocookie.com/embed/CukgP1mmFNA" title="T5Jool - Black Ops Zombies running natively on Android" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// What's inside</div>
+      <h2>Not an emulator.<br>A native port.</h2>
+      <p class="lead">The game code runs directly on your CPU as a 64-bit program, with Direct3D 9 translated to Vulkan. No Windows layer, no x86 emulation on ARM.</p>
+    </div>
+    <div class="grid">
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg></div><h3>Native 64-bit</h3><p>Built for x86_64 Linux and arm64 Android. Full speed on handheld chips like the Snapdragon 8 Elite.</p></div>
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><h3>Vulkan renderer</h3><p>Direct3D 9 through DXVK, tuned for mobile GPUs, with a persistent shader cache so stutter disappears after the first run.</p></div>
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></div><h3>Upscalers</h3><p>Render at a lower resolution and upscale with Snapdragon GSR or FSR 1, with adjustable sharpness.</p></div>
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.5c3 0 6 1.8 6 5.5"/></svg></div><h3>Online play</h3><p>Host a match or join one from the community server browser, or connect by address. A relay covers routers and mobile networks.</p></div>
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="6"/><path d="M7 10v4M5 12h4"/><circle cx="16" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg></div><h3>Controller ready</h3><p>Plug-and-play gamepads and handheld controls, with button remapping and stick configuration in the launcher.</p></div>
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><circle cx="12" cy="17" r="1"/><path d="M9 6h6"/></svg></div><h3>Touch controls</h3><p>An on-screen layout you can drag, resize and save, both in game and from the launcher.</p></div>
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M2 12h3l2-6 4 12 3-9 2 3h6"/></svg></div><h3>Field of view</h3><p>Set a wider view up to 110 degrees, from the launcher or the game's options.</p></div>
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></div><h3>Auto updates</h3><p>The Android launcher keeps T5Jool and your Turnip driver up to date by itself.</p></div>
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h12"/></svg></div><h3>Touch in menus</h3><p>Tap any item, with on-screen A, B, X, Y and shoulder buttons for everything a menu asks of a controller.</p></div>
+      <div class="card reveal"><div class="icon"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg></div><h3>The whole game</h3><p>The Campaign, all the Zombies maps you own from Nacht der Untoten to Moon, and Multiplayer.</p></div>
+    </div>
+    <div class="stats reveal">
+      <div class="stat"><b data-count="11">0</b><span>maps supported</span></div>
+      <div class="stat"><b data-count="64">0</b><span>bit native code</span></div>
+      <div class="stat"><b data-count="3">0</b><span>game modes</span></div>
+      <div class="stat"><b data-count="2">0</b><span>platforms</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="news">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// What's new</div>
+      <h2>v0.9-alpha</h2>
+      <p class="lead">A new engine: T5Jool now runs on <a href="https://github.com/HDErick/OpenBLOPS-NX">OpenBLOPS-NX</a>, and the source code is out under GPL-3.0. Full list in the <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/blob/main/CHANGELOG.md">changelog</a>.</p>
+    </div>
+    <div class="grid">
+      <div class="card reveal"><h3>New engine</h3><p>Built on OpenBLOPS-NX by HDErick, NaGaa95 and the OpenBLOPS team, with the T5Jool Linux and Android layer on top.</p></div>
+      <div class="card reveal"><h3>Campaign</h3><p>New in v0.9: the single-player Campaign, next to Zombies and Multiplayer.</p></div>
+      <div class="card reveal"><h3>Server browser</h3><p>Host Match and the community server browser, offline matches with bots, direct connect and a relay.</p></div>
+      <div class="card reveal"><h3>Touch everywhere</h3><p>Tap exactly what you want in the menus, with on-screen pad buttons. Smoother touch aim in game.</p></div>
+      <div class="card reveal"><h3>Field of view</h3><p>A FOV slider in the launcher up to 110 degrees, and the in-game FOV setting now works.</p></div>
+      <div class="card reveal"><h3>Open source</h3><p>The full source is on GitHub under GPL-3.0, with build scripts for Linux and Android.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="platforms">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// Where it runs</div>
+      <h2>Desktop and handheld</h2>
+      <p class="lead">Tested daily on the AYN Odin 3 Pro and on a Linux laptop, mainly with the English version of the game.</p>
+    </div>
+    <div class="split">
+      <div class="plat reveal">
+        <h3>Android <span class="tag">ARM64</span></h3>
+        <ul>
+          <li>Android 10 or newer, arm64</li>
+          <li>Adreno GPUs: Turnip driver recommended (downloaded by the launcher), the stock Qualcomm driver also works</li>
+          <li>Launcher with resolution, upscaler, FPS limit, V-Sync, controls and logs</li>
+          <li>Crash reports collected for you, ready to share</li>
+          <li>Mali GPUs: experimental, with the PanVK driver (testers wanted)</li>
+          <li>Two builds: arm64-v8.2 (Snapdragon 845+) and generic arm64</li>
+          <li>Controllers, mouse and keyboard</li>
+        </ul>
+      </div>
+      <div class="plat reveal">
+        <h3>Linux <span class="tag">X86_64</span></h3>
+        <ul>
+          <li>Any modern 64-bit distribution</li>
+          <li>Vulkan-capable GPU (AMD, Intel, NVIDIA)</li>
+          <li>SDL2 window, mouse, keyboard and controllers</li>
+          <li>Hosts LAN games for Android players</li>
+          <li>Runs dedicated servers with no graphics, on a PC or a VPS</li>
+          <li>Windowed, fullscreen and custom resolutions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tested">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// Tested setup</div>
+      <h2>What it was tested on</h2>
+      <p class="lead">Other devices may work but have not been tested yet. Reports are welcome.</p>
+    </div>
+    <div class="grid">
+      <div class="card reveal"><h3>AYN Odin 3 Pro</h3><p>Snapdragon 8 Elite, Adreno 830, Android 15.</p></div>
+      <div class="card reveal"><h3>Turnip drivers</h3><p>By <a href="https://github.com/MrPurple666/purple-turnip/releases">Mr Purple</a> and the Turnip builds by <a href="https://github.com/StevenMXZ/Adreno-Tools-Drivers/releases">StevenMXZ</a>.</p></div>
+      <div class="card reveal"><h3>English game files</h3><p>The game was tested mainly in English. Other languages should work but have been tested much less.</p></div>
+      <div class="card reveal"><h3>Linux</h3><p>Acer Nitro V16, Ubuntu, NVIDIA GPU.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// Getting started</div>
+      <h2>Install in five steps</h2>
+      <p class="lead">T5Jool does not include any game files. You need your own legal copy of Call of Duty: Black Ops for PC.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div><h4>Get the game files</h4><p>Copy the folder of your PC installation of Black Ops (with <code>zone</code> and <code>main</code>) to your device.</p></div></div>
+      <div class="step reveal"><div><h4>Install T5Jool</h4><p>Download the latest APK from the Releases page: <code>arm64-v8.2</code> for Snapdragon 845 and newer (recommended), <code>arm64</code> for older devices.</p></div></div>
+      <div class="step reveal"><div><h4>Install a Turnip driver (recommended)</h4><p>The first time you press Play the launcher offers to download a Turnip driver from Mr Purple or StevenMXZ and installs it for you. The stock Qualcomm driver also works, but it is slower and stutters for the first games.</p></div></div>
+      <div class="step reveal"><div><h4>Point the launcher to the game</h4><p>Open Settings in the launcher and choose the game folder.</p></div></div>
+      <div class="step reveal"><div><h4>Play</h4><p>Tap Zombies or Multiplayer. The first start converts the game's zones once (a few minutes, with a progress bar), then builds the shader cache, so the first minutes can stutter a little.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// What's next</div>
+      <h2>Roadmap</h2>
+    </div>
+    <div class="road">
+      <div class="item done reveal"><div class="when">DONE</div><h4>Native Linux and Android builds</h4><p>64-bit engine, Vulkan renderer, launcher, touch and controller support.</p></div>
+      <div class="item done reveal"><div class="when">DONE</div><h4>Upscalers and resolution scaling</h4><p>Snapdragon GSR and FSR 1 with sharpness control.</p></div>
+      <div class="item done reveal"><div class="when">DONE</div><h4>LAN co-op</h4><p>Host and join from the menu, automatic discovery, join in progress.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.2</div><h4>Smoother and more stable</h4><p>No more GPU stalls, lighter logging, CPU build tuned for modern Snapdragon chips, lighting fixes.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.2</div><h4>Rumble, gyro aiming, mouse and keyboard</h4><p>Better controls on handhelds and docked setups.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.2</div><h4>Automatic updates</h4><p>The launcher updates T5Jool and your Turnip driver.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.3</div><h4>Online multiplayer</h4><p>Dedicated servers, server browser with ping, join by address, rooms and map rotation.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.3</div><h4>Mods menu</h4><p>Community mods made with the Black Ops mod tools, loaded from the main menu.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.4</div><h4>Frame generation and FXAA</h4><p>Lossless Scaling frame generation on Android and Linux, FXAA on Android.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.5</div><h4>Save and resume in solo</h4><p>A save at the start of every round, Load game and Retry round.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.5</div><h4>Stock Qualcomm driver</h4><p>Play on Adreno without installing Turnip.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.6</div><h4>Faster saves and Potato preset</h4><p>Save loading in a moment, lightest graphics in one tap.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.7</div><h4>Multiplayer against bots</h4><p>Offline matches with bots, native team and class menus, Create a Class.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.8</div><h4>Online games anyone can join</h4><p>Zombies and Multiplayer hosting with UPnP and the T5Jool relay, new menu and launcher.</p></div>
+      <div class="item done reveal"><div class="when">DONE · v0.9</div><h4>New engine and source code</h4><p>OpenBLOPS-NX base, Campaign, community server browser, source released under GPL-3.0.</p></div>
+      <div class="item now reveal"><div class="when">IN PROGRESS</div><h4>v0.8 features on the new engine</h4><p>Vibration, gyro aiming, solo saves and the on-screen counters.</p></div>
+      <div class="item now reveal"><div class="when">IN PROGRESS</div><h4>Mali GPU support</h4><p>Experimental with PanVK: we need testers with Mali devices.</p></div>
+      <div class="item reveal"><div class="when">PLANNED</div><h4>Seamless map change</h4><p>Servers change map without players reconnecting.</p></div>
+      <div class="item reveal"><div class="when">PLANNED</div><h4>Custom maps and engine mods</h4><p>More mod types, with an easy way to install them.</p></div>
+      <div class="item reveal"><div class="when">PLANNED</div><h4>Fuller solo saves</h4><p>Mystery box, Pack-a-Punch links, equipment and Easter egg steps in the save.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// Questions</div>
+      <h2>FAQ</h2>
+    </div>
+    <details class="reveal"><summary>Is it stable?</summary><p>Not yet. T5Jool is alpha software in active development: you may run into bugs, crashes and missing features. Every report helps, use Settings &gt; Report a problem in the launcher.</p></details>
+    <details class="reveal"><summary>Does T5Jool include the game?</summary><p>No. It contains no Activision assets. It only runs the files of a copy of Black Ops that you own.</p></details>
+    <details class="reveal"><summary>Is this multiplayer or campaign?</summary><p>All of them: the Campaign, Zombies and Multiplayer. Multiplayer has offline matches with bots, Host Match and the community server browser.</p></details>
+    <details class="reveal"><summary>Which devices are supported?</summary><p>Android arm64 devices with an Adreno GPU work best today. It is developed on an AYN Odin 3 Pro (Snapdragon 8 Elite). Linux x86_64 with a Vulkan GPU is supported too.</p></details>
+    <details class="reveal"><summary>The game closes right after starting</summary><p>Update to the latest version (the stock Qualcomm driver works from v0.5), or install a Turnip driver from Settings &gt; Game &gt; Download a driver. If it still closes, send the logs from Settings &gt; Help and about &gt; Report a problem.</p></details>
+    <details class="reveal"><summary>Why does it stutter the first time?</summary><p>Shaders are compiled the first time they are needed and then saved. After a match or two the game runs smoothly.</p></details>
+    <details class="reveal"><summary>Where is the source code?</summary><p>On <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp">GitHub</a>, under GPL-3.0. Since v0.9 T5Jool is built on <a href="https://github.com/HDErick/OpenBLOPS-NX">OpenBLOPS-NX</a>.</p></details>
+    <details class="reveal"><summary>How do I report a bug?</summary><p>Use the Logs button in the launcher to save the logs and share them on Discord or in a GitHub issue.</p></details>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="community reveal">
+      <div class="kicker">// Community</div>
+      <h2>Join the horde</h2>
+      <p class="lead">Builds, news, bug reports and co-op matches. Come say hi.</p>
+      <a class="btn primary" href="https://discord.gg/rcMeKZcShx">Join the Discord</a>
+      <p class="mono" style="margin-top:16px;color:var(--dim);font-size:13px">discord.gg/rcMeKZcShx</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div class="brand"><img src="assets/logo.png" alt="">T5JOOL</div>
+      <div>Developed by <b style="color:var(--text)">Joolace</b> · Built on <a href="https://github.com/HDErick/OpenBLOPS-NX">OpenBLOPS-NX</a> by HDErick, NaGaa95 and the OpenBLOPS team · Versions up to 0.8 based on bo1-zombies-decompiled by MisaDev4 · Turnip drivers by Mr Purple and StevenMXZ · Built with SDL2, DXVK and Vulkan · GPL-3.0</div>
+    </div>
+    <p>T5Jool is a fan project, not affiliated with or endorsed by Activision, Treyarch or Microsoft. Call of Duty and Black Ops are trademarks of their respective owners. No game files are distributed; a legally owned copy of the game is required.</p>
+  </div>
+</footer>
+
+<script>
+// barra solida dopo l'inizio
+const nav=document.getElementById('nav');
+const onScroll=()=>nav.classList.toggle('solid',scrollY>40);
+addEventListener('scroll',onScroll,{passive:true});onScroll();
+// lettere del titolo una dopo l'altra
+document.querySelectorAll('.title span').forEach((s,i)=>s.style.animationDelay=(0.95+i*0.07)+'s');
+// comparsa allo scroll e contatori
+const counters=new Set();
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting)return;
+  e.target.classList.add('in');io.unobserve(e.target);
+  e.target.querySelectorAll('[data-count]').forEach(c=>{
+    if(counters.has(c))return;counters.add(c);
+    const end=+c.dataset.count,t0=performance.now();
+    const tick=t=>{const p=Math.min(1,(t-t0)/1200);c.textContent=Math.round(end*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tick)};
+    requestAnimationFrame(tick);
+  });
+}),{threshold:.15});
+document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%4)*70+'ms';io.observe(el)});
+// bagliore che segue il puntatore sulle schede
+document.querySelectorAll('.card').forEach(c=>c.addEventListener('pointermove',e=>{
+  const r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px');
+}));
+</script>
+</body>
+</html>

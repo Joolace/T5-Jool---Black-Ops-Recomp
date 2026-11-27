@@ -503,7 +503,7 @@ OpenBLOPS-PC-NX-Handoff.txt
 
 # Local leftovers that are no longer part of the repository
 /.claude/
-/docs/
+# /docs/ is the T5Jool website (GitHub Pages)
 /README-*.md
 !/README-SWITCH.md
 /switch-meta/*.jpg

@@ -1,0 +1,41 @@
+name: Bug or crash report
+description: Something does not work or the game closed unexpectedly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing T5Jool! In the launcher, **Settings > Report a problem** saves your logs to `Download/T5Jool-logs-....zip` and fills this form for you.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start Kino der Toten
+        2. Open the Pack-a-Punch
+        3. The game closes
+  - type: input
+    id: map
+    attributes:
+      label: Map / mode
+      placeholder: Kino der Toten, solo / LAN co-op host / LAN co-op client
+  - type: textarea
+    id: system
+    attributes:
+      label: System
+      description: Device, Android version, GPU driver (the launcher fills this in)
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Drag and drop the T5Jool-logs zip from your Download folder here.
