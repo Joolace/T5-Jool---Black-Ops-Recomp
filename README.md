@@ -43,6 +43,7 @@ A native 64-bit port of Black Ops (Campaign, Zombies and Multiplayer) for Linux 
 - **Multiplayer**: offline matches with bots, **Host Match** and the community **server browser**, direct connect, a relay for routers and mobile networks
 - **Field of view** up to 110 degrees, from the launcher or the game's options
 - **Controls**: controllers, handheld buttons, mouse and keyboard, a touch layout you can move and resize, and on-screen pad buttons in the menus
+- **Mods**: community mods made with the Black Ops mod tools, chosen in the launcher (converted at the first start like the game's zones)
 - **Custom Vulkan drivers**: Turnip on Adreno, PanVK on Mali (experimental)
 - **Automatic updates**: the Android launcher updates T5Jool and your Turnip driver for you
 
@@ -103,6 +104,13 @@ shared). Then choose 2x, 3x or 4x. Works best with a stable frame rate (set an F
 **Linux:** [lsfg-vk](https://github.com/PancakeTAS/lsfg-vk) (frame generation, with your own copy of Lossless Scaling)
 and [vkBasalt](https://github.com/DadSchoorse/vkBasalt) (FXAA / SMAA) work as Vulkan layers on `T5Jool` and `T5Jool-MP`.
 
+## Mods
+
+Put a community mod (made with the Black Ops mod tools) in the game folder as `mods/<name>/` with its `mod.ff`,
+then choose it in the launcher: **Settings > Game > Mods**. At the next start the launcher converts the mod's zones once,
+like the game's, and the game starts with the mod. **None** goes back to the base game. To play a mod online, everyone
+needs the same mod. On Linux run `tools/t5/convert_zones.sh` again, then start with `+set fs_game mods/<name>`.
+
 ## What's new
 
 See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.9-alpha**:
@@ -111,7 +119,7 @@ See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.9-alpha**:
 - **Multiplayer**: Offline Match, Host Match and the community server browser
 - **Touch**: tap exactly what you want in the menus, on-screen pad buttons, smoother touch aim
 - **Field of view** slider up to 110 degrees
-- Not on the new engine yet: solo saves, mods, Dead Ops Arcade, Zombies co-op online, vibration and gyro
+- Not on the new engine yet: solo saves, Dead Ops Arcade, Zombies co-op online
 
 **v0.8-alpha**:
 - **No longer Zombies only**: new menu and launcher with **Zombies** and **Multiplayer** sections
@@ -164,7 +172,7 @@ In the launcher use **Report a bug** (home screen) or Settings > Help and about 
 - [ ] Custom maps and engine mods
 - [ ] Fuller solo saves (mystery box, Pack-a-Punch links, equipment)
 - [x] New engine (OpenBLOPS-NX), Campaign and source code release (v0.9)
-- [ ] v0.8 features on the new engine: vibration, gyro, solo saves, mods, Zombies co-op online
+- [ ] v0.8 features on the new engine: solo saves, Zombies co-op online
 
 ## Source code
 

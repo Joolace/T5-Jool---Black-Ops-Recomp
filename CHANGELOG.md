@@ -19,6 +19,9 @@
 - Touch aim and mouse look work in Multiplayer, touch aim is smoothed (Aim smoothing in the launcher)
 - Back and the B button no longer close the game on Android
 
+### Mods
+- **Mods are back**: choose a mod in the launcher (Settings > Game > Mods); its zones are converted at the first start, like the game's
+
 ### Settings
 - Field of view up to 110 degrees: launcher slider, and the game's own FOV setting now works
 
@@ -29,8 +32,7 @@
 - No more crash when quitting on Android
 
 ### Not on the new engine yet
-- Solo saves, mods, Dead Ops Arcade, Zombies co-op online and the T5Jool dedicated servers
-- Vibration, gyro aiming and the FPS and ping counters from the launcher
+- Solo saves, Dead Ops Arcade, Zombies co-op online and the T5Jool dedicated servers
 
 ## v0.8-alpha
 *November 2026*

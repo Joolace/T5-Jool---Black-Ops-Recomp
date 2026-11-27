@@ -1087,6 +1087,24 @@ public class LauncherActivity extends Activity {
         section("PLAYER");
         textField("Player name", "Shown to the other players in co-op", mSettings.playerName, "Player", false,
             v -> mSettings.playerName = v.trim());
+        section("MODS", "Community mods made with the Black Ops mod tools: put each one in mods/<name>/ in the game folder");
+        {
+            List<String> mods = T5Settings.mods(mSettings.gameDir);
+            String[] labels = new String[mods.size() + 1];
+            labels[0] = "None (base game)";
+            int sel = 0;
+            for (int i = 0; i < mods.size(); ++i) {
+                labels[i + 1] = mods.get(i);
+                if (mods.get(i).equals(mSettings.mod))
+                    sel = i + 1;
+            }
+            if (mods.isEmpty())
+                card("Mod", "No mods found in " + new File(mSettings.gameDir, "mods").getPath(), "None", null, null);
+            else
+                choice("Mod", "The game starts with this mod. To play a mod online everyone needs the same one", labels, sel,
+                    which -> mSettings.mod = which == 0 ? "" : mods.get(which - 1));
+        }
+        section("VIEW");
         slider("Field of view", "Wider view in game. At 65 the game's own setting is used", 65, 110, mSettings.fov, "\u00b0",
             v -> mSettings.fov = v);
 
@@ -1695,11 +1713,27 @@ public class LauncherActivity extends Activity {
         File kbz = new File(game, "kbz");
         List<File> all = new ArrayList<>();
         findZones(new File(game, "zone"), all);
+        // each target: the game's zones go to kbz/<name>.kbz, a mod's next to its .ff (mods/<mod>/mod.kbz):
+        // the engine looks there, and every mod has its own "mod" zone
         List<File> todo = new ArrayList<>();
+        List<File> targets = new ArrayList<>();
         for (File ff : all) {
             File out = new File(kbz, zoneName(ff) + ".kbz");
-            if (!out.isFile() || out.lastModified() < ff.lastModified())
+            if (!out.isFile() || out.lastModified() < ff.lastModified()) {
                 todo.add(ff);
+                targets.add(out);
+            }
+        }
+        for (String m : T5Settings.mods(mSettings.gameDir)) {
+            File[] ffs = new File(new File(game, "mods"), m).listFiles((d, n) -> n.toLowerCase(Locale.US).endsWith(".ff"));
+            if (ffs != null)
+                for (File ff : ffs) {
+                    File out = new File(ff.getParentFile(), zoneName(ff) + ".kbz");
+                    if (!out.isFile() || out.lastModified() < ff.lastModified()) {
+                        todo.add(ff);
+                        targets.add(out);
+                    }
+                }
         }
         if (todo.isEmpty()) {
             then.run();
@@ -1731,8 +1765,8 @@ public class LauncherActivity extends Activity {
                     bar.setProgress(done);
                     status.setText("Preparing the game files: " + name + " (" + (done + 1) + "/" + todo.size() + ")");
                 });
-                File tmp = new File(kbz, name + ".kbz.tmp");
-                File out = new File(kbz, name + ".kbz");
+                File out = targets.get(n);
+                File tmp = new File(out.getParentFile(), out.getName() + ".tmp");
                 boolean ok = runTool(log, lib + "/libt5convert.so", ff.getAbsolutePath(), tmp.getAbsolutePath())
                     && runTool(log, lib + "/libt5kbzpack.so", tmp.getAbsolutePath(), out.getAbsolutePath());
                 tmp.delete();

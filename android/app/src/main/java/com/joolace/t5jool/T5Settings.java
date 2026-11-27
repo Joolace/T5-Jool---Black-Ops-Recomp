@@ -74,6 +74,7 @@ final class T5Settings {
     int fov = 65;       // 65 = impostazione del gioco, fino a 110
     String extraArgs;
     String playerName;
+    String mod = "";    // cartella in <gioco>/mods, "" = gioco base
     String envVars;     // righe NOME=valore
     int virtualControls; // 0 automatico (nascosti con un controller), 1 sempre, 2 mai
     String padMap;       // "azione=tasto,..." (sdl_xinput.cpp), solo le voci cambiate
@@ -168,6 +169,7 @@ final class T5Settings {
         s.fov = Math.max(65, Math.min(110, p.getInt("fov", 65)));
         s.extraArgs = p.getString("extraArgs", "");
         s.playerName = p.getString("playerName", "Player");
+        s.mod = p.getString("mod", "");
         s.envVars = p.getString("envVars", "");
         s.virtualControls = p.getInt("virtualControls", 0);
         s.padMap = p.getString("padMap", "");
@@ -211,11 +213,30 @@ final class T5Settings {
             .putInt("touchSmooth", touchSmooth)
             .putString("extraArgs", extraArgs)
             .putString("playerName", playerName)
+            .putString("mod", mod)
             .putString("envVars", envVars)
             .putInt("virtualControls", virtualControls)
             .putString("padMap", padMap)
             .putBoolean("padSwap", padSwap)
             .commit();
+    }
+
+    /** A mod folder: has a mod.ff (made with the Black Ops mod tools). 0.8's own helper folders are not mods. */
+    static boolean isMod(File dir) {
+        String n = dir.getName();
+        return dir.isDirectory() && !n.startsWith("_") && !n.equalsIgnoreCase("t5save") && new File(dir, "mod.ff").isFile();
+    }
+
+    /** Mods in <game>/mods, sorted by name. */
+    static List<String> mods(String gameDir) {
+        List<String> out = new ArrayList<>();
+        File[] list = gameDir == null ? null : new File(gameDir, "mods").listFiles();
+        if (list != null)
+            for (File f : list)
+                if (isMod(f))
+                    out.add(f.getName());
+        java.util.Collections.sort(out, String.CASE_INSENSITIVE_ORDER);
+        return out;
     }
 
     /** Riga di comando del gioco: prima le opzioni --t5-* (bo1_android.cpp), poi quelle del motore. */
@@ -293,6 +314,9 @@ final class T5Settings {
         set(a, "bo1_touch_autohide", virtualControls == 1 ? "0" : "1");
         if (playerName != null && !playerName.trim().isEmpty())
             set(a, "name", playerName.trim());
+        // mod: the engine loads mods/<name>/mod.kbz (converted by the launcher next to mod.ff) and its files
+        if (mod != null && !mod.isEmpty() && isMod(new File(new File(gameDir, "mods"), mod)))
+            set(a, "fs_game", "mods/" + mod);
         set(a, "bo1_touch_opacity", String.valueOf(touchOpacity / 100.0f));
         set(a, "bo1_touch_scale", String.valueOf(touchScale / 100.0f));
         set(a, "bo1_touch_look", String.valueOf(touchLook / 100.0f));

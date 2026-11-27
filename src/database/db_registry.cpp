@@ -4594,6 +4594,18 @@ void __cdecl DB_BuildOSPath_FromSource(const char *zoneName, FF_DIR source, unsi
                 __debugbreak();
             }
             Com_sprintf(filename, size, "%s\\%s\\%s.ff", fs_homepath->current.string, fs_gameDirVar->current.string, zoneName);
+#ifdef T5_POSIX
+            // T5Jool: a mod can also sit in the game folder (mods/<name>/), where the Android launcher
+            // and convert_zones.sh look for it; the home folder still comes first, as on PC
+            {
+                void *probe = CreateFileA(filename, 0x80000000, 1u, 0, 3u, 0x60000000u, 0);
+                if ( probe != (void *)-1 )
+                    CloseHandle(probe);
+                else if ( fs_basepath && *fs_basepath->current.string )
+                    Com_sprintf(filename, size, "%s\\%s\\%s.ff", fs_basepath->current.string,
+                                fs_gameDirVar->current.string, zoneName);
+            }
+#endif
         }
         else if ( source == FFD_USER_MAP )
         {
