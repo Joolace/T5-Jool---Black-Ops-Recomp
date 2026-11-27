@@ -136,7 +136,18 @@ void T5_RequestQuit()
     s_quit = true;
 }
 
-extern "C" void NX_PrepareExit(void) { fflush(stdout); fflush(stderr); }
+extern "C" void NX_PrepareExit(void)
+{
+    fflush(stdout);
+    fflush(stderr);
+#ifdef __ANDROID__
+    // T5Jool: exit() would run every library's static destructors while Android's own
+    // render threads (hwui) still use them: "pthread_mutex_lock called on a destroyed
+    // mutex" and a SIGABRT. Save what has to be saved and leave without them.
+    bo1_android_clean_exit();
+    _exit(0);
+#endif
+}
 extern "C" void NX_GlServiceRenderThread(void) {}
 
 // SP <-> MP button: the other executable in the same folder (OpenBLOPS-NX(-MP).nro on the Switch)
@@ -223,6 +234,8 @@ int main(int argc, char **argv)
 
     SDL_SetHint(SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS, "0");
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+    // T5Jool: Android Back (and the pad B that Android turns into Back) is Escape, not "close the app"
+    SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS | SDL_INIT_SENSOR) != 0) {
         fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
         return 1;

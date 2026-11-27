@@ -9082,7 +9082,7 @@ int __cdecl Menus_AnyFullScreenVisible(UiContext *dc)
 
 int __cdecl Menu_HandleMouseMove(int localClientNum, UiContext *dc, menuDef_t *menu)
 {
-#if defined(KISAK_NX) && !defined(KISAK_NX2)
+#if defined(KISAK_NX) && !defined(KISAK_NX2) && !defined(T5_POSIX)
     return 0;
 #else
     const rectDef_s *Rect; // eax

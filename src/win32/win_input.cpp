@@ -164,6 +164,12 @@ void __cdecl IN_MouseEvent(int mstate)
         diff = s_wmv.oldButtonState ^ mstate;
         if ( s_wmv.oldButtonState != mstate )
         {
+#if defined(T5_POSIX)
+            // T5Jool: a tap moves the pointer and presses in the same instant; move the
+            // menu cursor first so the press lands on the item under the finger.
+            if ( (mstate & ~s_wmv.oldButtonState) && s_wmv.mouseActive )
+                IN_MouseMove();
+#endif
             //BLOPS_NULLSUB();
             for ( button = 0; button < 5; ++button )
             {

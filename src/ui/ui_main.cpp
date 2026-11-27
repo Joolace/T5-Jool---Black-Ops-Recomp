@@ -865,7 +865,7 @@ void __cdecl UI_Refresh(int localClientNum)
         UI_BuildFindPlayerList();
         if ( UI_ShouldDrawBuildNumber(localClientNum) )
             UI_DrawBuildNumber(contextIndex);
-#if !defined(KISAK_NX) || defined(KISAK_NX2)
+#if !defined(KISAK_NX) || defined(KISAK_NX2) || defined(T5_POSIX)
         // Retail SP UI_Refresh (0x004AFFF8) gates the ui_cursor blit on 0x0069AA20, not on
         // the function this MP reconstruction has here. CG_IsShowingZombieMap() is a
         // hardcoded `return 0` stub (cg_compass.cpp:4029) that the matcher applied to 39
@@ -1796,7 +1796,7 @@ void __cdecl UI_Pause(int localClientNum, int b)
 
 void __cdecl UI_MouseEvent(int localClientNum, int x, int y)
 {
-#if !defined(KISAK_NX) || defined(KISAK_NX2)
+#if !defined(KISAK_NX) || defined(KISAK_NX2) || defined(T5_POSIX)
 #ifdef KISAK_EXPERIMENTAL_SPLITSCREEN
     if (CL_SplitGuestOwnsMenu())
         return;
