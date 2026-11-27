@@ -442,5 +442,36 @@ static inline int _vsnwprintf_s(wchar_t *dst, size_t size, size_t, const wchar_t
 // T5Jool: libc++ (Android) does not pull <algorithm> in through other headers as libstdc++ does;
 // the code uses std::min / std::max / std::clamp without including it.
 #include <algorithm>
+#include <atomic>
+// libc++ before LLVM 19 (NDK r27) has no std::atomic_ref, which the engine uses for a few lock-free
+// updates (fonts, physics). The operations it needs, on the GCC/clang atomic builtins.
+#if defined(_LIBCPP_VERSION) && !defined(__cpp_lib_atomic_ref)
+namespace std {
+template <class T>
+struct atomic_ref
+{
+    T *p;
+    explicit atomic_ref(T &obj) : p(&obj) {}
+    T load(memory_order = memory_order_seq_cst) const noexcept { return __atomic_load_n(p, __ATOMIC_SEQ_CST); }
+    void store(T v, memory_order = memory_order_seq_cst) const noexcept { __atomic_store_n(p, v, __ATOMIC_SEQ_CST); }
+    T exchange(T v, memory_order = memory_order_seq_cst) const noexcept { return __atomic_exchange_n(p, v, __ATOMIC_SEQ_CST); }
+    bool compare_exchange_strong(T &expected, T desired, memory_order = memory_order_seq_cst,
+                                 memory_order = memory_order_seq_cst) const noexcept
+    {
+        return __atomic_compare_exchange_n(p, &expected, desired, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    }
+    bool compare_exchange_weak(T &expected, T desired, memory_order = memory_order_seq_cst,
+                               memory_order = memory_order_seq_cst) const noexcept
+    {
+        return __atomic_compare_exchange_n(p, &expected, desired, true, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    }
+    T fetch_add(T v, memory_order = memory_order_seq_cst) const noexcept { return __atomic_fetch_add(p, v, __ATOMIC_SEQ_CST); }
+    T fetch_sub(T v, memory_order = memory_order_seq_cst) const noexcept { return __atomic_fetch_sub(p, v, __ATOMIC_SEQ_CST); }
+    T fetch_or(T v, memory_order = memory_order_seq_cst) const noexcept { return __atomic_fetch_or(p, v, __ATOMIC_SEQ_CST); }
+    T fetch_and(T v, memory_order = memory_order_seq_cst) const noexcept { return __atomic_fetch_and(p, v, __ATOMIC_SEQ_CST); }
+    operator T() const noexcept { return load(); }
+};
+}
+#endif
 #endif
 #endif // NX_PREFIX_H
