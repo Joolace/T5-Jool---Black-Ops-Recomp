@@ -379,7 +379,7 @@ void __cdecl R_SetD3DPresentParameters(_D3DPRESENT_PARAMETERS_ *d3dpp, const Gfx
     d3dpp->SwapEffect = D3DSWAPEFFECT_DISCARD;
     d3dpp->EnableAutoDepthStencil = 0;
     d3dpp->AutoDepthStencilFormat = dx.depthStencilFormat;
-#ifdef KISAK_NX
+#if defined(KISAK_NX) && !defined(T5_POSIX) // T5Jool: r_vsync works on PCs and phones
     d3dpp->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 #else
     d3dpp->PresentationInterval = r_vsync->current.enabled ? 1 : 0x80000000;
@@ -574,7 +574,7 @@ void __cdecl R_CheckResizeWindow()
 #else
         || Dvar_HasLatchedValue(r_displayRefresh)
 #endif
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX)
         || Dvar_HasLatchedValue(r_vsync)
 #endif
         || Dvar_HasLatchedValue(r_fullscreen) )
@@ -598,7 +598,7 @@ void __cdecl R_ResizeWindow()
     Dvar_MakeLatchedValueCurrent((dvar_s*)r_mode);
     Dvar_MakeLatchedValueCurrent((dvar_s*)r_fullscreen);
     Dvar_MakeLatchedValueCurrent((dvar_s*)r_aaSamples);
-#ifndef KISAK_NX
+#if !defined(KISAK_NX) || defined(T5_POSIX)
     Dvar_MakeLatchedValueCurrent((dvar_s*)r_vsync);
 #endif
     Dvar_MakeLatchedValueCurrent((dvar_s*)r_fullscreen);

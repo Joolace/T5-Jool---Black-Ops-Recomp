@@ -63,6 +63,7 @@ void ConfigureDxvk()
     setenv("DXVK_SHADER_CACHE_PATH", cache.c_str(), 0);
     setenv("MESA_SHADER_CACHE_DIR", cache.c_str(), 0);
     setenv("DXVK_LOG_LEVEL", "warn", 0);
+    setenv("DXVK_WSI_DRIVER", "SDL2", 0);
     std::string conf = s_installDir + "/dxvk.conf";
     struct stat st;
     if (stat(conf.c_str(), &st) == 0)
