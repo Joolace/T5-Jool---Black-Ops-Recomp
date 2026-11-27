@@ -242,9 +242,18 @@ WPARAM ButtonFlags(uint32_t sdlMask)
 void PostChar(HWND wnd, unsigned int ch) { Post(wnd, WM_CHAR, ch, 1); }
 
 // Traduce un evento SDL in zero o più messaggi Win32 nella coda.
+int g_t5InputLog = 40; // T5Jool: the first input events go to the terminal (diagnostics)
+
 void Translate(const SDL_Event &e)
 {
     HWND wnd = g_mainWindow;
+    if (g_t5InputLog > 0 && (e.type == SDL_KEYDOWN || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_CONTROLLERBUTTONDOWN
+                             || e.type == SDL_WINDOWEVENT)) {
+        --g_t5InputLog;
+        fprintf(stderr, "[t5-input] SDL event 0x%x (key %d, window %p, proc %s)\n", e.type,
+                e.type == SDL_KEYDOWN ? (int)e.key.keysym.scancode : -1, (void *)wnd,
+                wnd && Find(wnd) && Find(wnd)->proc ? "yes" : "NO");
+    }
     // comandi touch (Android): in partita il tocco va ai comandi e il mouse che SDL simula dal tocco si ignora
     if (BO1Touch_HandleEvent(&e))
         return;
@@ -1122,6 +1131,11 @@ HWND T5_MainWindow()
 // for MainWndProc. True when the window was closed.
 bool T5_PumpWindowMessages()
 {
+    static bool s_first = true;
+    if (s_first) {
+        s_first = false;
+        fprintf(stderr, "[t5-input] message pump running, game window %p\n", (void *)g_mainWindow);
+    }
     MSG msg;
     while (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
         if (msg.message == WM_QUIT)
