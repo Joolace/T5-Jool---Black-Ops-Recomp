@@ -890,6 +890,22 @@ double __cdecl CG_GetViewFov(int localClientNum)
     weapIndex = CG_GetPlayerWeapon(&cgameGlob->predictedPlayerState, localClientNum);
     weapVariantDef = BG_GetWeaponVariantDef(weapIndex);
     weapDef = BG_GetWeaponDef(weapIndex);
+#ifdef T5_POSIX
+    {
+        // T5Jool: cg_fov is cheat-protected and nothing copies the player's setting
+        // (cg_fov_default: options menu, launcher) into it. Follow the setting; a 65
+        // left by the scripts' resets is the stock value and also means "the setting".
+        static float s_lastDefault = -1.0f;
+        const float wanted = (float)CG_GetDefaultFovForView();
+        if (wanted != s_lastDefault)
+        {
+            s_lastDefault = wanted;
+            CG_UpdateFov(wanted);
+        }
+        else if (cg_fov->current.value == 65.0f && wanted > 65.0f)
+            CG_UpdateFov(wanted);
+    }
+#endif
     viewFov = cg_fov->current.value;
     if ( (viewFov < 1.0 || viewFov > 160.0)
         && !Assert_MyHandler(

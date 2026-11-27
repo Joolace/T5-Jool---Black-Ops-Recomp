@@ -569,7 +569,11 @@ void __cdecl CG_RegisterDvars()
                                          "cg_fov_default",
                                          65.0,
                                          65.0,
+#ifdef T5_POSIX
+                                         110.0, // T5Jool: wider screens and handhelds
+#else
                                          80.0,
+#endif
                                          1u,
                                          "User default field of view angle in degrees");
     cg_fov_default_thirdperson = _Dvar_RegisterFloat(

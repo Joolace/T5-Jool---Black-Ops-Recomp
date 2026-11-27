@@ -150,6 +150,8 @@ static void T5_StartWatchdog()
 }
 #endif
 
+void __cdecl Cbuf_AddText(int localClientNum, const char *text); // qcommon/cmd.h
+
 extern "C" bool NX_PumpAppletMessages(void)
 {
 #ifdef __ANDROID__
@@ -165,6 +167,11 @@ extern "C" bool NX_PumpAppletMessages(void)
         bo1_android_frame_presented();
     }
 #endif
+    // T5Jool: once the configs have run, show the options menu's FOV row (an older
+    // config can still hold the stock "ui_allowFov 0")
+    static int s_pumps;
+    if (s_pumps < 121 && ++s_pumps == 120)
+        Cbuf_AddText(0, "set ui_allowFov 1\n");
     if (T5_PumpWindowMessages())
         s_quit = true;
     return s_quit;

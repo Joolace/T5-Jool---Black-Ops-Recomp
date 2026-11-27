@@ -159,7 +159,11 @@ void __cdecl UI_RegisterDvars_PC()
                                                              1u,
                                                              "Only show PunkBuster servers?");
     ui_allowConsole = _Dvar_RegisterBool("ui_allowConsole", 1, 0x10u, "Show the 'Enable Console' menu item?");
+#ifdef T5_POSIX
+    ui_allowFov = _Dvar_RegisterBool("ui_allowFov", 1, 0, "Show the 'FOV' graphics setting?"); // T5Jool: always shown
+#else
     ui_allowFov = _Dvar_RegisterBool("ui_allowFov", 0, 1u, "Show the 'FOV' graphics setting?");
+#endif
 }
 
 const char *netSources[4] = { "EXE_LAN", "EXE_INTERNET", "EXE_FAVORITES", "EXE_FRIENDS" };
