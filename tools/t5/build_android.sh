@@ -73,7 +73,7 @@ for mode in sp mp; do
     B=$OUT/build-$mode
     "$CMAKE" -S "$ROOT" -B "$B" "${ANDROID_CMAKE[@]}" -DT5_SP=$SP -DKISAK_DIRECT_CONNECT=ON -DT5_ARMV82=$V82 \
         -DT5_ANDROID_DEPS="$PREFIX" -DT5_ANDROID_EXTRA="$EXTRA" -DT5_ANDROID_SOURCES="$SRC" > /dev/null
-    LC_ALL=C "$NINJA" -C "$B" KisakBlack main_hook hook_impl file_redirect_hook gsl_alloc_hook 2>&1 \
+    LC_ALL=C "$NINJA" -k 0 -C "$B" KisakBlack main_hook hook_impl file_redirect_hook gsl_alloc_hook 2>&1 \
         | grep -E "error|FAILED|undefined|multiple definition|ld:" | head -60 || true
     [ -f "$B/lib$( [ $mode = sp ] && echo main || echo main_mp ).so" ] || { echo "Engine build failed (see above)"; exit 1; }
 done

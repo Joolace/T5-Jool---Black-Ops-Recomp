@@ -438,4 +438,9 @@ static inline int _vsnwprintf_s(wchar_t *dst, size_t size, size_t, const wchar_t
 #endif
 
 #endif // __SWITCH__ || KISAK_NX
+#if defined(__cplusplus) && !defined(__SWITCH__)
+// T5Jool: libc++ (Android) does not pull <algorithm> in through other headers as libstdc++ does;
+// the code uses std::min / std::max / std::clamp without including it.
+#include <algorithm>
+#endif
 #endif // NX_PREFIX_H
