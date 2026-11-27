@@ -38,7 +38,7 @@ for mode in sp mp; do
             -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
             -DT5_SP=$SP -DKISAK_DIRECT_CONNECT=ON -DDXVK_NATIVE_PREFIX="$DXVK" > /dev/null
     fi
-    ninja -C build-linux-$mode 2>&1 | grep -E "error|FAILED|warning: undefined|Linking" | grep -v "^ninja: no work" || true
+    ninja -C build-linux-$mode 2>&1 | grep -E "error|FAILED|undefined|multiple definition|ld:|Linking" | grep -v "^ninja: no work" || true
     [ -x build-linux-$mode/T5Jool$( [ $mode = mp ] && echo -MP ) ] || { echo "Build failed (see above)"; exit 1; }
 done
 
