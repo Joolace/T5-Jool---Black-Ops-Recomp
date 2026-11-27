@@ -20,6 +20,19 @@ endif()
 
 option(T5_SP "Build the Campaign / Zombies executable (KISAK_SP); OFF: Multiplayer" ON)
 set(DXVK_NATIVE_PREFIX "" CACHE PATH "DXVK-native install prefix (include/dxvk, lib/libdxvk_d3d9.so)")
+if(ANDROID)
+    # tools/t5/build_android.sh: the dependencies of tools/android/setup.sh (SDL2, DXVK, libadrenotools) and
+    # tools/t5/setup_android_extra.sh (FFmpeg with the Bink decoders, zstd)
+    set(T5_ANDROID_DEPS "" CACHE PATH "Android dependency prefix (SDL2, DXVK, FFmpeg, zstd)")
+    set(T5_ANDROID_SOURCES "" CACHE PATH "Android dependency sources (libadrenotools)")
+    set(T5_ANDROID_EXTRA "" CACHE PATH "Prefix of FFmpeg (with the Bink decoders) and zstd; default T5_ANDROID_DEPS")
+    if(NOT T5_ANDROID_DEPS)
+        message(FATAL_ERROR "Android: pass -DT5_ANDROID_DEPS=<prefix> (tools/t5/build_android.sh does)")
+    endif()
+    if(NOT DXVK_NATIVE_PREFIX)
+        set(DXVK_NATIVE_PREFIX "${T5_ANDROID_DEPS}")
+    endif()
+endif()
 if(NOT DXVK_NATIVE_PREFIX)
     message(FATAL_ERROR "Pass -DDXVK_NATIVE_PREFIX=<dir>: DXVK-native's d3d9.h and libdxvk_d3d9")
 endif()
@@ -53,6 +66,7 @@ list(APPEND T5_SOURCES
     "${T5_DIR}/t5_platform.cpp"
     "${T5_DIR}/sdl/t5_user32.cpp"
     "${T5_DIR}/sdl/t5_xinput.cpp"
+    $<$<BOOL:${ANDROID}>:${T5_DIR}/android/t5_android.cpp>
 )
 set_target_properties(${BIN_NAME} PROPERTIES SOURCES "${T5_SOURCES}")
 
@@ -68,6 +82,14 @@ if(T5_SP)
 else()
     set(T5_GAME_MODE KISAK_MP)
     set(T5_OUTPUT_NAME T5Jool-MP)
+endif()
+if(ANDROID)
+    # SDL's activity loads lib<name>.so (GameActivity.java picks the library for the mode)
+    if(T5_SP)
+        set(T5_OUTPUT_NAME main)
+    else()
+        set(T5_OUTPUT_NAME main_mp)
+    endif()
 endif()
 set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME ${T5_OUTPUT_NAME})
 
@@ -128,10 +150,45 @@ find_library(T5_DXVK_D3D9 NAMES dxvk_d3d9 PATHS "${DXVK_NATIVE_PREFIX}/lib" NO_D
 target_link_libraries(t5_d3d9_bridge PUBLIC ${T5_DXVK_D3D9})
 
 # ----- Libraries -----
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(T5_FFMPEG REQUIRED IMPORTED_TARGET libavcodec libavutil libswresample)
-pkg_check_modules(T5_ZSTD REQUIRED IMPORTED_TARGET libzstd)
-find_package(SDL2 REQUIRED)
-find_package(Threads REQUIRED)
-target_link_libraries(${BIN_NAME} PRIVATE
-    t5_d3d9_bridge SDL2::SDL2 PkgConfig::T5_FFMPEG PkgConfig::T5_ZSTD Threads::Threads ${CMAKE_DL_LIBS} m)
+if(ANDROID)
+    set(D ${T5_ANDROID_DEPS})
+    set(E ${T5_ANDROID_EXTRA})
+    if(NOT E)
+        set(E ${D})
+    endif()
+    add_library(t5_sdl2 SHARED IMPORTED)
+    set_target_properties(t5_sdl2 PROPERTIES IMPORTED_LOCATION ${D}/lib/libSDL2.so
+        INTERFACE_INCLUDE_DIRECTORIES ${D}/include/SDL2)
+    foreach(lib avcodec avutil swresample)
+        add_library(t5_${lib} SHARED IMPORTED)
+        set_target_properties(t5_${lib} PROPERTIES IMPORTED_LOCATION ${E}/lib/lib${lib}.so
+            INTERFACE_INCLUDE_DIRECTORIES ${E}/include)
+    endforeach()
+    add_library(t5_zstd STATIC IMPORTED)
+    set_target_properties(t5_zstd PROPERTIES IMPORTED_LOCATION ${E}/lib/libzstd.a INTERFACE_INCLUDE_DIRECTORIES ${E}/include)
+    target_link_libraries(${BIN_NAME} PRIVATE
+        t5_d3d9_bridge t5_sdl2 t5_avcodec t5_avutil t5_swresample t5_zstd log android ${CMAKE_DL_LIBS} m)
+    # custom Vulkan drivers (Turnip, PanVK) through libadrenotools; its hook libraries go in the APK
+    if(EXISTS ${T5_ANDROID_SOURCES}/libadrenotools/CMakeLists.txt)
+        add_subdirectory(${T5_ANDROID_SOURCES}/libadrenotools ${CMAKE_BINARY_DIR}/libadrenotools)
+        target_link_libraries(${BIN_NAME} PRIVATE adrenotools)
+        set_property(SOURCE ${T5_DIR}/android/t5_android.cpp APPEND PROPERTY COMPILE_DEFINITIONS BO1_ADRENOTOOLS=1)
+    else()
+        message(WARNING "libadrenotools not found in ${T5_ANDROID_SOURCES}: no custom drivers")
+    endif()
+    # frame pointers and symbols for the crash logs (the APK's copy is stripped); stack protector
+    target_compile_options(${BIN_NAME} PRIVATE -fno-omit-frame-pointer -g -fstack-protector-strong)
+    option(T5_ARMV82 "Android: build for ARMv8.2-A" ON)
+    if(T5_ARMV82)
+        target_compile_options(${BIN_NAME} PRIVATE -march=armv8.2-a+fp16+dotprod+rcpc)
+    endif()
+    target_link_options(${BIN_NAME} PRIVATE -Wl,--exclude-libs,ALL)
+else()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(T5_FFMPEG REQUIRED IMPORTED_TARGET libavcodec libavutil libswresample)
+    pkg_check_modules(T5_ZSTD REQUIRED IMPORTED_TARGET libzstd)
+    find_package(SDL2 REQUIRED)
+    find_package(Threads REQUIRED)
+    target_link_libraries(${BIN_NAME} PRIVATE
+        t5_d3d9_bridge SDL2::SDL2 PkgConfig::T5_FFMPEG PkgConfig::T5_ZSTD Threads::Threads ${CMAKE_DL_LIBS} m)
+endif()

@@ -1,0 +1,9 @@
+/* libmain.so (T5Jool): esporta solo i punti d'ingresso per SDL e Java. Tutto il resto, compresi
+   malloc/free/new del motore (bo1_lowmem.cpp), resta interno alla libreria. */
+{
+    global:
+        SDL_main;
+        Java_*;
+    local:
+        *;
+};

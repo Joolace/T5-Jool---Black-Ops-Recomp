@@ -1,0 +1,838 @@
+diff --git a/src/d3d9/d3d9_swapchain.cpp b/src/d3d9/d3d9_swapchain.cpp
+index 391cec8..92684cb 100644
+--- a/src/d3d9/d3d9_swapchain.cpp
++++ b/src/d3d9/d3d9_swapchain.cpp
+@@ -860,6 +860,12 @@ namespace dxvk {
+         {  int32_t(m_dstRect.left),                    int32_t(m_dstRect.top)                    },
+         { uint32_t(m_dstRect.right - m_dstRect.left), uint32_t(m_dstRect.bottom - m_dstRect.top) } };
+ 
++#ifdef __ANDROID__
++      // T5Jool: su Android l'immagine della swapchain ha sempre la dimensione della superficie (tutto lo schermo):
++      // si disegna su tutta, qualunque dimensione abbia la finestra SDL (scala di rendering < 100%).
++      dstRect = { { 0, 0 }, info.imageExtent };
++#endif
++
+       // Bump frame ID
+       if (!i)
+         m_wctx->frameId += 1;
+diff --git a/src/dxvk/dxvk_adapter.cpp b/src/dxvk/dxvk_adapter.cpp
+index 1285c4e..c34341c 100644
+--- a/src/dxvk/dxvk_adapter.cpp
++++ b/src/dxvk/dxvk_adapter.cpp
+@@ -432,6 +432,14 @@ namespace dxvk {
+       enabledFeatures.khrPresentWait.presentWait = VK_FALSE;
+     }
+ 
++#ifdef __ANDROID__
++    // T5Jool: on Android the swapchain belongs to the platform Vulkan loader, not to the driver. Mesa drivers
++    // (PanVK on Mali) still report present id / present wait, and vkWaitForPresentKHR then jumps to an invalid
++    // address in the dxvk-frame thread (Mali-G615 with PanVK). The frame thread falls back to waiting on fences.
++    enabledFeatures.khrPresentId.presentId = VK_FALSE;
++    enabledFeatures.khrPresentWait.presentWait = VK_FALSE;
++#endif
++
+     // Enable descriptor pool overallocation if supported
+     enabledFeatures.nvDescriptorPoolOverallocation.descriptorPoolOverallocation =
+       m_deviceFeatures.nvDescriptorPoolOverallocation.descriptorPoolOverallocation;
+diff --git a/src/dxvk/dxvk_memory.cpp b/src/dxvk/dxvk_memory.cpp
+index c58cfcd..588e9d9 100644
+--- a/src/dxvk/dxvk_memory.cpp
++++ b/src/dxvk/dxvk_memory.cpp
+@@ -1,4 +1,5 @@
+ #include <algorithm>
++#include <cstdio>
+ #include <iomanip>
+ #include <sstream>
+ 
+@@ -601,7 +602,7 @@ namespace dxvk {
+     // Ensure the allocation size is also aligned
+     VkDeviceSize size = align(requirements.size, requirements.alignment);
+ 
+-    for (auto typeIndex : bit::BitMask(requirements.memoryTypeBits & getMemoryTypeMask(allocationInfo.properties))) {
++    for (auto typeIndex : bit::BitMask(getCompatibleMemoryTypeMask(requirements.memoryTypeBits, allocationInfo.properties))) {
+       auto& type = m_memTypes[typeIndex];
+ 
+       // Use correct memory pool depending on property flags. This way we avoid
+@@ -722,7 +723,7 @@ namespace dxvk {
+ 
+     DxvkDeviceMemory memory = { };
+ 
+-    for (auto typeIndex : bit::BitMask(requirements.memoryTypeBits & getMemoryTypeMask(allocationInfo.properties))) {
++    for (auto typeIndex : bit::BitMask(getCompatibleMemoryTypeMask(requirements.memoryTypeBits, allocationInfo.properties))) {
+       auto& type = m_memTypes[typeIndex];
+       memory = allocateDeviceMemory(type, requirements.size, next);
+ 
+@@ -1073,7 +1074,7 @@ namespace dxvk {
+     if (bufferUsage & ~m_globalBufferUsageFlags)
+       memoryTypeMask = findGlobalBufferMemoryTypeMask(bufferUsage);
+ 
+-    memoryTypeMask &= getMemoryTypeMask(properties);
++    memoryTypeMask = getCompatibleMemoryTypeMask(memoryTypeMask, properties);
+     return DxvkLocalAllocationCache(this, memoryTypeMask);
+   }
+ 
+@@ -1110,6 +1111,36 @@ namespace dxvk {
+   }
+ 
+ 
++  static void logAddressSpace() {
++    FILE* f = std::fopen("/proc/self/maps", "r");
++    if (!f)
++      return;
++    char line[512];
++    uint64_t prevEnd = 0x10000, freeLow = 0, bigLow = 0, free4to64 = 0;
++    uint32_t regions = 0;
++    while (std::fgets(line, sizeof(line), f)) {
++      unsigned long long b = 0, e = 0;
++      if (std::sscanf(line, "%llx-%llx", &b, &e) != 2)
++        continue;
++      regions++;
++      if (b > prevEnd) {
++        uint64_t gapB = prevEnd, gapE = b;
++        if (gapB < 0x100000000ull) {
++          uint64_t g = std::min<uint64_t>(gapE, 0x100000000ull) - gapB;
++          freeLow += g;
++          bigLow = std::max(bigLow, g);
++        }
++        if (gapE > 0x100000000ull && gapB < 0x1000000000ull)
++          free4to64 += std::min<uint64_t>(gapE, 0x1000000000ull) - std::max<uint64_t>(gapB, 0x100000000ull);
++      }
++      prevEnd = std::max<uint64_t>(prevEnd, e);
++    }
++    std::fclose(f);
++    Logger::err(str::format("T5Jool: address space: ", regions, " regions, free below 4 GB ", freeLow >> 20,
++      " MB (largest hole ", bigLow >> 20, " MB), free 4-64 GB ", free4to64 >> 20, " MB"));
++  }
++
++
+   DxvkDeviceMemory DxvkMemoryAllocator::allocateDeviceMemory(
+           DxvkMemoryType&       type,
+           VkDeviceSize          size,
+@@ -1164,11 +1195,35 @@ namespace dxvk {
+     DxvkDeviceMemory result = { };
+     result.size = size;
+ 
+-    if (vk->vkAllocateMemory(vk->device(), &memoryInfo, nullptr, &result.memory)) {
+-      freeEmptyChunksInHeap(*type.heap, VkDeviceSize(-1), high_resolution_clock::time_point());
++    VkResult allocVr = vk->vkAllocateMemory(vk->device(), &memoryInfo, nullptr, &result.memory);
+ 
+-      if (vk->vkAllocateMemory(vk->device(), &memoryInfo, nullptr, &result.memory))
++    if (allocVr) {
++      freeEmptyChunksInHeap(*type.heap, VkDeviceSize(-1), high_resolution_clock::time_point());
++      allocVr = vk->vkAllocateMemory(vk->device(), &memoryInfo, nullptr, &result.memory);
++    }
++
++    if (allocVr) {
++      // T5Jool: il driver Qualcomm di sistema rifiuta allocazioni piccole con la memoria quasi vuota. Si riprova
++      // senza le strutture facoltative (priorita', indirizzo del buffer), poi si scrive perche'.
++      VkResult firstVr = allocVr;
++      VkMemoryAllocateInfo plainInfo = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, next };
++      plainInfo.allocationSize = size;
++      plainInfo.memoryTypeIndex = type.index;
++      allocVr = vk->vkAllocateMemory(vk->device(), &plainInfo, nullptr, &result.memory);
++
++      Logger::err(str::format("T5Jool: vkAllocateMemory failed (", firstVr, "), without priority/device address: ",
++        allocVr == VK_SUCCESS ? "OK" : str::format("failed (", allocVr, ")"),
++        "\n  type ", type.index, " flags 0x", std::hex, type.properties.propertyFlags, std::dec,
++        " size ", size, " dedicated ", next ? 1 : 0,
++        " priority ", m_device->features().extMemoryPriority.memoryPriority ? 1 : 0,
++        " deviceAddress ", (type.bufferUsage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ? 1 : 0));
++      logAddressSpace();
++
++      if (allocVr)
+         return DxvkDeviceMemory();
++
++      // senza indirizzo del buffer il buffer globale non lo puo' avere
++      type.bufferUsage &= ~VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+     }
+ 
+     // Technically redundant if EXT_memory_priority is also supported, but this shouldn't hurt
+@@ -2142,6 +2197,28 @@ namespace dxvk {
+   }
+ 
+ 
++  uint32_t DxvkMemoryAllocator::getCompatibleMemoryTypeMask(
++          uint32_t              typeBits,
++          VkMemoryPropertyFlags properties) const {
++    // T5Jool: il tipo di memoria preferito per queste proprieta' puo' non essere tra quelli ammessi dalla risorsa.
++    // Il driver Qualcomm ammette per i buffer solo i tipi 0 e 6, mentre per HOST_VISIBLE | HOST_COHERENT DXVK
++    // sceglie il tipo 4: nessun tipo in comune, allocazione fallita senza nemmeno chiamare vkAllocateMemory.
++    // In quel caso vale qualunque tipo ammesso che abbia tutte le proprieta' richieste.
++    uint32_t mask = typeBits & getMemoryTypeMask(properties);
++
++    if (mask)
++      return mask;
++
++    for (uint32_t i = 0; i < m_memTypeCount; i++) {
++      if ((typeBits & (1u << i))
++       && (m_memTypes[i].properties.propertyFlags & properties) == properties)
++        mask |= 1u << i;
++    }
++
++    return mask;
++  }
++
++
+   uint32_t DxvkMemoryAllocator::findGlobalBufferMemoryTypeMask(
+           VkBufferUsageFlags    usage) const {
+     // Iterate over all candidate memory types as a fallback in case
+diff --git a/src/dxvk/dxvk_memory.h b/src/dxvk/dxvk_memory.h
+index bd7f685..9a67d8c 100644
+--- a/src/dxvk/dxvk_memory.h
++++ b/src/dxvk/dxvk_memory.h
+@@ -1435,6 +1435,10 @@ namespace dxvk {
+     uint32_t getMemoryTypeMask(
+             VkMemoryPropertyFlags properties) const;
+ 
++    uint32_t getCompatibleMemoryTypeMask(
++            uint32_t              typeBits,
++            VkMemoryPropertyFlags properties) const;
++
+     uint32_t findGlobalBufferMemoryTypeMask(
+             VkBufferUsageFlags    usage) const;
+ 
+diff --git a/src/dxvk/dxvk_presenter.cpp b/src/dxvk/dxvk_presenter.cpp
+index 27d6bb1..769b54d 100644
+--- a/src/dxvk/dxvk_presenter.cpp
++++ b/src/dxvk/dxvk_presenter.cpp
+@@ -67,6 +67,14 @@ namespace dxvk {
+         sync.acquire, VK_NULL_HANDLE, &m_imageIndex);
+     }
+ 
++#ifdef __ANDROID__
++    // T5Jool: su Android il pannello ha una rotazione (currentTransform != IDENTITY) e
++    // ogni acquire restituisce SUBOPTIMAL; DXVK ricreava la swapchain a ogni frame.
++    // Il compositore ruota l'immagine da solo, quindi va trattato come SUCCESS.
++    if (m_acquireStatus == VK_SUBOPTIMAL_KHR)
++      m_acquireStatus = VK_SUCCESS;
++#endif
++
+     if (m_acquireStatus != VK_SUCCESS && m_acquireStatus != VK_SUBOPTIMAL_KHR)
+       return m_acquireStatus;
+     
+@@ -113,6 +121,11 @@ namespace dxvk {
+     if (m_device->features().extSwapchainMaintenance1.swapchainMaintenance1)
+       currSync.fenceSignaled = status >= 0;
+ 
++#ifdef __ANDROID__
++    if (status == VK_SUBOPTIMAL_KHR)
++      status = VK_SUCCESS;
++#endif
++
+     if (status != VK_SUCCESS && status != VK_SUBOPTIMAL_KHR)
+       return status;
+ 
+@@ -627,6 +640,17 @@ namespace dxvk {
+   VkExtent2D Presenter::pickImageExtent(
+     const VkSurfaceCapabilitiesKHR& caps,
+           VkExtent2D                desired) {
++#ifdef __ANDROID__
++    // T5Jool: su Android currentExtent e' la dimensione dei buffer impostata dall'ultima swapchain (non quella dello
++    // schermo): una swapchain piu' piccola resterebbe tale per sempre, e il compositore non la ingrandisce.
++    // Si usa la dimensione voluta (tutto lo schermo, wsi::getWindowSize).
++    if (desired.width && desired.height) {
++      VkExtent2D actual;
++      actual.width  = clamp(desired.width,  caps.minImageExtent.width,  std::max(caps.maxImageExtent.width,  desired.width));
++      actual.height = clamp(desired.height, caps.minImageExtent.height, std::max(caps.maxImageExtent.height, desired.height));
++      return actual;
++    }
++#endif
+     if (caps.currentExtent.width != std::numeric_limits<uint32_t>::max())
+       return caps.currentExtent;
+ 
+diff --git a/src/dxvk/dxvk_swapchain_blitter.cpp b/src/dxvk/dxvk_swapchain_blitter.cpp
+index aca8718..8527f99 100644
+--- a/src/dxvk/dxvk_swapchain_blitter.cpp
++++ b/src/dxvk/dxvk_swapchain_blitter.cpp
+@@ -1,4 +1,16 @@
+ #include "dxvk_swapchain_blitter.h"
++#include <cstdlib>
++
++namespace dxvk {
++  // T5Jool: antialiasing dopo l'immagine scelto dal lanciatore (T5_POSTAA = off | fxaa)
++  static uint32_t PostAaMode() {
++    static const uint32_t s_mode = [] {
++      std::string v = env::getEnvVar("T5_POSTAA");
++      return v == "fxaa" ? 1u : 0u;
++    }();
++    return s_mode;
++  }
++}
+ 
+ #include <dxvk_present_frag.h>
+ #include <dxvk_present_frag_blit.h>
+@@ -297,7 +309,8 @@ namespace dxvk {
+     key.dstSpace = dstColorSpace;
+     key.dstFormat = dstView->info().format;
+     key.needsGamma = m_gammaView != nullptr;
+-    key.needsBlit = dstRect.extent != srcRect.extent;
++    // T5Jool: con l'antialiasing FXAA si passa sempre dallo shader di ingrandimento, anche a risoluzione piena
++    key.needsBlit = dstRect.extent != srcRect.extent || PostAaMode() != 0u;
+     key.needsBlending = enableBlending;
+ 
+     VkPipeline pipeline = getPipeline(key);
+@@ -576,13 +589,16 @@ namespace dxvk {
+     const DxvkSwapchainPipelineKey& key) {
+     auto vk = m_device->vkd();
+ 
+-    static const std::array<VkSpecializationMapEntry, 6> specMap = {{
++    static const std::array<VkSpecializationMapEntry, 9> specMap = {{
+       { 0, offsetof(SpecConstants, sampleCount),  sizeof(VkSampleCountFlagBits) },
+       { 1, offsetof(SpecConstants, gammaBound),   sizeof(VkBool32) },
+       { 2, offsetof(SpecConstants, srcSpace),     sizeof(VkColorSpaceKHR) },
+       { 3, offsetof(SpecConstants, srcIsSrgb),    sizeof(VkBool32) },
+       { 4, offsetof(SpecConstants, dstSpace),     sizeof(VkColorSpaceKHR) },
+       { 5, offsetof(SpecConstants, dstIsSrgb),    sizeof(VkBool32) },
++      { 6, offsetof(SpecConstants, upscaler),     sizeof(uint32_t) },
++      { 7, offsetof(SpecConstants, sharpness),    sizeof(float) },
++      { 8, offsetof(SpecConstants, postaa),       sizeof(uint32_t) },
+     }};
+ 
+     SpecConstants specConstants = { };
+@@ -593,6 +609,24 @@ namespace dxvk {
+     specConstants.dstSpace = key.dstSpace;
+     specConstants.dstIsSrgb = lookupFormatInfo(key.dstFormat)->flags.test(DxvkFormatFlag::ColorSpaceSrgb);
+ 
++    // T5Jool: upscaler scelto dal lanciatore (T5_UPSCALER = bilinear | sgsr | fsr, T5_SHARPNESS 1.0-2.0 per SGSR)
++    {
++      static const uint32_t s_upscaler = [] {
++        std::string v = env::getEnvVar("T5_UPSCALER");
++        if (v == "sgsr") return 1u;
++        if (v == "fsr") return 2u;
++        return 0u;
++      }();
++      static const float s_sharpness = [] {
++        std::string v = env::getEnvVar("T5_SHARPNESS");
++        float f = v.empty() ? 2.0f : float(std::atof(v.c_str()));
++        return f < 1.0f ? 1.0f : f > 2.0f ? 2.0f : f;
++      }();
++      specConstants.upscaler = s_upscaler;
++      specConstants.sharpness = s_sharpness;
++      specConstants.postaa = PostAaMode();
++    }
++
+     // Avoid redundant color space conversions if color spaces
+     // and images properties match and we don't do a resolve
+     if (specConstants.srcSpace == specConstants.dstSpace && key.srcSamples == VK_SAMPLE_COUNT_1_BIT) {
+diff --git a/src/dxvk/dxvk_swapchain_blitter.h b/src/dxvk/dxvk_swapchain_blitter.h
+index 9db9bb6..2431e56 100644
+--- a/src/dxvk/dxvk_swapchain_blitter.h
++++ b/src/dxvk/dxvk_swapchain_blitter.h
+@@ -167,6 +167,9 @@ namespace dxvk {
+       VkBool32 srcIsSrgb;
+       VkColorSpaceKHR dstSpace;
+       VkBool32 dstIsSrgb;
++      uint32_t upscaler;  // T5Jool: 0 bilineare, 1 SGSR1, 2 FSR1
++      float    sharpness;
++      uint32_t postaa;    // T5Jool: 0 spento, 1 FXAA
+     };
+ 
+     struct PushConstants {
+diff --git a/src/dxvk/shaders/dxvk_present_frag_blit.frag b/src/dxvk/shaders/dxvk_present_frag_blit.frag
+index 4c9e2dd..83c58a2 100644
+--- a/src/dxvk/shaders/dxvk_present_frag_blit.frag
++++ b/src/dxvk/shaders/dxvk_present_frag_blit.frag
+@@ -4,11 +4,241 @@
+ 
+ #include "dxvk_present_common.glsl"
+ 
++// T5Jool: upscaler spaziali al posto del filtro bilineare quando il back buffer e' piu' piccolo della finestra.
++//  0 = bilineare (DXVK), 1 = Snapdragon Game Super Resolution 1, 2 = AMD FidelityFX Super Resolution 1 (EASU)
++// SGSR1: Copyright (c) 2023-2025 Qualcomm Innovation Center, Inc. BSD-3-Clause.
++// FSR1:  Copyright (c) 2021 Advanced Micro Devices, Inc. MIT.
++// Riscritti con texelFetch: il campionatore della presentazione usa coordinate in pixel e non permette textureGather.
++layout(constant_id = 6) const uint  c_upscaler  = 0u;
++layout(constant_id = 7) const float c_sharpness = 2.0;
++// T5Jool: antialiasing dopo l'immagine (T5_POSTAA): 0 spento, 1 FXAA. Con FXAA si usa l'ingrandimento bilineare.
++layout(constant_id = 8) const uint  c_postaa    = 0u;
++
+ layout(location = 0) in  vec2 i_coord;
+ layout(location = 0) out vec4 o_color;
+ 
++vec4 texel(ivec2 p) {
++  p = clamp(p, src_offset, src_offset + src_extent - ivec2(1));
++  return texelFetch(s_image, p, 0);
++}
++
++// ---------------------------------------------------------------------------------------------- SGSR 1
++// gather "componente verde" in P come textureGather: x=(P-1,P.y) y=(P) z=(P.x,P.y-1) w=(P-1)
++vec4 gatherG(ivec2 p) {
++  return vec4(texel(p + ivec2(-1, 0)).g, texel(p).g, texel(p + ivec2(0, -1)).g, texel(p + ivec2(-1, -1)).g);
++}
++
++float fastLanczos2(float x) {
++  float wA = x - 4.0;
++  float wB = x * wA - wA;
++  wA *= wA;
++  return wB * wA;
++}
++
++vec2 weightY(float dx, float dy, float c, float stdv) {
++  float x = ((dx * dx) + (dy * dy)) * 0.55 + clamp(abs(c) * stdv, 0.0, 1.0);
++  float w = fastLanczos2(x);
++  return vec2(w, w * c);
++}
++
++vec3 sgsr1(vec2 uv) {
++  vec2 size = vec2(src_extent);
++  vec4 color = vec4(textureLod(s_image, vec2(src_offset) + size * uv, 0.0f).rgb, 0.0);
++
++  vec2 imgCoord = uv * size + vec2(-0.5, 0.5);
++  vec2 imgCoordPixel = floor(imgCoord);
++  ivec2 P = ivec2(imgCoordPixel) + src_offset;
++  vec2 pl = imgCoord - imgCoordPixel;
++  vec4 left = gatherG(P);
++
++  float edgeVote = abs(left.z - left.y) + abs(color.g - left.y) + abs(color.g - left.z);
++  if (edgeVote > 8.0 / 255.0) {
++    P.x += 1;
++    vec4 right = gatherG(P + ivec2(1, 0));
++    vec4 upDown;
++    upDown.xy = gatherG(P + ivec2(0, -1)).wz;
++    upDown.zw = gatherG(P + ivec2(0, 1)).yx;
++
++    float mean = (left.y + left.z + right.x + right.w) * 0.25;
++    left -= vec4(mean);
++    right -= vec4(mean);
++    upDown -= vec4(mean);
++    color.w = color.g - mean;
++
++    float sum = abs(left.x) + abs(left.y) + abs(left.z) + abs(left.w)
++              + abs(right.x) + abs(right.y) + abs(right.z) + abs(right.w)
++              + abs(upDown.x) + abs(upDown.y) + abs(upDown.z) + abs(upDown.w);
++    float stdv = 2.181818 / max(sum, 1e-6);
++
++    vec2 aWY = weightY(pl.x, pl.y + 1.0, upDown.x, stdv);
++    aWY += weightY(pl.x - 1.0, pl.y + 1.0, upDown.y, stdv);
++    aWY += weightY(pl.x - 1.0, pl.y - 2.0, upDown.z, stdv);
++    aWY += weightY(pl.x, pl.y - 2.0, upDown.w, stdv);
++    aWY += weightY(pl.x + 1.0, pl.y - 1.0, left.x, stdv);
++    aWY += weightY(pl.x, pl.y - 1.0, left.y, stdv);
++    aWY += weightY(pl.x, pl.y, left.z, stdv);
++    aWY += weightY(pl.x + 1.0, pl.y, left.w, stdv);
++    aWY += weightY(pl.x - 1.0, pl.y - 1.0, right.x, stdv);
++    aWY += weightY(pl.x - 2.0, pl.y - 1.0, right.y, stdv);
++    aWY += weightY(pl.x - 2.0, pl.y, right.z, stdv);
++    aWY += weightY(pl.x - 1.0, pl.y, right.w, stdv);
++
++    float finalY = aWY.y / aWY.x;
++    float maxY = max(max(left.y, left.z), max(right.x, right.w));
++    float minY = min(min(left.y, left.z), min(right.x, right.w));
++    finalY = clamp(c_sharpness * finalY, minY, maxY);
++
++    float deltaY = clamp(finalY - color.w, -23.0 / 255.0, 23.0 / 255.0);
++    color.rgb = clamp(color.rgb + vec3(deltaY), 0.0, 1.0);
++  }
++  return color.rgb;
++}
++
++// ---------------------------------------------------------------------------------------------- FSR 1 EASU
++void easuTap(inout vec3 aC, inout float aW, vec2 off, vec2 dir, vec2 len, float lob, float clp, vec3 c) {
++  vec2 v;
++  v.x = (off.x * ( dir.x)) + (off.y * dir.y);
++  v.y = (off.x * (-dir.y)) + (off.y * dir.x);
++  v *= len;
++  float d2 = min(v.x * v.x + v.y * v.y, clp);
++  float wB = (2.0 / 5.0) * d2 - 1.0;
++  float wA = lob * d2 - 1.0;
++  wB *= wB;
++  wA *= wA;
++  wB = (25.0 / 16.0) * wB - (25.0 / 16.0 - 1.0);
++  float w = wB * wA;
++  aC += c * w;
++  aW += w;
++}
++
++void easuSet(inout vec2 dir, inout float len, float w, float lA, float lB, float lC, float lD, float lE) {
++  float dc = lD - lC;
++  float cb = lC - lB;
++  float lenX = 1.0 / max(max(abs(dc), abs(cb)), 1e-8);
++  float dirX = lD - lB;
++  dir.x += dirX * w;
++  lenX = clamp(abs(dirX) * lenX, 0.0, 1.0);
++  lenX *= lenX;
++  len += lenX * w;
++  float ec = lE - lC;
++  float ca = lC - lA;
++  float lenY = 1.0 / max(max(abs(ec), abs(ca)), 1e-8);
++  float dirY = lE - lA;
++  dir.y += dirY * w;
++  lenY = clamp(abs(dirY) * lenY, 0.0, 1.0);
++  lenY *= lenY;
++  len += lenY * w;
++}
++
++float luma2(vec3 c) { return c.b * 0.5 + (c.r * 0.5 + c.g); }
++
++vec3 fsr1(vec2 uv) {
++  vec2 size = vec2(src_extent);
++  vec2 pp = uv * size - vec2(0.5);
++  vec2 fp = floor(pp);
++  pp -= fp;
++  ivec2 f0 = ivec2(fp) + src_offset;
++  //    b c
++  //  e f g h
++  //  i j k l
++  //    n o
++  vec3 b = texel(f0 + ivec2( 0, -1)).rgb, c = texel(f0 + ivec2( 1, -1)).rgb;
++  vec3 e = texel(f0 + ivec2(-1,  0)).rgb, f = texel(f0).rgb;
++  vec3 g = texel(f0 + ivec2( 1,  0)).rgb, h = texel(f0 + ivec2( 2,  0)).rgb;
++  vec3 i = texel(f0 + ivec2(-1,  1)).rgb, j = texel(f0 + ivec2( 0,  1)).rgb;
++  vec3 k = texel(f0 + ivec2( 1,  1)).rgb, l = texel(f0 + ivec2( 2,  1)).rgb;
++  vec3 n = texel(f0 + ivec2( 0,  2)).rgb, o = texel(f0 + ivec2( 1,  2)).rgb;
++  float bL = luma2(b), cL = luma2(c), eL = luma2(e), fL = luma2(f), gL = luma2(g), hL = luma2(h);
++  float iL = luma2(i), jL = luma2(j), kL = luma2(k), lL = luma2(l), nL = luma2(n), oL = luma2(o);
++
++  vec2 dir = vec2(0.0);
++  float len = 0.0;
++  easuSet(dir, len, (1.0 - pp.x) * (1.0 - pp.y), bL, eL, fL, gL, jL);
++  easuSet(dir, len, pp.x * (1.0 - pp.y),         cL, fL, gL, hL, kL);
++  easuSet(dir, len, (1.0 - pp.x) * pp.y,         fL, iL, jL, kL, nL);
++  easuSet(dir, len, pp.x * pp.y,                 gL, jL, kL, lL, oL);
++
++  vec2 dir2 = dir * dir;
++  float dirR = dir2.x + dir2.y;
++  bool zro = dirR < (1.0 / 32768.0);
++  dirR = zro ? 1.0 : inversesqrt(dirR);
++  dir.x = zro ? 1.0 : dir.x;
++  dir *= vec2(dirR);
++  len = len * 0.5;
++  len *= len;
++  float stretch = (dir.x * dir.x + dir.y * dir.y) / max(max(abs(dir.x), abs(dir.y)), 1e-8);
++  vec2 len2 = vec2(1.0 + (stretch - 1.0) * len, 1.0 - 0.5 * len);
++  float lob = 0.5 + ((1.0 / 4.0 - 0.04) - 0.5) * len;
++  float clp = 1.0 / lob;
++
++  vec3 min4 = min(min(f, g), min(j, k));
++  vec3 max4 = max(max(f, g), max(j, k));
++  vec3 aC = vec3(0.0);
++  float aW = 0.0;
++  easuTap(aC, aW, vec2( 0.0, -1.0) - pp, dir, len2, lob, clp, b);
++  easuTap(aC, aW, vec2( 1.0, -1.0) - pp, dir, len2, lob, clp, c);
++  easuTap(aC, aW, vec2(-1.0,  1.0) - pp, dir, len2, lob, clp, i);
++  easuTap(aC, aW, vec2( 0.0,  1.0) - pp, dir, len2, lob, clp, j);
++  easuTap(aC, aW, vec2( 0.0,  0.0) - pp, dir, len2, lob, clp, f);
++  easuTap(aC, aW, vec2(-1.0,  0.0) - pp, dir, len2, lob, clp, e);
++  easuTap(aC, aW, vec2( 1.0,  1.0) - pp, dir, len2, lob, clp, k);
++  easuTap(aC, aW, vec2( 2.0,  1.0) - pp, dir, len2, lob, clp, l);
++  easuTap(aC, aW, vec2( 2.0,  0.0) - pp, dir, len2, lob, clp, h);
++  easuTap(aC, aW, vec2( 1.0,  0.0) - pp, dir, len2, lob, clp, g);
++  easuTap(aC, aW, vec2( 1.0,  2.0) - pp, dir, len2, lob, clp, o);
++  easuTap(aC, aW, vec2( 0.0,  2.0) - pp, dir, len2, lob, clp, n);
++  return min(max4, max(min4, aC / aW));
++}
++
++// ---------------------------------------------------------------------------------------------- FXAA
++// FXAA "lite" (Timothy Lottes, NVIDIA, dominio pubblico): cerca la direzione del bordo dalla luminanza dei 4 vicini
++// in diagonale e sfuma lungo il bordo. Lavora alla risoluzione del gioco, poi l'immagine si ingrandisce (bilineare).
++vec3 srcLinear(vec2 p) {
++  p = clamp(p, vec2(src_offset) + 0.5, vec2(src_offset + src_extent) - 0.5);
++  return textureLod(s_image, p, 0.0f).rgb;
++}
++
++float fxaaLuma(vec3 c) {
++  return dot(c, vec3(0.299, 0.587, 0.114));
++}
++
++vec3 fxaa(vec2 uv) {
++  vec2 p = vec2(src_offset) + vec2(src_extent) * uv;
++  vec3 rgbNW = srcLinear(p + vec2(-1.0, -1.0));
++  vec3 rgbNE = srcLinear(p + vec2( 1.0, -1.0));
++  vec3 rgbSW = srcLinear(p + vec2(-1.0,  1.0));
++  vec3 rgbSE = srcLinear(p + vec2( 1.0,  1.0));
++  vec3 rgbM  = srcLinear(p);
++  float lumaNW = fxaaLuma(rgbNW), lumaNE = fxaaLuma(rgbNE);
++  float lumaSW = fxaaLuma(rgbSW), lumaSE = fxaaLuma(rgbSE);
++  float lumaM  = fxaaLuma(rgbM);
++  float lumaMin = min(lumaM, min(min(lumaNW, lumaNE), min(lumaSW, lumaSE)));
++  float lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE)));
++  // poco contrasto: niente bordo, si risparmiano le altre letture
++  if (lumaMax - lumaMin < max(0.0312, lumaMax * 0.125))
++    return rgbM;
++  vec2 dir = vec2(-((lumaNW + lumaNE) - (lumaSW + lumaSE)), (lumaNW + lumaSW) - (lumaNE + lumaSE));
++  float dirReduce = max((lumaNW + lumaNE + lumaSW + lumaSE) * (0.25 * (1.0 / 8.0)), 1.0 / 128.0);
++  float rcpDirMin = 1.0 / (min(abs(dir.x), abs(dir.y)) + dirReduce);
++  dir = clamp(dir * rcpDirMin, vec2(-8.0), vec2(8.0));
++  vec3 rgbA = 0.5 * (srcLinear(p + dir * (1.0 / 3.0 - 0.5)) + srcLinear(p + dir * (2.0 / 3.0 - 0.5)));
++  vec3 rgbB = rgbA * 0.5 + 0.25 * (srcLinear(p + dir * -0.5) + srcLinear(p + dir * 0.5));
++  float lumaB = fxaaLuma(rgbB);
++  return (lumaB < lumaMin || lumaB > lumaMax) ? rgbA : rgbB;
++}
++
+ void main() {
+-  vec2 coord = vec2(src_offset) + vec2(src_extent) * i_coord;
+-  o_color = input_to_sc_rgb(textureLod(s_image, coord, 0.0f));
++  vec4 color;
++  if (c_postaa == 1u) {
++    color = vec4(fxaa(i_coord), 1.0);
++  } else if (c_upscaler == 1u) {
++    color = vec4(sgsr1(i_coord), 1.0);
++  } else if (c_upscaler == 2u) {
++    color = vec4(fsr1(i_coord), 1.0);
++  } else {
++    vec2 coord = vec2(src_offset) + vec2(src_extent) * i_coord;
++    color = textureLod(s_image, coord, 0.0f);
++  }
++  o_color = input_to_sc_rgb(color);
+   o_color = sc_rgb_to_output(o_color);
+ }
+diff --git a/src/vulkan/vulkan_loader.cpp b/src/vulkan/vulkan_loader.cpp
+index 17e9b62..6a918dc 100644
+--- a/src/vulkan/vulkan_loader.cpp
++++ b/src/vulkan/vulkan_loader.cpp
+@@ -1,4 +1,5 @@
+ #include <tuple>
++#include <cstdlib>
+ 
+ #include "vulkan_loader.h"
+ 
+@@ -7,9 +8,137 @@
+ #include "../util/util_string.h"
+ #include "../util/util_win32_compat.h"
+ 
++#ifdef __ANDROID__
++#include <dlfcn.h>
++#include <cstring>
++
++// T5Jool: frame generation di Lossless Scaling (lsfg-vk). Su Android un'app non puo' attivare un livello Vulkan
++// esterno, ma liblsfg-vk.so sta dentro l'APK: la si carica qui e la si inserisce tra DXVK e il driver facendo
++// quello che farebbe il loader Vulkan (catena VK_LAYER_LINK_INFO in vkCreateInstance / vkCreateDevice).
++// Strutture del protocollo dei livelli (vk_layer.h), copiate perche' l'header non e' tra quelli di DXVK.
++namespace t5lsfg {
++  enum LayerFunction { LINK_INFO = 0, LOADER_DATA_CALLBACK = 1 };
++  struct InstanceLink {
++    InstanceLink* pNext;
++    PFN_vkGetInstanceProcAddr pfnNextGetInstanceProcAddr;
++    PFN_vkVoidFunction pfnNextGetPhysicalDeviceProcAddr;
++  };
++  struct InstanceCreateInfo {
++    VkStructureType sType; // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
++    const void* pNext;
++    LayerFunction function;
++    union { InstanceLink* pLayerInfo; void* pad[2]; uint64_t pad64[2]; } u;
++  };
++  struct DeviceLink {
++    DeviceLink* pNext;
++    PFN_vkGetInstanceProcAddr pfnNextGetInstanceProcAddr;
++    PFN_vkGetDeviceProcAddr pfnNextGetDeviceProcAddr;
++  };
++  typedef VkResult (VKAPI_PTR *PFN_SetDeviceLoaderData)(VkDevice, void*);
++  struct DeviceCreateInfo {
++    VkStructureType sType; // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
++    const void* pNext;
++    LayerFunction function;
++    union { DeviceLink* pLayerInfo; PFN_SetDeviceLoaderData pfnSetDeviceLoaderData; void* pad[2]; } u;
++  };
++
++  PFN_vkGetInstanceProcAddr g_real;
++  PFN_vkGetInstanceProcAddr g_layer;
++  VkInstance g_instance;
++
++  // gli oggetti creati dal livello passano dal loader di Android, che imposta gia' la loro tabella
++  VKAPI_ATTR VkResult VKAPI_CALL setDeviceLoaderData(VkDevice, void*) { return VK_SUCCESS; }
++
++  VKAPI_ATTR VkResult VKAPI_CALL createInstance(const VkInstanceCreateInfo* ci, const VkAllocationCallbacks* alloc, VkInstance* out) {
++    InstanceLink link = { nullptr, g_real, nullptr };
++    InstanceCreateInfo info = { };
++    info.sType = VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO;
++    info.pNext = ci->pNext;
++    info.function = LINK_INFO;
++    info.u.pLayerInfo = &link;
++    VkInstanceCreateInfo c = *ci;
++    c.pNext = &info;
++    auto fn = reinterpret_cast<PFN_vkCreateInstance>(g_layer(nullptr, "vkCreateInstance"));
++    VkResult r = fn ? fn(&c, alloc, out) : VK_ERROR_INITIALIZATION_FAILED;
++    if (r == VK_SUCCESS)
++      g_instance = *out;
++    return r;
++  }
++
++  VKAPI_ATTR VkResult VKAPI_CALL createDevice(VkPhysicalDevice pd, const VkDeviceCreateInfo* ci, const VkAllocationCallbacks* alloc, VkDevice* out) {
++    DeviceLink link = { nullptr, g_real, reinterpret_cast<PFN_vkGetDeviceProcAddr>(g_real(g_instance, "vkGetDeviceProcAddr")) };
++    DeviceCreateInfo info = { };
++    info.sType = VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO;
++    info.pNext = ci->pNext;
++    info.function = LINK_INFO;
++    info.u.pLayerInfo = &link;
++    DeviceCreateInfo cb = { };
++    cb.sType = VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO;
++    cb.pNext = &info;
++    cb.function = LOADER_DATA_CALLBACK;
++    cb.u.pfnSetDeviceLoaderData = setDeviceLoaderData;
++    VkDeviceCreateInfo c = *ci;
++    c.pNext = &cb;
++    auto fn = reinterpret_cast<PFN_vkCreateDevice>(g_layer(g_instance, "vkCreateDevice"));
++    return fn ? fn(pd, &c, alloc, out) : VK_ERROR_INITIALIZATION_FAILED;
++  }
++
++  VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL getInstanceProcAddr(VkInstance instance, const char* name) {
++    if (!std::strcmp(name, "vkGetInstanceProcAddr"))
++      return reinterpret_cast<PFN_vkVoidFunction>(&getInstanceProcAddr);
++    if (!std::strcmp(name, "vkCreateInstance"))
++      return reinterpret_cast<PFN_vkVoidFunction>(&createInstance);
++    if (!std::strcmp(name, "vkCreateDevice"))
++      return reinterpret_cast<PFN_vkVoidFunction>(&createDevice);
++    // prima dell'istanza il livello non ha ancora il "prossimo" a cui passare le chiamate globali
++    if (!instance)
++      return g_real(nullptr, name);
++    return g_layer(instance, name);
++  }
++
++  // con T5_LSFG=1 e liblsfg-vk.so presente, restituisce l'ingresso che passa dal livello; altrimenti quello vero
++  PFN_vkGetInstanceProcAddr wrap(PFN_vkGetInstanceProcAddr real) {
++    const char* on = getenv("T5_LSFG");
++    if (!real || !on || std::strcmp(on, "1"))
++      return real;
++    void* lib = dlopen("liblsfg-vk.so", RTLD_NOW | RTLD_LOCAL);
++    auto layer = lib ? reinterpret_cast<PFN_vkGetInstanceProcAddr>(dlsym(lib, "layer_vkGetInstanceProcAddr")) : nullptr;
++    if (!layer) {
++      dxvk::Logger::err(dxvk::str::format("LSFG: liblsfg-vk.so non caricata: ", lib ? "simbolo mancante" : dlerror()));
++      return real;
++    }
++    g_real = real;
++    g_layer = layer;
++    dxvk::Logger::info("LSFG: frame generation di Lossless Scaling attiva (liblsfg-vk.so)");
++    return &getInstanceProcAddr;
++  }
++}
++#endif
++
+ namespace dxvk::vk {
+ 
++  static std::pair<HMODULE, PFN_vkGetInstanceProcAddr> loadVulkanLibraryReal();
++
+   static std::pair<HMODULE, PFN_vkGetInstanceProcAddr> loadVulkanLibrary() {
++    auto r = loadVulkanLibraryReal();
++#ifdef __ANDROID__
++    r.second = t5lsfg::wrap(r.second);
++#endif
++    return r;
++  }
++
++  static std::pair<HMODULE, PFN_vkGetInstanceProcAddr> loadVulkanLibraryReal() {
++#ifdef __ANDROID__
++    // T5Jool: driver Vulkan personalizzato (Turnip con libadrenotools). Il gioco carica il driver e passa
++    // l'indirizzo del suo vkGetInstanceProcAddr in DXVK_ANDROID_GIPA (esadecimale).
++    if (const char* gipa = getenv("DXVK_ANDROID_GIPA")) {
++      auto proc = reinterpret_cast<PFN_vkGetInstanceProcAddr>(strtoull(gipa, nullptr, 16));
++      if (proc) {
++        Logger::info(str::format("Vulkan: vkGetInstanceProcAddr dal driver personalizzato @ 0x", std::hex, reinterpret_cast<uintptr_t>(proc)));
++        return std::make_pair(HMODULE(nullptr), proc);
++      }
++    }
++#endif
+     static const std::array<const char*, 2> dllNames = {{
+ #ifdef _WIN32
+       "winevulkan.dll",
+diff --git a/src/wsi/sdl2/wsi_monitor_sdl2.cpp b/src/wsi/sdl2/wsi_monitor_sdl2.cpp
+index d021346..f124021 100644
+--- a/src/wsi/sdl2/wsi_monitor_sdl2.cpp
++++ b/src/wsi/sdl2/wsi_monitor_sdl2.cpp
+@@ -87,7 +87,13 @@ namespace dxvk::wsi {
+     pMode->refreshRate    = WsiRational{ uint32_t(mode.refresh_rate) * 1000, 1000 }; 
+     // BPP should always be a power of two
+     // to match Windows behaviour of including padding.
++#ifdef __ANDROID__
++    // T5Jool: SDL su Android riporta spesso RGB565 per lo schermo; la superficie Vulkan e' a 32 bit.
++    // Senza questo nessuna modalita' passa il filtro dei formati a 32 bit di D3D9 (EnumAdapterModes vuoto).
++    pMode->bitsPerPixel   = 32;
++#else
+     pMode->bitsPerPixel   = roundToNextPow2(SDL_BITSPERPIXEL(mode.format));
++#endif
+     pMode->interlaced     = false;
+   }
+ 
+diff --git a/src/wsi/sdl2/wsi_platform_sdl2.cpp b/src/wsi/sdl2/wsi_platform_sdl2.cpp
+index 203cb6d..d8c0255 100644
+--- a/src/wsi/sdl2/wsi_platform_sdl2.cpp
++++ b/src/wsi/sdl2/wsi_platform_sdl2.cpp
+@@ -15,6 +15,8 @@ namespace dxvk::wsi {
+         "SDL2.dll"
+ #elif defined(__APPLE__)
+         "libSDL2-2.0.0.dylib"
++#elif defined(__ANDROID__)
++        "libSDL2.so"
+ #else
+         "libSDL2-2.0.so.0"
+ #endif
+diff --git a/src/wsi/sdl2/wsi_platform_sdl2.h b/src/wsi/sdl2/wsi_platform_sdl2.h
+index 44f8836..b1c1a99 100644
+--- a/src/wsi/sdl2/wsi_platform_sdl2.h
++++ b/src/wsi/sdl2/wsi_platform_sdl2.h
+@@ -1,6 +1,9 @@
+ #pragma once
+ 
+ #include <SDL.h>
++#ifdef __ANDROID__
++#include <SDL_syswm.h>
++#endif
+ 
+ #include "../wsi_platform.h"
+ 
+diff --git a/src/wsi/sdl2/wsi_platform_sdl2_funcs.h b/src/wsi/sdl2/wsi_platform_sdl2_funcs.h
+index 4396a6b..66af04f 100644
+--- a/src/wsi/sdl2/wsi_platform_sdl2_funcs.h
++++ b/src/wsi/sdl2/wsi_platform_sdl2_funcs.h
+@@ -14,4 +14,7 @@ SDL_PROC(void, SDL_SetWindowSize, (SDL_Window*, int, int))
+ SDL_PROC(SDL_bool, SDL_Vulkan_CreateSurface, (SDL_Window*, VkInstance, VkSurfaceKHR*))
+ SDL_PROC(SDL_bool, SDL_Vulkan_GetInstanceExtensions, (SDL_Window*, unsigned int*, const char**))
+ SDL_PROC(int, SDL_Vulkan_LoadLibrary, (const char*))
++#ifdef __ANDROID__
++SDL_PROC(SDL_bool, SDL_GetWindowWMInfo, (SDL_Window*, SDL_SysWMinfo*))
++#endif
+ #undef SDL_PROC
+diff --git a/src/wsi/sdl2/wsi_window_sdl2.cpp b/src/wsi/sdl2/wsi_window_sdl2.cpp
+index e0c48fd..91e779c 100644
+--- a/src/wsi/sdl2/wsi_window_sdl2.cpp
++++ b/src/wsi/sdl2/wsi_window_sdl2.cpp
+@@ -10,6 +10,10 @@
+ 
+ #include <windows.h>
+ #include <SDL_vulkan.h>
++#ifdef __ANDROID__
++#include <SDL_syswm.h>
++#include <vulkan/vulkan_android.h>
++#endif
+ 
+ namespace dxvk::wsi {
+ 
+@@ -22,6 +26,16 @@ namespace dxvk::wsi {
+     int32_t w, h;
+     SDL_GetWindowSize(window, &w, &h);
+ 
++#ifdef __ANDROID__
++    // T5Jool: su Android la superficie occupa sempre tutto lo schermo, anche se il gioco (finestra, scala di
++    // rendering < 100%) imposta una dimensione piu' piccola: si presenta a tutto schermo e l'upscaler ingrandisce.
++    SDL_DisplayMode mode = { };
++    if (!SDL_GetDesktopDisplayMode(SDL_GetWindowDisplayIndex(window) > 0 ? SDL_GetWindowDisplayIndex(window) : 0, &mode) && mode.w > 0 && mode.h > 0) {
++      w = mode.w;
++      h = mode.h;
++    }
++#endif
++
+     if (pWidth)
+       *pWidth = uint32_t(w);
+ 
+@@ -163,6 +177,22 @@ namespace dxvk::wsi {
+           VkSurfaceKHR*             pSurface) {
+     SDL_Window* window = fromHwnd(hWindow);
+ 
++#ifdef __ANDROID__
++    // T5Jool: superficie creata con il vkGetInstanceProcAddr di DXVK, non con il caricatore Vulkan di SDL:
++    // con un driver personalizzato (Turnip) l'istanza appartiene a un altro caricatore.
++    SDL_SysWMinfo info;
++    SDL_VERSION(&info.version);
++    if (SDL_GetWindowWMInfo(window, &info) && info.subsystem == SDL_SYSWM_ANDROID && info.info.android.window) {
++      auto pfnCreate = reinterpret_cast<PFN_vkCreateAndroidSurfaceKHR>(
++        pfnVkGetInstanceProcAddr(instance, "vkCreateAndroidSurfaceKHR"));
++      if (pfnCreate) {
++        VkAndroidSurfaceCreateInfoKHR createInfo = { VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR };
++        createInfo.window = info.info.android.window;
++        return pfnCreate(instance, &createInfo, nullptr, pSurface);
++      }
++    }
++#endif
++
+     return SDL_Vulkan_CreateSurface(window, instance, pSurface)
+          ? VK_SUCCESS
+          : VK_ERROR_OUT_OF_HOST_MEMORY;

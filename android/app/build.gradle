@@ -1,0 +1,122 @@
+// T5Jool per Android (arm64-v8a). Le dipendenze native (SDL2, DXVK, libadrenotools, FFmpeg) le prepara
+// tools/android/setup.sh in $T5_DEPS (predefinito ~/t5jool-android); la build le legge da lì.
+plugins {
+    id 'com.android.application'
+}
+
+def depsDir = System.getenv('T5_DEPS') ?: (System.getProperty('user.home') + '/t5jool-android')
+def prefix = depsDir + '/prefix'
+def repoRoot = rootProject.projectDir.parentFile
+// versione: unica fonte in src/t5jool_version.h (la stessa che il gioco mostra in basso a destra)
+def versionHeader = new File(repoRoot, 'src/t5jool_version.h').text
+def t5VersionName = (versionHeader =~ /T5JOOL_VERSION\s+"([^"]+)"/)[0][1]
+def t5VersionCode = ((versionHeader =~ /T5JOOL_VERSION_CODE\s+(\d+)/)[0][1]) as int
+
+// Chiave di release (fuori dal progetto, mai nel repository): ~/.t5jool/t5jool-release.jks, o T5_KEYSTORE.
+// Le password arrivano da variabili d'ambiente (tools/android/build.sh le chiede all'avvio, non si salvano).
+// Senza chiave o senza password l'APK si firma con la chiave di debug, come prima.
+def releaseStore = file(System.getenv('T5_KEYSTORE') ?: (System.getProperty('user.home') + '/.t5jool/t5jool-release.jks'))
+def releasePass = System.getenv('T5_KEYSTORE_PASSWORD')
+def useReleaseKey = releaseStore.exists() && releasePass
+
+android {
+    // T5Jool: il controllo lint delle release a volte fallisce da solo (scarica e analizza librerie) e fermava la
+    // build lasciando gli APK vecchi: non serve per questo progetto
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    namespace 'com.joolace.t5jool'
+
+    signingConfigs {
+        if (useReleaseKey) {
+            t5release {
+                storeFile releaseStore
+                storePassword releasePass
+                keyAlias System.getenv('T5_KEY_ALIAS') ?: 't5jool'
+                keyPassword System.getenv('T5_KEY_PASSWORD') ?: releasePass
+            }
+        }
+    }
+    compileSdk 34
+    ndkVersion '27.2.12479018'
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    defaultConfig {
+        // variante della CPU: "v8.2" (ARMv8.2-A, predefinita) o "generic" (arm64 per tutti, T5_ARMV80=1).
+        // Il lanciatore la usa per scaricare l'aggiornamento giusto e per avvisare se la CPU non e' adatta.
+        buildConfigField "String", "CPU_VARIANT", System.getenv('T5_ARMV80') ? '"generic"' : '"v8.2"'
+        applicationId 'com.joolace.t5jool'
+        minSdk 29
+        targetSdk 34
+        versionCode t5VersionCode
+        versionName t5VersionName
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
+    }
+
+    buildTypes {
+        // anche la build "debug" del gioco va ottimizzata (a -O0 sarebbe lentissimo): si usa sempre release,
+        // firmata con la chiave di debug cosi' si installa senza altro
+        release {
+            minifyEnabled false
+            signingConfig useReleaseKey ? signingConfigs.t5release : signingConfigs.debug
+            debuggable false
+        }
+        debug {
+        }
+    }
+
+    sourceSets {
+        main {
+            // classi Java di SDL2 (org.libsdl.app), dalla stessa versione della libreria nativa
+            java.srcDirs += ["${depsDir}/src/SDL2/android-project/app/src/main/java"]
+            // librerie gia' compilate: libSDL2.so, libdxvk_d3d9.so, libavcodec.so, libavutil.so
+            // T5Jool 0.9: every native library (game SP/MP, SDL2, DXVK, FFmpeg, lsfg-vk, zone converter, adrenotools hooks),
+            // built by tools/t5/build_android.sh (no externalNativeBuild: two engine builds, SP and MP)
+            jniLibs.srcDirs += ["${repoRoot}/build-android/jnilibs"]
+            // mod e dati del port, copiati nella cartella del gioco al primo avvio
+            assets.srcDirs += ["${buildDir}/t5assets"]
+        }
+    }
+
+    androidResources {
+        // non compressi: il lanciatore ne legge la dimensione per ricopiarli solo se cambiano
+        noCompress 'bmp', 'wav'
+        // Il filtro predefinito di aapt salta le cartelle che iniziano con "_" (<dir>_*): mods/_stack (la base di
+        // fs_mods, serve al salvataggio in solo mods/t5save) non finiva nell'APK. Stesso filtro senza quella regola.
+        ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+    }
+
+    packagingOptions {
+        jniLibs {
+            // il lanciatore carica libmain.so da file (android_dlopen_ext): le librerie vanno estratte
+            useLegacyPackaging true
+        }
+    }
+}
+
+// mods/ e data/main/ del repository -> assets/t5jool/
+tasks.register('copyT5Assets', Copy) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE // vince il primo: i file della home del PC su quelli del repository
+    from("${repoRoot}/mods") { into 't5jool/mods' }
+    from("${repoRoot}/data/main") { into 't5jool/main' }
+    // Media del menu (copiati sul telefono dal lanciatore in T5Jool/home/t5jool/):
+    //  - anteprime delle mappe e sfondo: screenshot di gioco in data/t5jool (lo sfondo, se non c'e' li', dalla home del PC)
+    //  - musica: originale di T5Jool (tools/music/compose.py), data/t5jool/menu_music.wav
+    from("${repoRoot}/data/t5jool") {
+        include 'menu_bg.bmp', 'menu_music.wav'
+        into 'media'
+    }
+    from(System.getenv('T5_MEDIA_DIR') ?: "${System.getProperty('user.home')}/bo1-home64/t5jool") {
+        include 'menu_bg.bmp'
+        into 'media'
+    }
+    from("${repoRoot}/data/t5jool/maps") { into 'media/maps' }
+    into "${buildDir}/t5assets"
+}
+preBuild.dependsOn copyT5Assets

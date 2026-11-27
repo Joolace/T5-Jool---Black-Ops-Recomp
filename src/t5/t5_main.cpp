@@ -15,6 +15,9 @@
 #include <limits.h>
 #include <sys/stat.h>
 
+#ifdef __ANDROID__
+#include "android/t5_android.h"
+#endif
 #include "../nx/nx_display.h"
 #include "../nx/nx_install.h"
 
@@ -39,9 +42,15 @@ std::string Absolute(const std::string &p)
     return realpath(p.c_str(), buf) ? std::string(buf) : p;
 }
 
-// the game folder: --t5-home=<dir>, else $T5JOOL_GAME_DIR / $BO1_GAME_DIR, else the working directory
+// the game folder: --t5-home=<dir>, else $T5JOOL_GAME_DIR / $BO1_GAME_DIR, else the working directory.
+// Android: the launcher's game folder (BO1_GAME_DIR, from --t5-env), else T5Jool's own folder.
 std::string FindInstallDir(int argc, char **argv)
 {
+#ifdef __ANDROID__
+    if (const char *v = getenv("BO1_GAME_DIR"); v && *v)
+        return v;
+    return bo1_android_home();
+#endif
     for (int i = 1; i < argc; ++i)
         if (!strncmp(argv[i], "--t5-home=", 10))
             return Absolute(argv[i] + 10);
@@ -109,6 +118,14 @@ void T5_ShowFatalError(const char *message)
 // Win_GetEvent, once a frame on the main thread: the SDL events become the window's Win32 messages
 extern "C" bool NX_PumpAppletMessages(void)
 {
+#ifdef __ANDROID__
+    // the launcher's loading screen goes away once the game has drawn a few frames
+    static int s_frames;
+    if (s_frames < 40 && ++s_frames >= 30) {
+        bo1_android_screen_drawn();
+        bo1_android_frame_presented();
+    }
+#endif
     if (T5_PumpWindowMessages())
         s_quit = true;
     return s_quit;
@@ -126,6 +143,11 @@ extern "C" void NX_GlServiceRenderThread(void) {}
 extern "C" bool NX_ChainLoadSibling(const char *nroName)
 {
     const bool toMp = nroName && strstr(nroName, "-MP");
+#ifdef __ANDROID__
+    // a new game process with the other library (GameActivity.relaunchGame)
+    fflush(stdout);
+    return bo1_android_relaunch(toMp ? "+t5mode mp" : "+t5mode sp");
+#endif
     std::string dir = s_exePath.substr(0, s_exePath.find_last_of('/') + 1);
     std::string target = dir + (toMp ? "T5Jool-MP" : "T5Jool");
     fflush(stdout);
@@ -178,6 +200,11 @@ void NX_DisplayUpdate() {}
 // ------------------------------------------------------------------ main
 int main(int argc, char **argv)
 {
+#ifdef __ANDROID__
+    // SDL's activity calls this as SDL_main: the launcher's --t5-* options, log file, crash handler, Vulkan driver
+    bo1_android_init(&argc, argv);
+    atexit(bo1_android_clean_exit);
+#endif
     char exe[PATH_MAX];
     ssize_t n = readlink("/proc/self/exe", exe, sizeof(exe) - 1);
     s_exePath = n > 0 ? std::string(exe, (size_t)n) : std::string(argv[0]);

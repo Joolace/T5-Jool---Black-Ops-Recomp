@@ -9,6 +9,16 @@ set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(TL_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/tl")
 set(DW_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/DemonWare")
 
+# T5Jool Android: the game is a shared library SDL's activity loads (libmain.so / libmain_mp.so)
+if(ANDROID)
+    function(add_executable name)
+        if(name STREQUAL "${BIN_NAME}")
+            add_library(${name} SHARED ${ARGN})
+        else()
+            _add_executable(${name} ${ARGN})
+        endif()
+    endfunction()
+endif()
 include(cmake_files.cmake)
 # Checkpoint components stay portable and compile in both PC and NX builds.
 # SP guards keep the multiplayer executable's behavior unchanged.
