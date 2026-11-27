@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- T5Jool: controlli (interruttori, slider, campi di testo, scelte) nel rosso dell'app -->
+    <style name="T5JoolLauncher" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:colorAccent">#DE3428</item>
+        <item name="android:colorControlActivated">#DE3428</item>
+        <item name="android:colorControlHighlight">#40DE3428</item>
+        <item name="android:colorPrimary">#DE3428</item>
+        <item name="android:textCursorDrawable">@null</item>
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+
+    <style name="T5JoolDialog" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:colorAccent">#DE3428</item>
+        <item name="android:colorControlActivated">#DE3428</item>
+        <item name="android:colorControlHighlight">#40DE3428</item>
+        <item name="android:colorPrimary">#DE3428</item>
+    </style>
+
+    <style name="T5JoolGame" parent="@android:style/Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:colorAccent">#DE3428</item>
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+</resources>

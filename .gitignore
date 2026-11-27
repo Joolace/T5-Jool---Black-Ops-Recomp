@@ -518,3 +518,4 @@ OpenBLOPS-PC-NX-Handoff.txt
 
 # T5Jool: the Android app sources ("main/" above is for build trees)
 !android/app/src/main/
+!android/app/src/main/res/
