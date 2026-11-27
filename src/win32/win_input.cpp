@@ -302,7 +302,22 @@ static void IN_JoyConMouseMove()
 
 void __cdecl IN_Frame()
 {
-#if defined(KISAK_NX) && !defined(T5_POSIX)
+#if defined(T5_POSIX)
+    // T5Jool: the mouse when there is one, the pads always (also with no mouse driver at all)
+    if (in_appactive)
+    {
+        if (s_wmv.mouseInitialized)
+        {
+            IN_ActivateMouse(0);
+            IN_MouseMove();
+        }
+        IN_GamepadsMove();
+    }
+    else if (s_wmv.mouseInitialized)
+    {
+        IN_DeactivateMouse();
+    }
+#elif defined(KISAK_NX)
     if (in_appactive && IN_IsForegroundWindow())
     {
 #ifdef KISAK_NX2

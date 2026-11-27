@@ -515,6 +515,13 @@ HWND CreateWindowExA(DWORD exStyle, LPCSTR className, LPCSTR title, DWORD style,
         if (isGame) { g_mainWindow = hwnd; g_focus = hwnd; }
     }
     if (proc) proc(hwnd, WM_CREATE, 0, 0);
+    if (isGame && proc)
+    {
+        // T5Jool: active from the start, as on Switch (src/nx/nx_winuser.cpp). The engine reads input
+        // only while active (IN_Activate) and SDL does not always report the first focus.
+        proc(hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
+        proc(hwnd, WM_SETFOCUS, 0, 0);
+    }
     if (isGame)
     {
 #ifdef __ANDROID__
