@@ -3834,13 +3834,16 @@ static int NX_UI_GamepadDirectionToArrow(int key)
     case K_DPAD_RIGHT:
     case K_APAD_RIGHT:
         return K_RIGHTARROW;
+#ifndef T5_POSIX
     // Nintendo layout in menus: A (right) confirms, B (bottom) goes back. The
     // pad layer maps by position (Switch B is Xbox A), which in game keeps the
     // engine's bindings under the thumb, so swap the pair back here.
+    // (T5Jool: Xbox layout, the bottom button confirms.)
     case K_BUTTON_A:
         return K_BUTTON_B;
     case K_BUTTON_B:
         return K_BUTTON_A;
+#endif
     }
     return key;
 }
@@ -3865,7 +3868,11 @@ void __cdecl UI_KeyEvent(int localClientNum, int key, int down)
     const int inputKey = key;
     const bool controller = IsGamepadKey(key);
 #ifdef KISAK_NX
-#ifdef KISAK_NX2
+#if defined(T5_POSIX)
+    // T5Jool: keyboard, mouse and pads all work the menus; the controller hides the cursor.
+    if (controller && down)
+        uiInfo->uiDC.isCursorVisible = 0;
+#elif defined(KISAK_NX2)
     // The Joy-Con mouse's clicks and wheel (win_input.cpp) work the menus as on
     // PC; the controller hides its cursor.
     if (controller && down)
