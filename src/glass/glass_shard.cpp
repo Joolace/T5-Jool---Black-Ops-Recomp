@@ -3547,6 +3547,14 @@ int GlassShard::Split(
         {
             if ( ++crackSteps > 56 || !(newEdgeDist == newEdgeDist) )
             {
+                static int s_crackLogs;
+                if ( s_crackLogs < 8 )
+                {
+                    ++s_crackLogs;
+                    Com_Printf(0, "[t5-glass] crack gave up: steps=%d edgeDist=%.2f minEdge=%.3f maxEdge=%.3f length=%.2f verts=%d area=%.2f\n",
+                               crackSteps, newEdgeDist, minEdgeLength, maxEdgeLength, this->outline.length,
+                               (int)this->outline.numVerts, this->outline.area);
+                }
                 ++GlassShard::splitFailCount[1];
                 *timer.counter += tlPcGetTick().QuadPart - timer.start;
                 return 0;
