@@ -96,19 +96,32 @@ static inline void condvarWakeOne(CondVar *c) { pthread_cond_signal(c); }
 
 // ---------------------------------------------------------------- threads
 typedef void (*ThreadFunc)(void *);
+// T5Jool: Handle is the Thread itself, so svcGetThreadId(handle) gives the same id the thread sees
+// for itself (gettid): the engine compares CreateThread's id with GetCurrentThreadId (Sys_IsRenderThread).
 typedef struct Thread {
-    Handle handle;      // the pthread_t
+    Handle handle;      // (Handle)this
+    pthread_t pth;
+    volatile u64 tid;   // gettid() of the thread, set as soon as it runs
     ThreadFunc entry;
     void *arg;
-    size_t stackSize;
     Mutex startLock;
     CondVar startCond;
     bool startGo;
 } Thread;
 
+static inline u64 t5_gettid(void)
+{
+#ifdef __linux__
+    return (u64)syscall(SYS_gettid);
+#else
+    return (u64)(uintptr_t)pthread_self();
+#endif
+}
+
 static void *t5_thread_trampoline(void *p)
 {
     Thread *t = (Thread *)p;
+    __atomic_store_n(&t->tid, t5_gettid(), __ATOMIC_RELEASE);
     mutexLock(&t->startLock);
     while (!t->startGo)
         condvarWait(&t->startCond, &t->startLock);
@@ -130,12 +143,13 @@ static inline Result threadCreate(Thread *t, ThreadFunc entry, void *arg, void *
     pthread_attr_init(&a);
     if (stackSize)
         pthread_attr_setstacksize(&a, stackSize < 0x40000 ? 0x40000 : stackSize);
-    pthread_t th;
-    int rc = pthread_create(&th, &a, t5_thread_trampoline, t);
+    int rc = pthread_create(&t->pth, &a, t5_thread_trampoline, t);
     pthread_attr_destroy(&a);
     if (rc)
         return 1;
-    t->handle = (Handle)th;
+    while (!__atomic_load_n(&t->tid, __ATOMIC_ACQUIRE))
+        sched_yield();
+    t->handle = (Handle)t;
     return 0;
 }
 static inline Result threadStart(Thread *t)
@@ -146,22 +160,20 @@ static inline Result threadStart(Thread *t)
     mutexUnlock(&t->startLock);
     return 0;
 }
-static inline Result threadWaitForExit(Thread *t) { return pthread_join((pthread_t)t->handle, NULL) ? 1 : 0; }
+static inline Result threadWaitForExit(Thread *t) { return pthread_join(t->pth, NULL) ? 1 : 0; }
 static inline Result threadClose(Thread *t) { (void)t; return 0; }
 static inline Result threadPause(Thread *t) { (void)t; return 0; } // T5Jool: no thread suspension on POSIX
 static inline void threadExit(void) { pthread_exit(NULL); }
 
 static inline Result svcGetThreadId(u64 *id, Handle h)
 {
-#ifdef __linux__
-    if (h == CUR_THREAD_HANDLE) { *id = (u64)syscall(SYS_gettid); return 0; }
-#endif
-    *id = (u64)h;
+    if (h == CUR_THREAD_HANDLE) { *id = t5_gettid(); return 0; }
+    *id = h ? ((Thread *)h)->tid : 0;
     return 0;
 }
 static inline Result svcSetThreadCoreMask(Handle, s32, u32) { return 0; }
 static inline Result svcSetThreadPriority(Handle, u32) { return 0; }
-// wait for a thread handle (pthread): only "already finished" can be told without joining, so report a timeout
+// wait for a thread handle: only "already finished" can be told without joining, so report a timeout
 static inline Result waitSingleHandle(Handle, u64) { return 1; }
 
 // ---------------------------------------------------------------- process info
