@@ -923,7 +923,7 @@ DWORD SetThreadExecutionState(DWORD flags)
 // Mouse e tastiera
 // ------------------------------------------------------------------------------------------------
 // mira dei comandi touch: spostamento relativo del cursore, come un mouse vero in partita
-void bo1_inject_mouse_delta(int dx, int dy)
+extern "C" void bo1_inject_mouse_delta(int dx, int dy)
 {
     g_cursorX += dx;
     g_cursorY += dy;
