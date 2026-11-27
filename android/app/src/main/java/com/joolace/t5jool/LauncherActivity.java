@@ -1210,6 +1210,8 @@ public class LauncherActivity extends Activity {
         slider("Size", null, 60, 160, mSettings.touchScale, "%", v -> mSettings.touchScale = v);
         slider("Look speed", "How fast the camera turns when you drag", 20, 400, mSettings.touchLook, "%",
             v -> mSettings.touchLook = v);
+        slider("Aim smoothing", "Higher is smoother, lower reacts faster. 0 turns it off", 0, 100, mSettings.touchSmooth, "%",
+            v -> mSettings.touchSmooth = v);
         section("GYRO AIMING", "Aim by moving the device");
         choice("Gyro aiming", null, T5Settings.GYRO_LABELS, Math.max(0, Math.min(2, mSettings.gyro)), which -> mSettings.gyro = which);
         if (mSettings.gyro != 0) {

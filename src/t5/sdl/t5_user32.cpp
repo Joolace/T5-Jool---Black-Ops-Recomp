@@ -931,6 +931,7 @@ extern "C" void bo1_inject_mouse_delta(int dx, int dy)
 
 BOOL GetCursorPos(LPPOINT pt)
 {
+    BO1Touch_FlushLook(); // T5Jool: the touch aim, smoothed, right before the game reads the mouse
 #ifndef __ANDROID__
     // T5Jool: su Android SDL_GetGlobalMouseState non conosce il tocco (restava 0,0): vale la posizione presa dagli
     // eventi SDL_MOUSEMOTION / SDL_MOUSEBUTTONDOWN (anche quelli che SDL crea dal tocco)

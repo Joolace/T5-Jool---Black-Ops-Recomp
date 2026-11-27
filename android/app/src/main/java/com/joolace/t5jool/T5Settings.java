@@ -70,6 +70,7 @@ final class T5Settings {
     int touchOpacity;   // 10..100
     int touchScale;     // 60..160
     int touchLook;      // 20..400 (100 = 1.0)
+    int touchSmooth = 50; // 0..100 (bo1_touch_smooth = /100)
     int fov = 65;       // 65 = impostazione del gioco, fino a 110
     String extraArgs;
     String playerName;
@@ -163,6 +164,7 @@ final class T5Settings {
         s.touchOpacity = p.getInt("touchOpacity", 45);
         s.touchScale = p.getInt("touchScale", 100);
         s.touchLook = p.getInt("touchLook", 100);
+        s.touchSmooth = Math.max(0, Math.min(100, p.getInt("touchSmooth", 50)));
         s.fov = Math.max(65, Math.min(110, p.getInt("fov", 65)));
         s.extraArgs = p.getString("extraArgs", "");
         s.playerName = p.getString("playerName", "Player");
@@ -206,6 +208,7 @@ final class T5Settings {
             .putInt("touchScale", touchScale)
             .putInt("touchLook", touchLook)
             .putInt("fov", fov)
+            .putInt("touchSmooth", touchSmooth)
             .putString("extraArgs", extraArgs)
             .putString("playerName", playerName)
             .putString("envVars", envVars)
@@ -293,6 +296,7 @@ final class T5Settings {
         set(a, "bo1_touch_opacity", String.valueOf(touchOpacity / 100.0f));
         set(a, "bo1_touch_scale", String.valueOf(touchScale / 100.0f));
         set(a, "bo1_touch_look", String.valueOf(touchLook / 100.0f));
+        set(a, "bo1_touch_smooth", String.valueOf(touchSmooth / 100.0f));
         if (fov > 65)
             set(a, "cg_fov_default", String.valueOf(fov));
         set(a, "bo1_rumble", rumble ? "1" : "0");

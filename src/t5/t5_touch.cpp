@@ -36,7 +36,7 @@ extern "C" void bo1_inject_mouse_delta(int dx, int dy); // sdl_user32.cpp (dentr
 
 namespace
 {
-const dvar_s *bo1_touch, *bo1_touch_opacity, *bo1_touch_scale, *bo1_touch_look, *bo1_touch_autohide;
+const dvar_s *bo1_touch, *bo1_touch_opacity, *bo1_touch_scale, *bo1_touch_look, *bo1_touch_autohide, *bo1_touch_smooth;
 
 enum Role
 {
@@ -317,16 +317,17 @@ bool Enabled()
     return bo1_touch && bo1_touch->current.enabled;
 }
 
+// T5Jool: touch samples arrive in uneven bursts that do not line up with the game's frames, so the
+// camera moved in jerks. The drag collects here and goes to the game smoothed when it reads the mouse
+// (BO1Touch_FlushLook, once a frame): each frame takes the share a short time constant allows.
+float s_pendX, s_pendY;
+Uint64 s_lastFlush;
+
 void Look(float dx, float dy)
 {
     const float sens = bo1_touch_look ? bo1_touch_look->current.value : 1.0f;
-    s_lookRemX += dx * sens;
-    s_lookRemY += dy * sens;
-    const int ix = (int)s_lookRemX, iy = (int)s_lookRemY;
-    s_lookRemX -= (float)ix;
-    s_lookRemY -= (float)iy;
-    if (ix || iy)
-        bo1_inject_mouse_delta(ix, iy);
+    s_pendX += dx * sens;
+    s_pendY += dy * sens;
 }
 
 // ------------------------------------------------------------------------------------- texture
@@ -724,6 +725,7 @@ void BO1Touch_Init()
     bo1_touch_opacity = _Dvar_RegisterFloat("bo1_touch_opacity", 0.45f, 0.1f, 1.0f, 1u, "T5Jool: opacita' dei comandi touch");
     bo1_touch_scale = _Dvar_RegisterFloat("bo1_touch_scale", 1.0f, 0.6f, 1.6f, 1u, "T5Jool: dimensione dei comandi touch");
     bo1_touch_look = _Dvar_RegisterFloat("bo1_touch_look", 1.0f, 0.2f, 4.0f, 1u, "T5Jool: sensibilita' della mira touch");
+    bo1_touch_smooth = _Dvar_RegisterFloat("bo1_touch_smooth", 0.5f, 0.0f, 2.0f, 1u, "T5Jool: touch aim smoothing (0 = off)");
     bo1_touch_autohide = _Dvar_RegisterBool("bo1_touch_autohide", true, 1u, "T5Jool: nasconde i comandi touch quando si usa un controller");
 }
 
@@ -814,6 +816,39 @@ bool BO1Touch_HandleEvent(const SDL_Event *e)
     if (f->role == ROLE_LOOK || (f->role == ROLE_BUTTON && s_buttons[f->button].lookToo))
         Look(dx, dy);
     return true;
+}
+
+void BO1Touch_FlushLook()
+{
+    const Uint64 now = SDL_GetPerformanceCounter();
+    const double dt = s_lastFlush ? (double)(now - s_lastFlush) / (double)SDL_GetPerformanceFrequency() : 0.016;
+    s_lastFlush = now;
+    std::lock_guard<std::mutex> l(s_lock);
+    if (s_pendX == 0.0f && s_pendY == 0.0f)
+        return;
+    const float smooth = bo1_touch_smooth ? bo1_touch_smooth->current.value : 0.5f;
+    float share = 1.0f;
+    if (smooth > 0.0f)
+    {
+        const double tau = 0.024 * smooth; // seconds: 12 ms at the default
+        share = (float)(1.0 - exp(-(dt > 0.1 ? 0.1 : dt) / tau));
+    }
+    float ox = s_pendX * share, oy = s_pendY * share;
+    // a leftover under half a pixel goes out whole: the camera stops when the finger does
+    if (fabsf(s_pendX - ox) < 0.5f && fabsf(s_pendY - oy) < 0.5f)
+    {
+        ox = s_pendX;
+        oy = s_pendY;
+    }
+    s_pendX -= ox;
+    s_pendY -= oy;
+    s_lookRemX += ox;
+    s_lookRemY += oy;
+    const int ix = (int)s_lookRemX, iy = (int)s_lookRemY;
+    s_lookRemX -= (float)ix;
+    s_lookRemY -= (float)iy;
+    if (ix || iy)
+        bo1_inject_mouse_delta(ix, iy);
 }
 
 bool BO1Touch_DropTouchMouse(const SDL_Event *e)
