@@ -116,49 +116,10 @@ void T5_ShowFatalError(const char *message)
 }
 
 // Win_GetEvent, once a frame on the main thread: the SDL events become the window's Win32 messages
-#ifdef __ANDROID__
-// T5Jool: hang watchdog. The main loop pumps the window messages every frame; when that
-// stops for 15 s, every game thread's stack goes into game.txt (once per stall).
-#include <atomic>
-#include <thread>
-static std::atomic<unsigned> s_mainBeat{0};
-static void T5_StartWatchdog()
-{
-    std::thread([] {
-        unsigned last = s_mainBeat.load();
-        int still = 0;
-        bool dumped = false;
-        for (;;) {
-            sleep(1);
-            const unsigned now = s_mainBeat.load();
-            if (now != last) {
-                if (dumped)
-                    fprintf(stderr, "T5Jool watchdog: main loop running again\n");
-                last = now; still = 0; dumped = false;
-                continue;
-            }
-            if (++still == 15 && !dumped && now > 0) {
-                fprintf(stderr, "T5Jool watchdog: main loop stalled for 15 s, thread stacks follow\n");
-                fflush(stderr);
-                bo1_android_dump_threads();
-                fprintf(stderr, "T5Jool watchdog: end of stacks\n");
-                fflush(stderr);
-                dumped = true;
-            }
-        }
-    }).detach();
-}
-#endif
-
 void __cdecl Cbuf_AddText(int localClientNum, const char *text); // qcommon/cmd.h
 
 extern "C" bool NX_PumpAppletMessages(void)
 {
-#ifdef __ANDROID__
-    static bool s_watch;
-    if (!s_watch) { s_watch = true; T5_StartWatchdog(); }
-    s_mainBeat.fetch_add(1, std::memory_order_relaxed);
-#endif
 #ifdef __ANDROID__
     // the launcher's loading screen goes away once the game has drawn a few frames
     static int s_frames;
