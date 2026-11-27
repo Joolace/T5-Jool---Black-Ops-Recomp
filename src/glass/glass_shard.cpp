@@ -3540,8 +3540,17 @@ int GlassShard::Split(
             this->outline.verts[startEdge].edge.dir,
             this->outline.verts[startEdge].edge.len * startEdgeParam)->isOriginalEdge = 0;
         otherOutline.Add(newOutline.verts[1].edge.origin);
+        // T5Jool: every pass adds a vertex to the 64-vertex temp outlines; a crack that keeps finding far
+        // edges never met its end condition and the job worker spun forever (Summit froze when glass broke)
+        int crackSteps = 0;
         while ( 1 )
         {
+            if ( ++crackSteps > 56 || !(newEdgeDist == newEdgeDist) )
+            {
+                ++GlassShard::splitFailCount[1];
+                *timer.counter += tlPcGetTick().QuadPart - timer.start;
+                return 0;
+            }
             v35 = flrand(minEdgeLength, maxEdgeLength);
             if ( (float)(minEdgeLength * 0.5) > (float)(newEdgeDist - v35) )
                 break;
@@ -3587,20 +3596,37 @@ int GlassShard::Split(
         newOutline.Add(newDir, newEdgeDist)->isOriginalEdge = isOriginalEdge;
         v13 = this->outline.verts[newEdgeIdx].isOriginalEdge;
         otherOutline.Add(newOutline.verts[newOutline.numVerts - 1].edge.origin)->isOriginalEdge = v13;
-        for ( edgeIndex = ((signed int)-abs(newEdgeIdx - (this->outline.numVerts - 1)) >> 31) & (newEdgeIdx + 1);
-                    edgeIndex != startEdge;
-                    edgeIndex = ((signed int)-fabs(edgeIndex - (this->outline.numVerts - 1)) >> 31) & (edgeIndex + 1) )
+        // T5Jool: the decompiled wrap went through (int)-fabs(unsigned), undefined for most values;
+        // the plain "next edge, wrapping to 0", with a guard if startEdge is never met
+        if ( startEdge >= this->outline.numVerts || (unsigned int)newEdgeIdx >= this->outline.numVerts )
         {
+            *timer.counter += tlPcGetTick().QuadPart - timer.start;
+            return 0;
+        }
+        unsigned int edgeSteps = 0;
+        for ( edgeIndex = (unsigned int)newEdgeIdx + 1 >= this->outline.numVerts ? 0 : (unsigned int)newEdgeIdx + 1;
+                    edgeIndex != startEdge;
+                    edgeIndex = edgeIndex + 1 >= this->outline.numVerts ? 0 : edgeIndex + 1 )
+        {
+            if ( ++edgeSteps > this->outline.numVerts )
+            {
+                *timer.counter += tlPcGetTick().QuadPart - timer.start;
+                return 0;
+            }
             v12 = this->outline.verts[edgeIndex].isOriginalEdge;
             newOutline.Add(this->outline.verts[edgeIndex].edge.origin)->isOriginalEdge = v12;
         }
         if ( !newOutline.CloseOutline() )
             goto LABEL_36;
+        edgeSteps = 0;
         for ( edgeIndex = newEdgeIdx; edgeIndex != startEdge; edgeIndex = nextEdgeIndex )
         {
-            nextEdgeIndex = this->outline.numVerts
-                                        - 1
-                                        + (((signed int)-fabs(edgeIndex) >> 31) & (edgeIndex - this->outline.numVerts));
+            if ( ++edgeSteps > this->outline.numVerts )
+            {
+                *timer.counter += tlPcGetTick().QuadPart - timer.start;
+                return 0;
+            }
+            nextEdgeIndex = edgeIndex ? edgeIndex - 1 : this->outline.numVerts - 1;
             v11 = this->outline.verts[nextEdgeIndex].isOriginalEdge;
             otherOutline.Add(this->outline.verts[edgeIndex].edge.origin)->isOriginalEdge = v11;
         }
