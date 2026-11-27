@@ -43,8 +43,9 @@ tools/t5/build_android.sh            # builds out/T5Jool-v<version>-arm64.apk
 tools/t5/build_android.sh install    # and installs it with adb
 ```
 
-Needs the Android SDK and NDK and the native dependencies (SDL2, DXVK, adrenotools) in
-`$T5_DEPS` (default `~/t5jool-android`). The script builds FFmpeg and zstd itself.
+The first time, `tools/android/setup.sh` downloads and builds the Android SDK and NDK and the
+native dependencies (SDL2, DXVK, adrenotools) in `~/t5jool-android` (`$T5_DEPS`). The build
+script builds FFmpeg and zstd itself.
 
 ### Community server browser
 
