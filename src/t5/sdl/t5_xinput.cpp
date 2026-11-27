@@ -93,7 +93,7 @@ void RefreshPads()
             const char *name = SDL_JoystickNameForIndex(i);
             if (SDL_IsGameController(i))
                 fprintf(stderr, "T5Jool pad: '%s' riconosciuto (GUID %s)\n", name ? name : "?", guid);
-            else
+            else if (!name || !strstr(name, "Accelerometer")) // Android lists the phone's accelerometer as a joystick
                 fprintf(stderr, "T5Jool pad: '%s' ignorato, SDL non lo conosce come controller (GUID %s): serve una "
                                 "mappatura in gamecontrollerdb.txt\n", name ? name : "?", guid);
         }

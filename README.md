@@ -1,35 +1,80 @@
-# OpenBLOPS-NX
+# T5Jool - Black Ops Recomp
 
-OpenBLOPS-NX is a source reconstruction of **Black Ops** for Windows PC and Nintendo Switch. Campaign, Multiplayer, and Zombies are playable, including the base-game and DLC Zombies maps.
+T5Jool is a native port of **Call of Duty: Black Ops (2010)** to **Linux** and **Android**.
+Campaign, Zombies and Multiplayer run on a native 64-bit engine, with DXVK for the graphics
+and SDL2 for windows, input and audio. No emulation, no Wine.
 
-The port was made primarily by me and [NaGaa95](https://github.com/NaGaa95/)
+Since version 0.9, T5Jool is built on [OpenBLOPS-NX](https://github.com/HDErick/OpenBLOPS-NX),
+the Black Ops source reconstruction for PC and Nintendo Switch by HDErick, NaGaa95 and the
+OpenBLOPS team (see [Credits](#credits)). T5Jool adds the Linux and Android layer on top.
 
-- **Campaign** uses the single-player build and supports saving and resuming at checkpoints.
-- **Multiplayer** uses a separate build. Direct-connect builds include a community server browser, public and password-protected hosting, and offline matches with bots.
-- **Zombies** runs from the single-player build. It supports solo play and online co-op in direct-connect builds with Zombies networking.
-- **Local split-screen** is experimental.
+**You need your own copy of the PC game.** This repository contains source code and tools only:
+no game files are included, and none are downloaded.
 
-You need your own copy of the PC game and the DLC files for any DLC you want to play. This repository contains source code and tools. Game data comes from your installation.
+Discord: https://discord.gg/rcMeKZcShx
 
-## Source and setup
+## Features
 
-- **Windows PC.** With Visual Studio 2022, CMake, and the June 2010 DirectX SDK, run `./tools/pc/build.ps1 -GameFolder "C:/path/to/GAMEFOLDER"` in PowerShell. It builds `OpenBLOPS.exe` (Campaign and Zombies) and `OpenBLOPS-MP.exe` (Multiplayer) in `build-nx/PC-build/`.
-- **Nintendo Switch.** Use the [web installer](installer/README.md) to combine the [latest release](https://github.com/HDErick/OpenBLOPS-NX/releases/latest) with your PC game data and convert the installed zones. To build from source with devkitPro and the project’s Mesa/DXVK dependencies, run `sh tools/nx/build-sarek.sh`. Both NROs go to `build-nx/NX-build/`. [Switch development notes](README-SWITCH.md)
+- Campaign, Zombies (base game and DLC maps you own) and Multiplayer
+- Multiplayer: offline matches with bots, Host Match and the community server browser, direct connect
+- Android launcher: game files check, graphics presets, custom Vulkan drivers (Turnip for Adreno,
+  PanVK for Mali), resolution scale and upscalers, frame generation, logs and bug reports
+- Touch controls in game and in menus, controllers, keyboard and mouse
+- Zones are converted once to the 64-bit layout (`kbz/`), on the first start on Android
 
-Install the Switch game data and both NROs in `sdmc:/switch/OpenBLOPS-NX/`. Open Homebrew Menu in application mode by holding **R** while opening an installed game. Choose `OpenBLOPS-NX.nro` for Campaign or Zombies or `OpenBLOPS-NX-MP.nro` for Multiplayer.
+## Building
 
-Online server discovery and public listings require a community directory endpoint: set `bo1_directory` to its `IPv4:port` (see [Switch notes](README-SWITCH.md#settings)). Direct-IP and offline play are also available.
+### Linux
+
+```sh
+tools/t5/build_linux.sh                       # T5Jool, T5Jool-MP and the zone converter
+tools/t5/convert_zones.sh ~/Games/BlackOps    # once: zone/*.ff -> kbz/*.kbz
+build-linux-sp/T5Jool --t5-home=$HOME/Games/BlackOps      # Campaign and Zombies
+build-linux-mp/T5Jool-MP --t5-home=$HOME/Games/BlackOps   # Multiplayer
+```
+
+Needs clang, cmake, ninja, SDL2, FFmpeg (libavcodec, libavutil, libswresample), zstd, zlib and
+DXVK-native (`DXVK_NATIVE_PREFIX`). The script prints the packages it is missing.
+
+### Android (arm64)
+
+```sh
+tools/t5/build_android.sh            # builds out/T5Jool-v<version>-arm64.apk
+tools/t5/build_android.sh install    # and installs it with adb
+```
+
+Needs the Android SDK and NDK and the native dependencies (SDL2, DXVK, adrenotools) in
+`$T5_DEPS` (default `~/t5jool-android`). The script builds FFmpeg and zstd itself.
+
+### Community server browser
+
+The default directory address is not part of the source. Put it in `openblops.local.cmake`
+(git-ignored) next to `CMakeLists.txt`:
+
+```cmake
+set(OPENBLOPS_DIRECTORY_DEFAULT "IPv4:port")
+```
+
+or start the game with `+set bo1_directory IPv4:port`.
+
+More details on the layout of the code: [tools/t5/README.md](tools/t5/README.md).
 
 ## Credits
 
-- **Multiplayer implementation** came from SwagSoftware.
-- **Initial base-game Zombies implementation** by [femboyvalve](https://github.com/femboyvalve).
-- **Zombies DLC and the full single-player Campaign implementation** by [NaGaa95](https://github.com/NaGaa95/), who also contributed the original devkitPro scaffolding and mesa-switch work.
-- **Installer idea and compression techniques** by [Chansey](https://github.com/ChanseyIsTheBest), [xsaja](https://github.com/xsaja) and [StevensND](https://github.com/StevensND).
-- **Server design and online functionality** by [ToeKnee](https://github.com/tonytrawl)
+- **OpenBLOPS-NX** by [HDErick](https://github.com/HDErick) and [NaGaa95](https://github.com/NaGaa95/), the engine T5Jool runs on.
+  Their credits ([README-OPENBLOPS.md](README-OPENBLOPS.md)):
+  - Multiplayer implementation from SwagSoftware
+  - Initial base-game Zombies implementation by [femboyvalve](https://github.com/femboyvalve)
+  - Zombies DLC and the full Campaign implementation by [NaGaa95](https://github.com/NaGaa95/)
+  - Installer idea and compression techniques by [Chansey](https://github.com/ChanseyIsTheBest), [xsaja](https://github.com/xsaja) and [StevensND](https://github.com/StevensND)
+  - Server design and online functionality by [ToeKnee](https://github.com/tonytrawl)
+- **T5Jool** (Linux and Android port, launcher, touch controls) by Joolace
+- [DXVK](https://github.com/doitsujin/dxvk), [SDL2](https://www.libsdl.org), [FFmpeg](https://ffmpeg.org),
+  [zstd](https://github.com/facebook/zstd), [libadrenotools](https://github.com/bylaws/libadrenotools)
 
-## Other relevant projects
+T5Jool is a fan project, not affiliated with or endorsed by Activision or Treyarch.
+Call of Duty and Black Ops are trademarks of Activision Publishing, Inc.
 
--- **Black Ops 2 Requiem Project** https://github.com/HDErick/BO2-Requiem-NX, not yet open source but will become pretty soon
+## License
 
-Licensed under [GPL-3.0](LICENSE).
+[GPL-3.0](LICENSE), like OpenBLOPS-NX.

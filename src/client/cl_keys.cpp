@@ -1872,14 +1872,6 @@ void __cdecl CL_InitKeyCommands()
 
 void __cdecl CL_KeyEvent(int localClientNum, int key, int down, unsigned int time)
 {
-#ifdef T5_POSIX
-    static int s_t5KeyLog = 30; // T5Jool diagnostics: the first keys the engine receives
-    if (s_t5KeyLog > 0 && down) {
-        --s_t5KeyLog;
-        fprintf(stderr, "[t5-input] CL_KeyEvent key %d (catchers 0x%x)\n", key,
-                CL_GetLocalClientUIGlobals(localClientNum)->keyCatchers);
-    }
-#endif
 #if defined(KISAK_NX) && !defined(T5_POSIX) // T5Jool: keyboards and mice exist here
     // Switch 2 also takes the Joy-Con mouse's clicks and wheel (win_input.cpp).
     if (!IsGamepadKey(key)
