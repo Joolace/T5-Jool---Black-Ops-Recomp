@@ -120,7 +120,6 @@ void T5_RequestQuit()
 }
 
 extern "C" void NX_PrepareExit(void) { fflush(stdout); fflush(stderr); }
-extern "C" void nx_sbrk_flush_log(void) {}
 extern "C" void NX_GlServiceRenderThread(void) {}
 
 // SP <-> MP button: the other executable in the same folder (OpenBLOPS-NX(-MP).nro on the Switch)
