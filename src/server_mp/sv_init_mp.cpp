@@ -1052,30 +1052,31 @@ char *__cdecl SV_AllocateClientMemory_SizeRequired(int maxLocalClients, int maxC
 
 void __cdecl SV_AllocateClientMemory(HunkUser *hunk, int maxLocalClients, int maxClients)
 {
+    // T5Jool: 16-byte alignment (was 4): these structures hold SSE members, and x86 copies them
+    // with aligned moves (SV_BuildClientSnapshot crashed on Kino). ARM does not care.
     int v3; // [esp+0h] [ebp-8h]
     int v4; // [esp+4h] [ebp-4h]
 
-    svs.clients = (client_t *)Hunk_UserAlloc(hunk, sizeof(client_t) * maxClients, 4, "svs.clients");
+    svs.clients = (client_t *)Hunk_UserAlloc(hunk, sizeof(client_t) * maxClients, 16, "svs.clients");
     memset(svs.clients, 0, sizeof(client_t) * maxClients);
 #if defined(KISAK_DEDICATED) && defined(OPENBLOPS_NO_STEAM_AUTH)
     SV_OfflineStatsResetAll();
 #endif
     svs.numSnapshotMatchStates = 32 * maxClients;
-    svs.snapshotMatchStates = (MatchState *)Hunk_UserAlloc(hunk, sizeof(MatchState) * svs.numSnapshotMatchStates, 4, "svs.snapshotMatchStates");
+    svs.snapshotMatchStates = (MatchState *)Hunk_UserAlloc(hunk, sizeof(MatchState) * svs.numSnapshotMatchStates, 16, "svs.snapshotMatchStates");
     memset(svs.snapshotMatchStates, 0, sizeof(MatchState) * svs.numSnapshotMatchStates);
     svs.numSnapshotEntities = 2688 * maxClients;
-    svs.snapshotEntities = (entityState_s *)Hunk_UserAlloc(hunk, sizeof(entityState_s) * svs.numSnapshotEntities, 4, "svs.snapshotEntities");
+    svs.snapshotEntities = (entityState_s *)Hunk_UserAlloc(hunk, sizeof(entityState_s) * svs.numSnapshotEntities, 16, "svs.snapshotEntities");
     memset(svs.snapshotEntities, 0, sizeof(entityState_s) * svs.numSnapshotEntities);
     svs.numSnapshotClients = 32 * maxClients * maxClients;
-    svs.snapshotClients = (clientState_s *)Hunk_UserAlloc(hunk, sizeof(clientState_s) * svs.numSnapshotClients, 4, "svs.snapshotClients");
+    svs.snapshotClients = (clientState_s *)Hunk_UserAlloc(hunk, sizeof(clientState_s) * svs.numSnapshotClients, 16, "svs.snapshotClients");
     memset(svs.snapshotClients, 0, sizeof(clientState_s) * svs.numSnapshotClients);
     svs.cachedSnapshotFrames = (cachedSnapshot_t *)Hunk_UserAlloc(hunk, 512 * sizeof(cachedSnapshot_t), 128, "svs.cachedSnapshotFrames");
     memset(svs.cachedSnapshotFrames, 0, 512 * sizeof(cachedSnapshot_t));
     svs.numCachedSnapshotMatchStates = maxClients;
     svs.cachedSnapshotMatchStates = (MatchState *)Hunk_UserAlloc(
                                                                                                     hunk,
-                                                                                                    sizeof(MatchState) * maxClients,
-                                                                                                    4,
+                                                                                                    sizeof(MatchState) * maxClients, 16,
                                                                                                     "svs.cachedSnapshotMatchStates");
     memset(svs.cachedSnapshotMatchStates, 0, sizeof(MatchState) * svs.numCachedSnapshotMatchStates);
 #ifdef KISAK_SP
@@ -1098,14 +1099,14 @@ void __cdecl SV_AllocateClientMemory(HunkUser *hunk, int maxLocalClients, int ma
     else
         v3 = 2;
     svs.numCachedSnapshotClients = v3 * v4;
-    svs.cachedSnapshotClients = (cachedClient_s *)Hunk_UserAlloc(hunk, sizeof(cachedClient_s) * v3 * v4, 4, "svs.cachedSnapshotClients");
+    svs.cachedSnapshotClients = (cachedClient_s *)Hunk_UserAlloc(hunk, sizeof(cachedClient_s) * v3 * v4, 16, "svs.cachedSnapshotClients");
     memset(svs.cachedSnapshotClients, 0, sizeof(cachedClient_s) * svs.numCachedSnapshotClients);
 #ifdef KISAK_SP
     SV_AllocateCachedAnimCommandSnapshotMemory_SP(hunk, maxClients);
 #endif
-    svs.archivedSnapshotFrames = (archivedSnapshot_s *)Hunk_UserAlloc(hunk, 1200 * sizeof(archivedSnapshot_s), 4, "svs.archivedSnapshotFrames");
+    svs.archivedSnapshotFrames = (archivedSnapshot_s *)Hunk_UserAlloc(hunk, 1200 * sizeof(archivedSnapshot_s), 16, "svs.archivedSnapshotFrames");
     memset(svs.archivedSnapshotFrames, 0, 1200 * sizeof(archivedSnapshot_s));   // nx-port: sizes above were x86 literals
-    svs.archivedSnapshotBuffer = (unsigned __int8 *)Hunk_UserAlloc(hunk, 0x1000000, 4, "svs.archivedSnapshotBuffer");
+    svs.archivedSnapshotBuffer = (unsigned __int8 *)Hunk_UserAlloc(hunk, 0x1000000, 16, "svs.archivedSnapshotBuffer");
     memset(svs.archivedSnapshotBuffer, 0, 0x1000000);
 #ifdef KISAK_SP
     SV_AllocateAnimCommandSnapshotMemory_SP(hunk, maxClients);
