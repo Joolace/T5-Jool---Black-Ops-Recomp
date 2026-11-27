@@ -571,6 +571,13 @@ HunkUser *__cdecl Hunk_UserCreate(
 
 void *__cdecl Hunk_UserAlloc(HunkUser *user, int size, int alignment, const char *name)
 {
+#if defined(T5_POSIX) && (defined(__x86_64__) || defined(__i386__))
+    // T5Jool (x86): structures with SSE members (MatchState, ...) are copied with aligned moves,
+    // which fault below 16 bytes of alignment; ARM's vector stores do not care, so the Switch build
+    // got away with the decompile's alignment of 4.
+    if (alignment < 16)
+        alignment = 16;
+#endif
     return g_HunkUserAllocationSchemeMap[user->scheme].Alloc(user, size, alignment, name);
 }
 
