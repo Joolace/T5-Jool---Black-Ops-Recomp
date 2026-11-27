@@ -148,8 +148,12 @@ extern "C" bool NX_ChainLoadSibling(const char *nroName)
     fflush(stdout);
     return bo1_android_relaunch(toMp ? "+t5mode mp" : "+t5mode sp");
 #endif
+    // next to this one (release package), or in the other build folder (build-linux-sp / build-linux-mp)
     std::string dir = s_exePath.substr(0, s_exePath.find_last_of('/') + 1);
-    std::string target = dir + (toMp ? "T5Jool-MP" : "T5Jool");
+    const char *exe = toMp ? "T5Jool-MP" : "T5Jool";
+    std::string target = dir + exe;
+    if (access(target.c_str(), X_OK) != 0)
+        target = dir + (toMp ? "../build-linux-mp/" : "../build-linux-sp/") + exe;
     fflush(stdout);
     std::string home = "--t5-home=" + s_installDir;
     char *args[] = { (char *)target.c_str(), (char *)home.c_str(), nullptr };
