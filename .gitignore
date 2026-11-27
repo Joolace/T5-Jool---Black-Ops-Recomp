@@ -515,3 +515,6 @@ OpenBLOPS-PC-NX-Handoff.txt
 
 # Private build settings (the directory server address)
 /openblops.local.cmake
+
+# T5Jool: the Android app sources ("main/" above is for build trees)
+!android/app/src/main/
