@@ -43,12 +43,23 @@ void NxProf_GpuEnd(int scope);
 int NxProf_GpuScopeCount();
 const char *NxProf_GpuScopeName(int scope);
 
+#if defined(__SWITCH__)
 static inline uint64_t NxProf_Now()
 {
     uint64_t t;
     __asm__ __volatile__("mrs %0, cntpct_el0" : "=r"(t));
     return t;
 }
+#else
+// T5Jool (Linux, Android): nanoseconds, the tick of src/t5/horizon/switch.h (cntpct_el0 may trap in user space)
+#include <time.h>
+static inline uint64_t NxProf_Now()
+{
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint64_t)ts.tv_sec * 1000000000ull + (uint64_t)ts.tv_nsec;
+}
+#endif
 
 // The scopes each thread has open right now, innermost last, for the stall
 // report (NxProf_DescribeOpenScopes, read from another thread without a lock:

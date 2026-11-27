@@ -107,3 +107,12 @@ extern "C" void NX_DxvkHoldDeviceLock(void *, bool) {}
 extern "C" void NX_DxvkReportCounters(void *) {}
 extern "C" void NX_DxvkInitThreadAffinity() {}
 extern "C" void NX_DxvkSetThreadName(const char *) {}
+
+// ------------------------------------------------------------------ the Switch's software keyboard (ui_keyboard.cpp)
+// Off the Switch the game's own on-screen keyboard menu is used; this entry (server name, password)
+// reports "no input" so the caller keeps its current text.
+#include <ui/ui_keyboard.h>
+bool UI_NX_EditText(const UiNxTextRequest &, char *, size_t)
+{
+    return false;
+}

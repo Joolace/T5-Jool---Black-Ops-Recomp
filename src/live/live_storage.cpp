@@ -1,4 +1,11 @@
 #include "live_storage.h"
+// T5Jool (clang): bdDownloadInterceptor has no key function, and nothing here builds one, so its
+// typeinfo, which fileShareDownloadInterceptor's refers to, was never emitted. This emits it.
+__attribute__((used)) static bdDownloadInterceptor *T5_DownloadInterceptorRtti()
+{
+    static bdDownloadInterceptor anchor;
+    return &anchor;
+}
 #ifdef KISAK_MP
 #define STATS_METADATA(buffer, field, legacyOffset) ((buffer)->field)
 #else

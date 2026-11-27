@@ -895,7 +895,7 @@ BOOL SystemParametersInfoA(UINT, UINT, PVOID pv, UINT)
 }
 BOOL IsProcessDPIAware(void) { return TRUE; }
 BOOL SetProcessDPIAware(void) { return TRUE; }
-LONG ChangeDisplaySettingsA(void *, DWORD) { return 0; }
+LONG ChangeDisplaySettingsA(LPDEVMODEA, DWORD) { return 0; }
 DWORD SetThreadExecutionState(DWORD flags)
 {
     if (flags & ES_DISPLAY_REQUIRED) SDL_DisableScreenSaver();
@@ -1123,4 +1123,30 @@ bool T5_PumpWindowMessages()
         DispatchMessageA(&msg);
     }
     return false;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Remaining user32 / gdi32 / shell32 calls (as src/nx/nx_winuser.cpp has them on Switch)
+// ------------------------------------------------------------------------------------------------
+BOOL EnumThreadWindows(DWORD, WNDENUMPROC, LPARAM) { return TRUE; }
+HBRUSH CreateSolidBrush(COLORREF) { return (HBRUSH)(uintptr_t)1; }
+BOOL SetPriorityClass(HANDLE, DWORD) { return TRUE; }
+
+int MessageBoxW(HWND wnd, const WCHAR *text, const WCHAR *caption, UINT type)
+{
+    char t[1024], c[256];
+    unsigned i = 0;
+    for (; text && text[i] && i < sizeof(t) - 1; ++i) t[i] = (char)(text[i] < 128 ? text[i] : '?');
+    t[i] = 0;
+    i = 0;
+    for (; caption && caption[i] && i < sizeof(c) - 1; ++i) c[i] = (char)(caption[i] < 128 ? caption[i] : '?');
+    c[i] = 0;
+    return MessageBoxA(wnd, t, c, type);
+}
+
+HINSTANCE ShellExecuteA(HWND, LPCSTR, LPCSTR file, LPCSTR, LPCSTR, int)
+{
+    if (file && (!strncmp(file, "http://", 7) || !strncmp(file, "https://", 8)))
+        SDL_OpenURL(file);
+    return (HINSTANCE)(uintptr_t)33; // > 32: success
 }

@@ -1860,6 +1860,10 @@ HGLOBAL GlobalAlloc(UINT flags, SIZE_T size)
 }
 HGLOBAL GlobalFree(HGLOBAL mem) { free(mem); return NULL; }
 LPVOID GlobalLock(HGLOBAL mem) { return mem; }
+#ifndef __SWITCH__
+// T5Jool: the clipboard's memory (sdl/t5_user32.cpp); nx_winuser.cpp has the Switch's
+SIZE_T GlobalSize(HGLOBAL mem) { return mem ? (SIZE_T)malloc_usable_size(mem) : 0; }
+#endif
 BOOL GlobalUnlock(HGLOBAL) { return TRUE; }
 
 // libnx reserves the whole available region as the newlib heap at startup, so
