@@ -3,7 +3,8 @@
 // In partita lo schermo diventa un controller virtuale: levetta di movimento dinamica a sinistra, mira
 // trascinando a destra, pulsanti rotondi (fuoco, mira, salto, ...). I pulsanti e la levetta finiscono in un
 // controller XInput virtuale (sdl_xinput.cpp li unisce al pad vero dello slot 0), la mira in movimenti del
-// mouse (sdl_user32.cpp). Nei menu il touch resta un mouse (SDL lo converte da solo) e i comandi non si vedono.
+// mouse (sdl_user32.cpp). Nei menu il touch resta un mouse (SDL lo converte da solo) e compaiono i tasti del pad
+// che i menu chiedono (A B X Y, LB RB, LT RT, Start, Back).
 // Se si usa un controller vero i comandi spariscono; tornano al primo tocco.
 // Dvar: bo1_touch (0/1), bo1_touch_opacity, bo1_touch_scale, bo1_touch_look (sensibilita' della mira).
 #include "t5_touch.h"
@@ -99,6 +100,31 @@ const Button s_buttons[] = {
 };
 const int BUTTON_COUNT = (int)(sizeof(s_buttons) / sizeof(s_buttons[0]));
 
+// T5Jool: in the menus a tap works the item under the finger; these pad buttons cover what menus
+// ask for on a controller (back, the X / Y prompts, tabs, start). Same style as the in-game controls:
+// A / B / X / Y diamond bottom right, shoulders in the top corners.
+struct MenuButton
+{
+    const char *label;
+    WORD xbutton;
+    float cx, cy, r; // as Button: from the right (cx >= 0) or the left (cx < 0), from the bottom or the top
+    bool top;
+};
+const MenuButton s_menuButtons[] = {
+    { "A", XINPUT_GAMEPAD_A, 120, 62, 34, false },
+    { "B", XINPUT_GAMEPAD_B, 52, 130, 34, false },
+    { "X", XINPUT_GAMEPAD_X, 188, 130, 34, false },
+    { "Y", XINPUT_GAMEPAD_Y, 120, 198, 34, false },
+    { "LB", XINPUT_GAMEPAD_LEFT_SHOULDER, -56, 44, 30, true },
+    { "RB", XINPUT_GAMEPAD_RIGHT_SHOULDER, 56, 44, 30, true },
+    { "LT", 0, -130, 44, 26, true },
+    { "RT", 0, 130, 44, 26, true },
+    { "START", XINPUT_GAMEPAD_START, 214, 44, 26, true },
+    { "BACK", XINPUT_GAMEPAD_BACK, -214, 44, 26, true },
+};
+const int MENU_BUTTON_COUNT = (int)(sizeof(s_menuButtons) / sizeof(s_menuButtons[0]));
+const int MENU_LT = 6, MENU_RT = 7;
+
 struct Finger
 {
     SDL_FingerID id;
@@ -112,6 +138,11 @@ std::mutex s_lock;
 Finger s_fingers[10];
 int s_fingerCount;
 bool s_inGame;     // aggiornato a ogni frame da BO1Touch_Draw
+bool s_inMenu;     // T5Jool: a menu is up (not in game, not loading, no console): the menu buttons show
+int s_menuHeld[10];     // fingers on menu buttons: button index, -1 = none
+SDL_FingerID s_menuFinger[10];
+int s_menuFingerCount;
+bool s_menuMouseHeld;   // the mouse SDL made from a touch started on a menu button: dropped until released
 bool s_hidden;     // controller vero in uso
 float s_W = 1280.0f, s_H = 720.0f;
 float s_lookRemX, s_lookRemY;
@@ -235,6 +266,28 @@ int ButtonAt(float x, float y)
         float cx, cy, r;
         ButtonCenter(i, &cx, &cy, &r);
         const float dx = x - cx, dy = y - cy, rr = r * 1.15f; // un po' di tolleranza
+        if (dx * dx + dy * dy <= rr * rr)
+            return i;
+    }
+    return -1;
+}
+
+void MenuButtonCenter(int i, float *x, float *y, float *r)
+{
+    const MenuButton &b = s_menuButtons[i];
+    const float u = U();
+    *x = b.cx >= 0.0f ? s_W - b.cx * u : -b.cx * u;
+    *y = b.top ? b.cy * u : s_H - b.cy * u;
+    *r = b.r * u;
+}
+
+int MenuButtonAt(float x, float y)
+{
+    for (int i = 0; i < MENU_BUTTON_COUNT; ++i)
+    {
+        float cx, cy, r;
+        MenuButtonCenter(i, &cx, &cy, &r);
+        const float dx = x - cx, dy = y - cy, rr = r * 1.2f;
         if (dx * dx + dy * dy <= rr * rr)
             return i;
     }
@@ -687,6 +740,36 @@ bool BO1Touch_HandleEvent(const SDL_Event *e)
         EditEvent(e, x, y);
         return true;
     }
+    if (!s_inGame && s_inMenu && Enabled())
+    {
+        // T5Jool: menus. A finger on a menu button presses it; elsewhere the touch stays a mouse (tap = click)
+        s_fingerCount = 0;
+        int slot = -1;
+        for (int i = 0; i < s_menuFingerCount; ++i)
+            if (s_menuFinger[i] == e->tfinger.fingerId)
+                slot = i;
+        if (e->type == SDL_FINGERDOWN)
+        {
+            const bool wasHidden = s_hidden;
+            s_hidden = false;
+            const int b = wasHidden ? -1 : MenuButtonAt(x, y);
+            if (b < 0 || s_menuFingerCount >= 10)
+                return false;
+            s_menuFinger[s_menuFingerCount] = e->tfinger.fingerId;
+            s_menuHeld[s_menuFingerCount++] = b;
+            return true;
+        }
+        if (slot < 0)
+            return false;
+        if (e->type == SDL_FINGERUP)
+        {
+            --s_menuFingerCount;
+            s_menuFinger[slot] = s_menuFinger[s_menuFingerCount];
+            s_menuHeld[slot] = s_menuHeld[s_menuFingerCount];
+        }
+        return true;
+    }
+    s_menuFingerCount = 0;
     if (e->type == SDL_FINGERUP)
     {
         RemoveFinger(e->tfinger.fingerId);
@@ -733,9 +816,35 @@ bool BO1Touch_HandleEvent(const SDL_Event *e)
     return true;
 }
 
-bool BO1Touch_DropTouchMouse()
+bool BO1Touch_DropTouchMouse(const SDL_Event *e)
 {
-    return s_editing || (s_inGame && Enabled());
+    if (s_editing || (s_inGame && Enabled()))
+        return true;
+    // T5Jool: menus. SDL sends the mouse it makes from a touch before the touch itself, so a press is
+    // checked by where it lands: on a menu button it is not also a click on the menu behind it.
+    if (e->type == SDL_MOUSEBUTTONDOWN)
+    {
+        s_menuMouseHeld = false;
+        if (s_inMenu && Enabled() && !s_hidden)
+        {
+            int ww = 0, wh = 0;
+            if (SDL_Window *w = SDL_GetWindowFromID(e->button.windowID))
+                SDL_GetWindowSize(w, &ww, &wh);
+            if (ww > 0 && wh > 0)
+            {
+                std::lock_guard<std::mutex> l(s_lock);
+                s_menuMouseHeld = MenuButtonAt(e->button.x * s_W / ww, e->button.y * s_H / wh) >= 0;
+            }
+        }
+        return s_menuMouseHeld;
+    }
+    if (e->type == SDL_MOUSEBUTTONUP)
+    {
+        const bool held = s_menuMouseHeld;
+        s_menuMouseHeld = false;
+        return held;
+    }
+    return s_menuMouseHeld;
 }
 
 void BO1Touch_StartEdit()
@@ -767,6 +876,21 @@ void BO1Touch_StopEdit()
 bool BO1Touch_GetPad(XINPUT_GAMEPAD *pad)
 {
     memset(pad, 0, sizeof(*pad));
+    if (Enabled() && !s_inGame && s_inMenu && !s_hidden && !s_editing)
+    {
+        // T5Jool: the menu buttons
+        std::lock_guard<std::mutex> l(s_lock);
+        for (int i = 0; i < s_menuFingerCount; ++i)
+        {
+            const int b = s_menuHeld[i];
+            pad->wButtons |= s_menuButtons[b].xbutton;
+            if (b == MENU_LT)
+                pad->bLeftTrigger = 255;
+            if (b == MENU_RT)
+                pad->bRightTrigger = 255;
+        }
+        return true;
+    }
     if (!Enabled() || !s_inGame || s_hidden)
         return false;
     std::lock_guard<std::mutex> l(s_lock);
@@ -808,6 +932,47 @@ void BO1Touch_PhysicalPadUsed()
         s_hidden = true;
 }
 
+namespace
+{
+// T5Jool: the menu buttons, drawn like the in-game ones with a letter in place of the icon
+void DrawMenuButtons()
+{
+    Material *disc = Mat(s_disc, "t5jool_touch_disc"), *ring = Mat(s_ring, "t5jool_touch_ring"), *glow = Mat(s_glow, "t5jool_touch_glow");
+    static Font_s *font;
+    if (!font)
+        font = R_RegisterFont("fonts/normalFont", 0);
+    const float alpha = bo1_touch_opacity->current.value;
+    const float clampA = alpha * 1.5f > 1.0f ? 1.0f : alpha * 1.5f;
+    const float fill[4] = { 0.04f, 0.04f, 0.05f, alpha * 0.7f };
+    const float fillOn[4] = { 0.87f, 0.2f, 0.16f, clampA * 0.9f };
+    const float glowOn[4] = { 1.0f, 0.3f, 0.2f, clampA * 0.6f };
+    const float edge[4] = { 1.0f, 1.0f, 1.0f, alpha * 0.55f };
+    const float text[4] = { 1.0f, 1.0f, 1.0f, clampA };
+    std::lock_guard<std::mutex> l(s_lock);
+    for (int i = 0; i < MENU_BUTTON_COUNT; ++i)
+    {
+        bool pressed = false;
+        for (int f = 0; f < s_menuFingerCount; ++f)
+            pressed |= s_menuHeld[f] == i;
+        float cx, cy, r;
+        MenuButtonCenter(i, &cx, &cy, &r);
+        const float rr = pressed ? r * 0.93f : r;
+        if (pressed)
+            Circle(glow, cx, cy, r * 1.45f, glowOn);
+        Circle(disc, cx, cy, rr, pressed ? fillOn : fill);
+        Circle(ring, cx, cy, rr, edge);
+        if (font)
+        {
+            const char *label = s_menuButtons[i].label;
+            const int fh = R_TextHeight(font);
+            const float px = (strlen(label) > 2 ? 0.5f : strlen(label) > 1 ? 0.75f : 1.0f) * rr, sc = fh > 0 ? px / (float)fh : 1.0f;
+            const float tw = (float)R_TextWidth(label, 0x7FFFFFFF, font) * sc;
+            R_AddCmdDrawText((char *)label, 0x7FFFFFFF, font, cx - tw * 0.5f, cy + px * 0.38f, sc, sc, 0.0f, text, 0);
+        }
+    }
+}
+} // namespace
+
 void BO1Touch_Draw(int localClientNum)
 {
     if (!bo1_touch)
@@ -819,6 +984,17 @@ void BO1Touch_Draw(int localClientNum)
     const bool zombies = Dvar_GetBool("zombiemode");
     const bool inGame = CL_GetLocalClientConnectionState(localClientNum) == CA_ACTIVE && !Com_IsMenuLevel(nullptr) /* the SP front end is the "frontend" map */
                         && !Key_IsCatcherActive(localClientNum, zombies ? -1 : 0x11);
+    {
+        const int state = CL_GetLocalClientConnectionState(localClientNum);
+        const bool menu = !inGame && !Key_IsCatcherActive(localClientNum, 1) && cls.uiStarted
+                          && (state == CA_DISCONNECTED || state == CA_ACTIVE);
+        if (menu != s_inMenu)
+        {
+            std::lock_guard<std::mutex> l(s_lock);
+            s_inMenu = menu;
+            s_menuFingerCount = 0;
+        }
+    }
     if (inGame != s_inGame)
     {
         Com_Printf(0, "T5Jool touch: %s (catcher 0x%x)\n", inGame ? "in partita" : "spenti",
@@ -832,7 +1008,8 @@ void BO1Touch_Draw(int localClientNum)
         std::lock_guard<std::mutex> l(s_lock);
         LoadLayout();
     }
-    if ((!s_inGame && !s_editing) || !Enabled() || (s_hidden && !s_editing) || s_W <= 0.0f || s_H <= 0.0f)
+    const bool menuButtons = !s_inGame && !s_editing && s_inMenu && Enabled() && !s_hidden && s_W > 0.0f && s_H > 0.0f;
+    if (!menuButtons && ((!s_inGame && !s_editing) || !Enabled() || (s_hidden && !s_editing) || s_W <= 0.0f || s_H <= 0.0f))
         return;
     if (!s_texTried && dx.device)
     {
@@ -846,6 +1023,11 @@ void BO1Touch_Draw(int localClientNum)
                                                  "t5jool_touch_up", "t5jool_touch_down", "t5jool_touch_left", "t5jool_touch_right" };
         for (int i = 0; i < ICON_COUNT; ++i)
             s_icons[i].image = MakeImage(TEX_ICON, i, names[i]);
+    }
+    if (menuButtons)
+    {
+        DrawMenuButtons();
+        return;
     }
     Material *disc = Mat(s_disc, "t5jool_touch_disc"), *ring = Mat(s_ring, "t5jool_touch_ring"), *glow = Mat(s_glow, "t5jool_touch_glow");
     const float alpha = bo1_touch_opacity->current.value;

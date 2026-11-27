@@ -260,7 +260,7 @@ void Translate(const SDL_Event &e)
     if ((e.type == SDL_MOUSEMOTION && e.motion.which == SDL_TOUCH_MOUSEID)
         || ((e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) && e.button.which == SDL_TOUCH_MOUSEID))
     {
-        if (BO1Touch_DropTouchMouse())
+        if (BO1Touch_DropTouchMouse(&e))
             return;
     }
 #ifdef __ANDROID__
