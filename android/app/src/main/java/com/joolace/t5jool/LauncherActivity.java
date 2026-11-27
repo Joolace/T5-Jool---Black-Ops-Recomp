@@ -1150,7 +1150,6 @@ public class LauncherActivity extends Activity {
 
         section("ON-SCREEN INFO");
         toggle("Show FPS", "Frame counter at the top left", mSettings.showFps, v -> mSettings.showFps = v != 0);
-        toggle("Show ping", "Your ping at the top right in online games", mSettings.showPing, v -> mSettings.showPing = v != 0);
         toggle("DXVK overlay", "Detailed graphics stats (GPU load, frame times...)", mSettings.dxvkHud,
             v -> { mSettings.dxvkHud = v != 0; showSettings(); });
         if (mSettings.dxvkHud) {

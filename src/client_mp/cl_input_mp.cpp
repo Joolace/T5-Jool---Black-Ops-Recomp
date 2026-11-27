@@ -831,9 +831,16 @@ extern "C" bool NX_GyroRate(unsigned userIndex, float *yawRate, float *pitchRate
 const dvar_t *nx_gyroAim;
 const dvar_t *nx_gyroInvertYaw;
 const dvar_t *nx_gyroInvertPitch;
+#ifdef T5_POSIX
+const dvar_t *nx_gyroAlways; // T5Jool: motion aim also when not aiming (launcher: Gyro aiming > Always)
+#endif
 
 static void CL_NX_GyroAim(int localClientNum, clientActive_t *client, bool aiming, float seconds)
 {
+#ifdef T5_POSIX
+    if ( nx_gyroAlways && nx_gyroAlways->current.enabled )
+        aiming = true;
+#endif
     if ( !nx_gyroAim || nx_gyroAim->current.value <= 0.0f || !aiming || seconds <= 0.0f )
         return;
     float yawRate, pitchRate;
@@ -1764,6 +1771,9 @@ void __cdecl CL_InitInput()
         "weapon zoom (0 = off)");
     nx_gyroInvertYaw = _Dvar_RegisterBool("nx_gyroInvertYaw", 0, 0x1u, "Motion aim: invert left and right");
     nx_gyroInvertPitch = _Dvar_RegisterBool("nx_gyroInvertPitch", 0, 0x1u, "Motion aim: invert up and down");
+#ifdef T5_POSIX
+    nx_gyroAlways = _Dvar_RegisterBool("nx_gyroAlways", 0, 0x1u, "Motion aim also when not aiming down sights");
+#endif
 #endif
     cl_stanceHoldTime = _Dvar_RegisterInt(
                                                 "cl_stanceHoldTime",

@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
+#include <universal/dvar.h>
 
 namespace
 {
@@ -273,14 +275,86 @@ SDL_GameController *BO1Pad_Controller0()
     return g_pads[0].ctrl;
 }
 
+namespace
+{
+// T5Jool: the launcher's settings arrive as +set bo1_*; the engine does not register them, so they can be
+// plain string dvars
+float DvarFloat(const char *name, float def)
+{
+    const dvar_s *d = Dvar_FindVar(name);
+    if (!d)
+        return def;
+    switch (d->type)
+    {
+    case DVAR_TYPE_BOOL: return d->current.enabled ? 1.0f : 0.0f;
+    case DVAR_TYPE_INT: return (float)d->current.integer;
+    case DVAR_TYPE_FLOAT: return d->current.value;
+    case DVAR_TYPE_STRING: return d->current.string ? (float)atof(d->current.string) : def;
+    default: return def;
+    }
+}
+
+#ifdef __ANDROID__
+// the phone's or handheld's own vibration motor, for the touch controls (no pad to rumble)
+SDL_Haptic *DeviceHaptic()
+{
+    static bool tried;
+    static SDL_Haptic *h;
+    if (!tried)
+    {
+        tried = true;
+        if (SDL_InitSubSystem(SDL_INIT_HAPTIC) == 0 && SDL_NumHaptics() > 0)
+        {
+            h = SDL_HapticOpen(0);
+            if (h && SDL_HapticRumbleInit(h) != 0)
+            {
+                SDL_HapticClose(h);
+                h = nullptr;
+            }
+        }
+        fprintf(stderr, "T5Jool: device vibration %s\n", h ? "available" : "not available");
+    }
+    return h;
+}
+#endif
+} // namespace
+
 DWORD XInputSetState(DWORD user, XINPUT_VIBRATION *vib)
 {
     if (user >= XUSER_MAX_COUNT || !vib) return ERROR_DEVICE_NOT_CONNECTED;
+    // T5Jool: launcher's Vibration on/off and strength
+    const float strength = DvarFloat("bo1_rumble", 1.0f) > 0.0f ? DvarFloat("bo1_rumble_strength", 1.0f) : 0.0f;
+    const Uint16 low = (Uint16)fminf(65535.0f, vib->wLeftMotorSpeed * strength);
+    const Uint16 high = (Uint16)fminf(65535.0f, vib->wRightMotorSpeed * strength);
     std::lock_guard<std::mutex> l(g_padLock);
     Pad &p = g_pads[user];
-    if (!p.ctrl) return user == 0 ? ERROR_SUCCESS : ERROR_DEVICE_NOT_CONNECTED;
+    if (!p.ctrl)
+    {
+#ifdef __ANDROID__
+        // no pad: the device vibrates (only sent when it changes, or every 100 ms to keep it going)
+        XINPUT_GAMEPAD touch;
+        if (user == 0 && BO1Touch_GetPad(&touch))
+        {
+            static float sent = -1.0f;
+            static Uint32 sentAt;
+            const float v = (low > high ? low : high) / 65535.0f;
+            const Uint32 now = SDL_GetTicks();
+            if ((fabsf(v - sent) > 0.03f || (v > 0.0f && now - sentAt > 100)) && g_enabled)
+                if (SDL_Haptic *h = DeviceHaptic())
+                {
+                    if (v > 0.02f)
+                        SDL_HapticRumblePlay(h, v, 200);
+                    else
+                        SDL_HapticRumbleStop(h);
+                    sent = v;
+                    sentAt = now;
+                }
+        }
+#endif
+        return user == 0 ? ERROR_SUCCESS : ERROR_DEVICE_NOT_CONNECTED;
+    }
     // Il motore aggiorna la vibrazione ogni frame: 200 ms bastano a coprire il frame successivo.
-    SDL_GameControllerRumble(p.ctrl, vib->wLeftMotorSpeed, vib->wRightMotorSpeed, g_enabled ? 200 : 0);
+    SDL_GameControllerRumble(p.ctrl, low, high, g_enabled ? 200 : 0);
     return ERROR_SUCCESS;
 }
 
@@ -314,7 +388,52 @@ extern "C" bool NX_GyroRate(unsigned userIndex, float *yawRate, float *pitchRate
     std::lock_guard<std::mutex> l(g_padLock);
     SDL_GameController *c = g_pads[userIndex].ctrl;
     if (!c || !SDL_GameControllerHasSensor(c, SDL_SENSOR_GYRO))
+    {
+#ifdef __ANDROID__
+        // T5Jool: no pad gyro: the device's own (handhelds, phones). Yaw is the turn around the real vertical
+        // (from the accelerometer), pitch the turn around the screen's horizontal axis, so it works in any
+        // orientation and with the device tilted.
+        static SDL_Sensor *gyro, *accel;
+        static bool tried;
+        static float up[3] = { 0.0f, 1.0f, 0.0f };
+        if (!tried)
+        {
+            tried = true;
+            for (int i = 0; i < SDL_NumSensors(); ++i)
+            {
+                const SDL_SensorType t = SDL_SensorGetDeviceType(i);
+                if (t == SDL_SENSOR_GYRO && !gyro)
+                    gyro = SDL_SensorOpen(i);
+                else if (t == SDL_SENSOR_ACCEL && !accel)
+                    accel = SDL_SensorOpen(i);
+            }
+            fprintf(stderr, "T5Jool: device gyro %s\n", gyro ? "found" : "not found");
+        }
+        float g[3] = {}, a[3];
+        if (userIndex != 0 || !gyro || SDL_SensorGetData(gyro, g, 3) != 0)
+            return false;
+        if (accel && SDL_SensorGetData(accel, a, 3) == 0)
+        {
+            const float len = sqrtf(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
+            if (len > 1.0f)
+                for (int i = 0; i < 3; ++i)
+                    up[i] = up[i] * 0.9f + (a[i] / len) * 0.1f;
+        }
+        const float ulen = sqrtf(up[0] * up[0] + up[1] * up[1] + up[2] * up[2]);
+        float px = up[1], py = -up[0];
+        const float plen = sqrtf(px * px + py * py);
+        if (ulen < 0.1f || plen < 0.1f)
+            return false;
+        px /= plen;
+        py /= plen;
+        const float toDeg = 57.29578f;
+        *yawRate = (g[0] * up[0] + g[1] * up[1] + g[2] * up[2]) / ulen * toDeg;
+        *pitchRate = (g[0] * px + g[1] * py) * toDeg;
+        return true;
+#else
         return false;
+#endif
+    }
     if (!SDL_GameControllerIsSensorEnabled(c, SDL_SENSOR_GYRO))
         SDL_GameControllerSetSensorEnabled(c, SDL_SENSOR_GYRO, SDL_TRUE);
     float rate[3] = {};

@@ -285,9 +285,9 @@ final class T5Settings {
         set(a, "r_fullscreen", "1");
         set(a, "gpad_enabled", "1");
         set(a, "com_maxfps", String.valueOf(fps));
-        set(a, "cg_drawFPS", "0");
-        set(a, "bo1_showping", showPing ? "1" : "0"); // ping in alto a destra nelle partite di altri
-        set(a, "bo1_fpscounter", showFps ? "1" : "0"); // contatore del port: cg_drawFPS in Zombies non disegna nulla
+        // 0.9: the engine's frame limit is nx_fpsLimit (60 by default); com_maxfps alone was ignored
+        set(a, "nx_fpsLimit", String.valueOf(fps));
+        set(a, "cg_drawFPS", showFps ? "1" : "0"); // 0.9: the game's own counter works in every mode
         set(a, "r_vsync", vsync ? "1" : "0");
         set(a, "bo1_touch", virtualControls == 2 ? "0" : "1");
         set(a, "bo1_touch_autohide", virtualControls == 1 ? "0" : "1");
@@ -301,10 +301,11 @@ final class T5Settings {
             set(a, "cg_fov_default", String.valueOf(fov));
         set(a, "bo1_rumble", rumble ? "1" : "0");
         set(a, "bo1_rumble_strength", String.valueOf(rumbleStrength / 100.0f));
-        set(a, "bo1_gyro", String.valueOf(gyro));
-        set(a, "bo1_gyro_sens", String.valueOf(gyroSens / 100.0f));
-        set(a, "bo1_gyro_invert_x", gyroInvertX ? "1" : "0");
-        set(a, "bo1_gyro_invert_y", gyroInvertY ? "1" : "0");
+        // 0.9: the engine's motion aim (pad gyro, or the device's own on Android)
+        set(a, "nx_gyroAim", gyro == 0 ? "0" : String.valueOf(gyroSens / 100.0f));
+        set(a, "nx_gyroAlways", gyro == 1 ? "1" : "0");
+        set(a, "nx_gyroInvertYaw", gyroInvertX ? "1" : "0");
+        set(a, "nx_gyroInvertPitch", gyroInvertY ? "1" : "0");
         // senza r_picmip_manual il gioco sceglie da solo il dettaglio delle texture e ignora r_picmip
         set(a, "r_picmip_manual", "1");
         switch (quality) {
