@@ -109,6 +109,7 @@ struct MenuButton
     WORD xbutton;
     float cx, cy, r; // as Button: from the right (cx >= 0) or the left (cx < 0), from the bottom or the top
     bool top;
+    int icon = -1;   // an arrow from the in-game icons instead of the label
 };
 const MenuButton s_menuButtons[] = {
     { "A", XINPUT_GAMEPAD_A, 120, 62, 34, false },
@@ -121,6 +122,11 @@ const MenuButton s_menuButtons[] = {
     { "RT", 0, 130, 44, 26, true },
     { "START", XINPUT_GAMEPAD_START, 214, 44, 26, true },
     { "BACK", XINPUT_GAMEPAD_BACK, -214, 44, 26, true },
+    // D-pad bottom left: move the selection without aiming a finger at the items
+    { "", XINPUT_GAMEPAD_DPAD_UP, -130, 198, 34, false, ICON_UP },
+    { "", XINPUT_GAMEPAD_DPAD_DOWN, -130, 62, 34, false, ICON_DOWN },
+    { "", XINPUT_GAMEPAD_DPAD_LEFT, -62, 130, 34, false, ICON_LEFT },
+    { "", XINPUT_GAMEPAD_DPAD_RIGHT, -198, 130, 34, false, ICON_RIGHT },
 };
 const int MENU_BUTTON_COUNT = (int)(sizeof(s_menuButtons) / sizeof(s_menuButtons[0]));
 const int MENU_LT = 6, MENU_RT = 7;
@@ -996,7 +1002,9 @@ void DrawMenuButtons()
             Circle(glow, cx, cy, r * 1.45f, glowOn);
         Circle(disc, cx, cy, rr, pressed ? fillOn : fill);
         Circle(ring, cx, cy, rr, edge);
-        if (font)
+        if (s_menuButtons[i].icon >= 0)
+            Circle(Mat(s_icons[s_menuButtons[i].icon], "t5jool_touch_icon"), cx, cy, rr, text);
+        else if (font)
         {
             const char *label = s_menuButtons[i].label;
             const int fh = R_TextHeight(font);
