@@ -770,13 +770,13 @@ void __cdecl R_SetWndParms(GfxWindowParms *wndParms)
     }
 #endif
 #ifdef __ANDROID__
-    // T5Jool: render scale (T5_RENDER_SCALE 0.3-0.99, from the launcher). The game draws a smaller window
+    // T5Jool: render scale (T5_RENDER_SCALE 0.2-0.99, from the launcher). The game draws a smaller window
     // (which still covers the whole screen on Android) and DXVK upscales it with T5_UPSCALER. The input
     // layer (t5_user32.cpp) maps touches and the client area to this size.
     if ( const char *rs = getenv("T5_RENDER_SCALE") )
     {
         const float scale = (float)atof(rs);
-        if ( scale > 0.3f && scale < 0.99f )
+        if ( scale > 0.2f && scale < 0.99f )
         {
             if ( !dx.adapterNativeIsValid )
                 dx.adapterNativeIsValid = R_GetMonitorDimensions(&dx.adapterNativeWidth, &dx.adapterNativeHeight);

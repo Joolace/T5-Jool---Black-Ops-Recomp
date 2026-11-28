@@ -383,12 +383,12 @@ final class T5Settings {
     /** altezze di rendering proposte (16:9 comuni) non piu' grandi dello schermo, la prima e' la nativa */
     static int[] renderHeights(Context ctx) {
         int nativeH = screenSize(ctx)[1];
-        // down to 360p for entry-level phones; the engine accepts a scale above 30% (r_init.cpp)
-        int[] common = { 1440, 1200, 1080, 900, 810, 720, 630, 540, 480, 432, 360 };
+        // down to 240p for entry-level phones; the engine accepts a scale above 20% (r_init.cpp)
+        int[] common = { 1440, 1200, 1080, 900, 810, 720, 630, 540, 480, 432, 360, 300, 270, 240 };
         List<Integer> out = new ArrayList<>();
         out.add(nativeH);
         for (int h : common)
-            if (h < nativeH && h * 100 > nativeH * 31)
+            if (h < nativeH && h * 100 > nativeH * 21)
                 out.add(h);
         int[] r = new int[out.size()];
         for (int i = 0; i < r.length; ++i)

@@ -188,7 +188,7 @@ float RenderScaleEnv()
     static const float s = [] {
         const char *v = getenv("T5_RENDER_SCALE");
         float f = v ? (float)atof(v) : 1.0f;
-        return (f > 0.3f && f < 0.99f) ? f : 1.0f;
+        return (f > 0.2f && f < 0.99f) ? f : 1.0f; // as r_init.cpp R_SetWndParms
     }();
     return s;
 #else
