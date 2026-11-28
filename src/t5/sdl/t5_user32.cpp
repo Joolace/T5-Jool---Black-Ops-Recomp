@@ -19,6 +19,8 @@ void T5_SetAppFocus(bool active); // t5_platform.cpp: the Bink clock stops in ba
 #include <string>
 #include <unordered_map>
 
+bool g_touchPointer; // T5Jool: see T5_PointerIsTouch
+
 namespace
 {
 // ------------------------------------------------------------------------------------------------
@@ -345,6 +347,7 @@ void Translate(const SDL_Event &e)
     }
 
     case SDL_MOUSEMOTION:
+        g_touchPointer = e.motion.which == SDL_TOUCH_MOUSEID;
         // T5Jool: il mouse simulato dal tocco ha sempre una posizione vera sullo schermo, anche in modo relativo
         if (g_relative && e.motion.which != SDL_TOUCH_MOUSEID)
         {
@@ -913,10 +916,15 @@ DWORD SetThreadExecutionState(DWORD flags)
 
 // ------------------------------------------------------------------------------------------------
 // Mouse e tastiera
+// T5Jool: the pointer is a finger (SDL's mouse made from touches). It is absolute: where the finger is.
+// win_input.cpp must not recenter it, or the next frame reads "finger - centre" as a huge move and a
+// menu with a 3D view (the main menu) spins out of control.
+bool T5_PointerIsTouch() { return g_touchPointer; }
 // ------------------------------------------------------------------------------------------------
 // mira dei comandi touch: spostamento relativo del cursore, come un mouse vero in partita
 extern "C" void bo1_inject_mouse_delta(int dx, int dy)
 {
+    g_touchPointer = false; // the in-game touch aim is relative, like a real mouse
     g_cursorX += dx;
     g_cursorY += dy;
 }

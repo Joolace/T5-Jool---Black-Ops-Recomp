@@ -492,6 +492,11 @@ void IN_MouseMove()
         s_wmv.oldPos = curPos;
         ScreenToClient(g_wv.hWnd, &curPos);
         g_wv.recenterMouse = CL_MouseEvent(curPos.x, curPos.y, v0, dy);
+#ifdef T5_POSIX
+        bool T5_PointerIsTouch(); // t5_user32.cpp
+        if ( g_wv.recenterMouse && (v0 || dy) && T5_PointerIsTouch() )
+            g_wv.recenterMouse = 0; // a finger stays where it is: the delta is the drag itself
+#endif
         if ( g_wv.recenterMouse && (v0 || dy) )
         {
             IN_RecenterMouse();
