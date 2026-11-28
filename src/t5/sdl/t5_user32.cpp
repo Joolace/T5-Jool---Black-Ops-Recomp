@@ -499,7 +499,19 @@ HWND CreateWindowExA(DWORD exStyle, LPCSTR className, LPCSTR title, DWORD style,
         if (style & WS_POPUP) flags |= SDL_WINDOW_BORDERLESS;
         int px = x == CW_USEDEFAULT ? SDL_WINDOWPOS_CENTERED : x;
         int py = y == CW_USEDEFAULT ? SDL_WINDOWPOS_CENTERED : y;
-        SDL_Window *win = SDL_CreateWindow("T5Jool", px, py, w > 0 ? w : 1280, h > 0 ? h : 720, flags);
+        SDL_Window *win = nullptr;
+#ifdef __ANDROID__
+        // T5Jool: Android has one window. When the renderer retries after a failed device it asks for
+        // a new window: give it the one that exists ("Android only supports one window" ended the game).
+        {
+            std::lock_guard<std::mutex> l(g_lock);
+            if (g_mainWindow)
+                if (WindowData *old = Find(g_mainWindow))
+                    win = old->sdl;
+        }
+        if (!win)
+#endif
+            win = SDL_CreateWindow("T5Jool", px, py, w > 0 ? w : 1280, h > 0 ? h : 720, flags);
         if (!win)
         {
             fprintf(stderr, "SDL_CreateWindow: %s\n", SDL_GetError());

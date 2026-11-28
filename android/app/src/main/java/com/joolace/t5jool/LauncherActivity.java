@@ -380,14 +380,14 @@ public class LauncherActivity extends Activity {
         mlp.bottomMargin = dp(12);
         left.addView(modes, mlp);
         Bitmap zmImage = userImage("card_zombies");
-        View playBtn = modeCard("ZOMBIES", "Solo, co-op on Wi-Fi and online games", zmImage != null ? zmImage : drawable("card_zombies"),
+        View playBtn = modeCard("CAMPAIGN & ZOMBIES", "The story missions and every Zombies map you own", zmImage != null ? zmImage : drawable("card_zombies"),
             Color.rgb(90, 24, 20), IconView.PLAY, v -> { mPlayMp = false; play(null, null); });
         LinearLayout.LayoutParams zlp = new LinearLayout.LayoutParams(0, -1, 1);
         zlp.rightMargin = dp(12);
         modes.addView(playBtn, zlp);
         // il gioco si apre sulla pagina Multiplayer del menu (bo1_menu_start, ui/bo1_menu.cpp)
         Bitmap mpImage = userImage("card_mp");
-        modes.addView(modeCard("MULTIPLAYER", "Vs bots and online matches (beta)", mpImage != null ? mpImage : drawable("card_mp"), Color.rgb(70, 26, 22), IconView.PLAY,
+        modes.addView(modeCard("MULTIPLAYER", "Matches with bots, Host Match and the server browser", mpImage != null ? mpImage : drawable("card_mp"), Color.rgb(70, 26, 22), IconView.PLAY,
             v -> { mPlayMp = true; play(null, null); }), new LinearLayout.LayoutParams(0, -1, 1));
 
         LinearLayout small = new LinearLayout(this);
