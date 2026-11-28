@@ -42,7 +42,8 @@ A native 64-bit port of Black Ops (Campaign, Zombies and Multiplayer) for Linux 
 - **FXAA** antialiasing on Android
 - **Multiplayer**: offline matches with bots, **Host Match** and the community **server browser**, direct connect, a relay for routers and mobile networks
 - **Field of view** up to 110 degrees, from the launcher or the game's options
-- **Controls**: controllers, handheld buttons, mouse and keyboard, a touch layout you can move and resize, and on-screen pad buttons in the menus
+- **Controls**: controllers, handheld buttons, mouse and keyboard, a touch layout you can move and resize, and an on-screen D-pad and pad buttons in every menu
+- **Vibration and gyro aiming**: on the controller or the device itself
 - **Mods**: community mods made with the Black Ops mod tools, chosen in the launcher (converted at the first start like the game's zones)
 - **Custom Vulkan drivers**: Turnip on Adreno, PanVK on Mali (experimental)
 - **Automatic updates**: the Android launcher updates T5Jool and your Turnip driver for you
@@ -117,8 +118,9 @@ See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.9-alpha**:
 - **New engine**: built on OpenBLOPS-NX, with the **Campaign** next to Zombies and Multiplayer
 - **Source code released** under GPL-3.0
 - **Multiplayer**: Offline Match, Host Match and the community server browser
-- **Touch**: tap exactly what you want in the menus, on-screen pad buttons, smoother touch aim
-- **Field of view** slider up to 110 degrees
+- **Touch-only play**: on-screen D-pad and pad buttons in every menu, smoother touch aim
+- **Mods are back**, field of view up to 110°, and every launcher setting works on the new engine
+- Fixed: Summit freezing at match start, broken glass that never fell
 - Not on the new engine yet: solo saves, Dead Ops Arcade, Zombies co-op online
 
 **v0.8-alpha**:

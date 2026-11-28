@@ -6,33 +6,50 @@
 > A new engine: T5Jool now runs on [OpenBLOPS-NX](https://github.com/HDErick/OpenBLOPS-NX) by HDErick, NaGaa95 and the OpenBLOPS team, with the T5Jool Linux and Android layer on top. The source code is released under GPL-3.0.
 
 ### Highlights
-- **New engine** (OpenBLOPS-NX, 64-bit): Campaign, Zombies and Multiplayer in one port
-- **Source code released** under GPL-3.0, with build scripts for Linux and Android (the v0.8 code is in the `legacy-0.8` branch)
-- **Multiplayer**: Offline Match against bots, Host Match and the community server browser (Unranked), direct connect and relay
+- **New engine** (OpenBLOPS-NX, native 64-bit): **Campaign**, Zombies and Multiplayer in one port
+- **Source code released** under GPL-3.0, with build scripts for Linux and Android. The v0.8 code is in the `legacy-0.8` branch
+- **Multiplayer**: Offline Match against bots, **Host Match** and the **community server browser** (Unranked tab), direct connect, and a relay so no port forwarding is needed
+- **Touch-only play**: menus work with on-screen pad buttons and a D-pad, smoother touch aim in game
+- **Mods are back**, and every launcher setting reaches the new engine
 
 ### First start
-- The game's zones are converted once to the 64-bit format (`kbz/`). On Android the launcher does it at the first start, with a progress bar
+- The game's zones are converted once to the new 64-bit format (`kbz/` folder). On Android the launcher does it at the first start, with a progress bar. It takes a few minutes and needs some free space
+- On Linux: `tools/t5/convert_zones.sh <game folder>`
 
 ### Controls
-- Touch works in the menus: a tap selects and presses the item under the finger
-- On-screen pad buttons in the menus: A, B, X, Y, LB, RB, LT, RT, Start, Back
-- Touch aim and mouse look work in Multiplayer, touch aim is smoothed (Aim smoothing in the launcher)
-- Back and the B button no longer close the game on Android
+- **Menus without a controller**: on-screen D-pad (bottom left), A, B, X, Y (bottom right), LB, RB, LT, RT, Start and Back. They work in every menu, the pause menu and the team and class menus too
+- A tap on a menu item still selects and presses it
+- A pad button never also clicks the menu item behind it
+- **Touch aim** and **mouse look** work in Multiplayer
+- **Aim smoothing** for touch aim: new slider in the launcher (Touch and gyro)
+- **Back and the B button no longer close the game** on Android; leave with Quit in the game or Home
+- **Gyro aiming** uses the device's own gyro when the controller has none (handhelds, phones). Modes: Always or While aiming, with sensitivity and invert
+- **Vibration**: on/off and strength from the launcher; with the touch controls the device itself vibrates
 
 ### Mods
-- **Mods are back**: choose a mod in the launcher (Settings > Game > Mods); its zones are converted at the first start, like the game's
+- Choose a mod in the launcher (**Settings > Game > Mods**). Put each mod in `mods/<name>/` in the game folder, with its `mod.ff`
+- The mod's zones are converted at the first start, like the game's
+- Linux: `convert_zones.sh` converts mods too; start with `+set fs_game mods/<name>`
 
 ### Settings
-- Field of view up to 110 degrees: launcher slider, and the game's own FOV setting now works
+- **Field of view** up to 110 degrees: launcher slider, and the game's own FOV setting now works
+- **FPS limit** from the launcher works (the game was capped at 60)
+- **Resolution scale and upscaler** work again: the game renders smaller and DXVK upscales, and touches land where you tap
+- **FPS counter** uses the game's own counter
 
 ### Launcher
-- Dead Ops Arcade and the solo save card are gone for now (not on the new engine yet)
+- New **Mods** section, **Field of view** and **Aim smoothing** sliders
+- Dead Ops Arcade, the solo save card and the ping toggle are removed for now (not on the new engine yet)
+- Zone conversion with a progress bar at the first start
 
 ### Fixes
+- **Summit (mp_mountain) froze when the match started**: breaking glass looped forever
+- **Broken glass now falls**: every shard used to come out with zero area and stayed in the air (all maps)
 - No more crash when quitting on Android
+- Local split-screen is off on Android, so the handheld's pad is never taken by a second player
 
 ### Not on the new engine yet
-- Solo saves, Dead Ops Arcade, Zombies co-op online and the T5Jool dedicated servers
+- Solo saves, Dead Ops Arcade, Zombies co-op online and the T5Jool dedicated servers ([SERVER.md](SERVER.md) is for v0.8)
 
 ## v0.8-alpha
 *November 2026*
