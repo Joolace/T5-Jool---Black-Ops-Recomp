@@ -1133,7 +1133,7 @@ char __thiscall GlassShard::Outline::CloseOutline()
             --this->numVerts;
             dir = this->verts[v1].edge.dir;
             v5 = &this->verts[v1];
-            v6 = &this->verts[((signed int)-abs(v1 - (this->numVerts - 1)) >> 31) & (v1 + 1)];
+            v6 = &this->verts[(unsigned int)(v1 + 1) >= (unsigned int)this->numVerts ? 0 : v1 + 1]; // T5Jool: next vertex, wrapping
             *dir = v6->edge.origin[0] - v5->edge.origin[0];
             dir[1] = v6->edge.origin[1] - v5->edge.origin[1];
             v3 = Vec2Normalize(dir);
@@ -1145,7 +1145,10 @@ char __thiscall GlassShard::Outline::CloseOutline()
     this->area = 0.0f;
     for ( i = 0; i < this->numVerts; ++i )
     {
-        v11 = ((signed int)-fabs(i - (this->numVerts - 1)) >> 31) & (i + 1);
+        // T5Jool: next vertex, wrapping. The decompiled (int)-fabs(unsigned) is undefined for most values:
+        // built with clang it gave vertex 0, so the area of every shard made by a split came out 0
+        // (pieces that never fell) and the crack walks never ended (Summit froze)
+        v11 = (unsigned int)(i + 1) >= (unsigned int)this->numVerts ? 0 : i + 1;
         this->length = this->length + this->verts[i].edge.len;
         this->area = (float)((float)((float)(this->verts[i].edge.origin[0] * this->verts[v11].edge.origin[1])
                                                              - (float)(this->verts[i].edge.origin[1] * this->verts[v11].edge.origin[0]))
@@ -4177,7 +4180,7 @@ bool __thiscall GlassShard::IsOnBottomEdge()
     }
     if ( edgeIdx == -1 )
         return 0;
-    edgeIdx2 = ((signed int)-fabs(edgeIdx - (this->outline.numVerts - 1)) >> 31) & (edgeIdx + 1);
+    edgeIdx2 = edgeIdx + 1 >= (int)this->outline.numVerts ? 0 : edgeIdx + 1; // T5Jool: next edge, wrapping
     minEdge = FLT_MAX;
     minOthers = FLT_MAX;
     for ( j = 0; j < this->outline.numVerts; ++j )
