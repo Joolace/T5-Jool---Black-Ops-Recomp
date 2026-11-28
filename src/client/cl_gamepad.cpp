@@ -511,6 +511,12 @@ double __cdecl CL_GamepadAxisValue(int localClientNum, unsigned int virtualAxis)
                                          * axisDeflection;
         }
     }
+    // T5Jool: the squared stick map is sqrt(x^2 + y^2) * x, above 1 at the diagonals of a square-gated
+    // stick (and a full -32768 is just past -1): it tripped the assert below, a SIGTRAP in game. Clamp.
+    if ( axisDeflection > 1.0f )
+        axisDeflection = 1.0f;
+    else if ( axisDeflection < -1.0f )
+        axisDeflection = -1.0f;
     if ( fabs(axisDeflection) < 0.0
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\client\\cl_gamepad.cpp",

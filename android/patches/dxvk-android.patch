@@ -813,7 +813,7 @@ index e0c48fd..91e779c 100644
      if (pWidth)
        *pWidth = uint32_t(w);
  
-@@ -163,6 +177,22 @@ namespace dxvk::wsi {
+@@ -163,6 +177,26 @@ namespace dxvk::wsi {
            VkSurfaceKHR*             pSurface) {
      SDL_Window* window = fromHwnd(hWindow);
  
@@ -831,6 +831,10 @@ index e0c48fd..91e779c 100644
 +        return pfnCreate(instance, &createInfo, nullptr, pSurface);
 +      }
 +    }
++    // No Android window right now (the app is in the background): SDL's own loader cannot take an
++    // instance from a custom driver and crashed in libvulkan. Report a lost surface; DXVK retries later.
++    (void)window;
++    return VK_ERROR_SURFACE_LOST_KHR;
 +#endif
 +
      return SDL_Vulkan_CreateSurface(window, instance, pSurface)

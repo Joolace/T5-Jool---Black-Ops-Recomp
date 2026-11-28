@@ -6,6 +6,10 @@
 ### Settings
 - **Lower render resolutions** for entry-level phones: down to 240p (about 20% of a 1080p screen), upscaled to the screen
 
+### Fixes
+- Crash in game with the touch stick or a pad pushed to a diagonal (an engine check on the stick value, SIGTRAP)
+- Crash when the game went to the background with a custom Vulkan driver (Turnip, PanVK): the surface was recreated through the wrong Vulkan loader
+
 ## v0.10-alpha
 *November 2026*
 
