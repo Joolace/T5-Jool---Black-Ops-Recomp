@@ -1025,8 +1025,17 @@ void BO1Touch_Draw(int localClientNum)
     // T5Jool: nel multiplayer in partita restano accesi altri bit dei catcher (non menu ne' console): contano solo
     // console (1) e menu (0x10), altrimenti i comandi touch non comparivano mai nel multiplayer
     const bool zombies = Dvar_GetBool("zombiemode");
-    const bool inGame = CL_GetLocalClientConnectionState(localClientNum) == CA_ACTIVE && !Com_IsMenuLevel(nullptr) /* the SP front end is the "frontend" map */
+    const bool noMenu = CL_GetLocalClientConnectionState(localClientNum) == CA_ACTIVE
                         && !Key_IsCatcherActive(localClientNum, zombies ? -1 : 0x11);
+    // T5Jool: the front end is a map too (SP "frontend", MP's viewer). Its menus are up almost always,
+    // but with LT + RT Mason gets out of the chair and walks: then, with no menu for a moment, it is
+    // played like a level and the in-game controls show (a few frames, so a menu change does not flash them)
+    static int s_frontendFree;
+    bool inGame = noMenu;
+    if (noMenu && Com_IsMenuLevel(nullptr))
+        inGame = ++s_frontendFree > 20;
+    else
+        s_frontendFree = 0;
     {
         const int state = CL_GetLocalClientConnectionState(localClientNum);
         const bool menu = !inGame && !Key_IsCatcherActive(localClientNum, 1) && cls.uiStarted
