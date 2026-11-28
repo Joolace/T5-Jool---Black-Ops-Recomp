@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.9-alpha
+## v0.10-alpha
 *November 2026*
 
 > A new engine: T5Jool now runs on [OpenBLOPS-NX](https://github.com/HDErick/OpenBLOPS-NX) by HDErick, NaGaa95 and the OpenBLOPS team, with the T5Jool Linux and Android layer on top. The source code is released under GPL-3.0.

@@ -7,7 +7,7 @@
 A native 64-bit port of Black Ops (Campaign, Zombies and Multiplayer) for Linux and Android</p>
 
 <p align="center">
-  <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.9--alpha-e2242a?style=for-the-badge" alt="Download"></a>
+  <a href="https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/releases"><img src="https://img.shields.io/badge/download-v0.10--alpha-e2242a?style=for-the-badge" alt="Download"></a>
   <a href="https://discord.gg/rcMeKZcShx"><img src="https://img.shields.io/badge/discord-join-5865F2?style=for-the-badge" alt="Discord"></a>
   <a href="https://joolace.github.io/T5Jool/"><img src="https://img.shields.io/badge/website-visit-111114?style=for-the-badge" alt="Website"></a>
 </p>
@@ -26,7 +26,7 @@ A native 64-bit port of Black Ops (Campaign, Zombies and Multiplayer) for Linux 
 > T5Jool does **not** include any game files. You need your own legal copy of *Call of Duty: Black Ops* for PC.
 
 > [!NOTE]
-> **New in v0.9: a new engine and the source code.** T5Jool is now built on [OpenBLOPS-NX](https://github.com/HDErick/OpenBLOPS-NX)
+> **New in v0.10: a new engine and the source code.** T5Jool is now built on [OpenBLOPS-NX](https://github.com/HDErick/OpenBLOPS-NX)
 > by HDErick, NaGaa95 and the OpenBLOPS team (GPL-3.0), with the T5Jool Linux and Android layer on top.
 > Some v0.8 features are not on the new engine yet (see [What's new](#whats-new)). The v0.8 code is in the
 > [`legacy-0.8`](https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/tree/legacy-0.8) branch.
@@ -114,7 +114,7 @@ needs the same mod. On Linux run `tools/t5/convert_zones.sh` again, then start w
 
 ## What's new
 
-See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.9-alpha**:
+See the full [CHANGELOG](CHANGELOG.md). Highlights of **v0.10-alpha**:
 - **New engine**: built on OpenBLOPS-NX, with the **Campaign** next to Zombies and Multiplayer
 - **Source code released** under GPL-3.0
 - **Multiplayer**: Offline Match, Host Match and the community server browser
@@ -173,7 +173,7 @@ In the launcher use **Report a bug** (home screen) or Settings > Help and about 
 - [ ] Seamless map change on servers (no reconnect)
 - [ ] Custom maps and engine mods
 - [ ] Fuller solo saves (mystery box, Pack-a-Punch links, equipment)
-- [x] New engine (OpenBLOPS-NX), Campaign and source code release (v0.9)
+- [x] New engine (OpenBLOPS-NX), Campaign and source code release (v0.10)
 - [ ] v0.8 features on the new engine: solo saves, Zombies co-op online
 
 ## Source code
@@ -221,7 +221,7 @@ More details on the layout of the code: [tools/t5/README.md](tools/t5/README.md)
 ## Credits
 
 - **Joolace**: development
-- **[OpenBLOPS-NX](https://github.com/HDErick/OpenBLOPS-NX)** by [HDErick](https://github.com/HDErick), [NaGaa95](https://github.com/NaGaa95/) and the OpenBLOPS team: the engine T5Jool runs on since v0.9 (their credits: [README-OPENBLOPS.md](README-OPENBLOPS.md)): Multiplayer from SwagSoftware, base-game Zombies by [femboyvalve](https://github.com/femboyvalve), Zombies DLC and Campaign by NaGaa95, installer and compression by [Chansey](https://github.com/ChanseyIsTheBest), [xsaja](https://github.com/xsaja) and [StevensND](https://github.com/StevensND), servers and online by [ToeKnee](https://github.com/tonytrawl)
+- **[OpenBLOPS-NX](https://github.com/HDErick/OpenBLOPS-NX)** by [HDErick](https://github.com/HDErick), [NaGaa95](https://github.com/NaGaa95/) and the OpenBLOPS team: the engine T5Jool runs on since v0.10 (their credits: [README-OPENBLOPS.md](README-OPENBLOPS.md)): Multiplayer from SwagSoftware, base-game Zombies by [femboyvalve](https://github.com/femboyvalve), Zombies DLC and Campaign by NaGaa95, installer and compression by [Chansey](https://github.com/ChanseyIsTheBest), [xsaja](https://github.com/xsaja) and [StevensND](https://github.com/StevensND), servers and online by [ToeKnee](https://github.com/tonytrawl)
 - **MisaDev4**: [bo1-zombies-decompiled](https://github.com/MisaDev4/bo1-zombies-decompiled), the base of T5Jool up to v0.8
 - **iloupv**: contributions
 - **[micycle1](https://github.com/micycle1/bo1-zombies-decompiled)**: engine fixes (lighting, net fields, decompile bugs)

@@ -1,6 +1,6 @@
 # T5Jool on the OpenBLOPS-NX base
 
-T5Jool 0.9 runs on [OpenBLOPS-NX](https://github.com/HDErick/OpenBLOPS-NX) (GPL-3.0): Campaign,
+T5Jool 0.10 runs on [OpenBLOPS-NX](https://github.com/HDErick/OpenBLOPS-NX) (GPL-3.0): Campaign,
 Zombies and Multiplayer, with a native 64-bit engine that loads zones converted once to the
 64-bit layout (`.kbz`). T5Jool adds Linux and Android on top of it.
 

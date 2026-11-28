@@ -1,6 +1,6 @@
 > [!NOTE]
 > This guide is for **T5Jool v0.8** (code in the [`legacy-0.8`](https://github.com/Joolace/T5-Jool---Black-Ops-Recomp/tree/legacy-0.8) branch).
-> The dedicated servers are not on the v0.9 engine yet.
+> The dedicated servers are not on the v0.10 engine yet.
 
 # Hosting a T5Jool dedicated server
 
