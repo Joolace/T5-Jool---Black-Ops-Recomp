@@ -1,7 +1,9 @@
 # Changelog
 
 ## v0.11-alpha
-*In development*
+*November 2026*
+
+> Lower resolutions for entry-level phones, and two crash fixes.
 
 ### Settings
 - **Lower render resolutions** for entry-level phones: down to 240p (about 20% of a 1080p screen), upscaled to the screen
